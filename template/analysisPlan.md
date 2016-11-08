@@ -103,6 +103,9 @@ The mouse event in the editor is captured and if the underlying AST element allo
 
 Abstract form: Scrubbing is enabled through incremental compilation which enables quick recompilation of parts of an application...
 
+### Within or outside of the application
+For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
+
 ---
 
 ## Benchmark
