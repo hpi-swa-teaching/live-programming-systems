@@ -1,12 +1,12 @@
 ---
-title: ELM Debugger
+title: Elm Debugger
 author: Jonas Chromik
 bibliography: references.bib
 ---
 
 # Live Programming Seminar
 - Your Name: Jonas Chromik
-- Your Topic: ELM Debugger
+- Your Topic: Elm Debugger
 
 Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
 
