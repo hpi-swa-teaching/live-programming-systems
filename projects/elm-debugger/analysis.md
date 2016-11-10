@@ -11,7 +11,7 @@ bibliography: references.bib
 Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
 
 ## About the System itself
-Summary of system properties
+The system studied is the Elm Debugger. The system can be tried out at `http://debug.elm-lang.org/` where three example Elm applications using the debugger are presented.
 
 ### System boundaries
 What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
