@@ -1,18 +1,27 @@
 ---
-title: Elm Debugger
-author: Jonas Chromik
-bibliography: references.bib
+title: Karma
+author: Stephan Detje
+bibliography: refsKarma.bib
 ---
 
 # Live Programming Seminar
-- Your Name: Jonas Chromik
-- Your Topic: Elm Debugger
+- Your Name: Stephan Detje
+- Your Topic: Karma
 
 Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
 
 ## About the System itself
-The system studied is the time-traveling Elm Debugger. The system can be tried out at `http://debug.elm-lang.org/` where three example Elm applications using the debugger are presented.
-Theoretically, the time-traveling debugger could be used while developing an Elm applications. Unfortunately, the time-traveling features where removed from the Elm core/Debug package in version 4.0.0.
+Summary of system properties
+
+Karma is a tool for automatic test execution on JavaScript code. 
+It was build by the developers of AngularJS. 
+They believe that "...quick feedback is what makes you productive and creative." - from karma website
+"The main purpose of Karma is to make your test-driven development easy, fast, and fun." - from karma github page
+- live feedback on test Results
+- interchangeable testing framework (mocha, jasmine, QUnit, ...)
+- open source
+- active community
+- test in multiple browsers
 
 ### System boundaries
 What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
@@ -22,6 +31,9 @@ What have you looked at exactly? Mention the boundaries of the system and state 
     For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.
   - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
 
+ - Application coding and continuous Integration
+ - Users are professional developers
+
 ### General Application Domain
   - What is typically created in or through this system?
   - What are users trying to accomplish with it?
@@ -30,6 +42,13 @@ What have you looked at exactly? Mention the boundaries of the system and state 
 
 ### Design Goals of the System
 What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
+ - live feedback
+ - easy to configure
+ - "just develop without having to worry about the setup"
+ - develop with confidence
+ - because quick feedback makes you more productive and creative
+ - continuous Integration
+
 
 ### Type of System
 What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?

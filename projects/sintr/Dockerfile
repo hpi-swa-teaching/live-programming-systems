@@ -12,10 +12,12 @@ RUN apt-get install -y dart
 ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/dart/bin
 
 RUN git clone https://github.com/fniephaus/sintr_live
-RUN cd sintr_live/infrastructure && pub get
-RUN cd sintr_live/ui && pub get
+WORKDIR /sintr_live
+RUN cd infrastructure && pub get
+RUN cd ui && pub get
 
 EXPOSE 8080
 EXPOSE 8990
 
-CMD cd sintr_live && bash ./start_sintr_local.sh demo_shakespeare
+ENTRYPOINT ["/bin/bash", "./start_sintr_local.sh"]
+CMD ["demo"]
