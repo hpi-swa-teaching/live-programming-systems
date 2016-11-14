@@ -11,11 +11,16 @@ bibliography: references.bib
 Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
 
 ## About the System itself
-The system studied is the time-traveling Elm Debugger. The system can be tried out at `http://debug.elm-lang.org/` where three example Elm applications using the debugger are presented.
-Theoretically, the time-traveling debugger could be used while developing an Elm applications. Unfortunately, the time-traveling features where removed from the Elm core/Debug package in version 4.0.0.
+The system studied is the time-traveling Elm Debugger. The Elm debugger can be tried out at `http://debug.elm-lang.org/` where three example Elm applications using the debugger are presented.
+The debugger can be used while developing Elm applications. Unfortunately, the time-traveling features where removed from the Elm core/Debug package in version 4.0.0. Therefore we focus on the version deployed at `http://debug.elm-lang.org/` since we want to inspect the debugger including the time-traveling features.
 
 ### System boundaries
 What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
+
+This work studies the time-traveling Elm debugger (core/Debug package version <???>). This includes the debugger framework (tools for replaying input and watching values) together with an observed Elm application. The focus lies on the interaction between user and debugger as well as on the interaction between debugger and application.
+<figure>
+We do not cover the Elm language itself or packages used with Elm.
+The focus is clearly on the liveness of the debugger, not the language itself.
 
 ### Context
   - In which context is the system used?
