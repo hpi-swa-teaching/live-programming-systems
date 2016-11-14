@@ -56,6 +56,8 @@ The time-traveling features help getting a meaningful impression of the connecti
 ### Type of System
 >What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
 
+The system is an interactive tool. It is part of the Elm package system and can be invoked by import and invocation through the source code.
+
 ---
 
 ## Workflows
