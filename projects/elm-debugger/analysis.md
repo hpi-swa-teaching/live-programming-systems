@@ -56,7 +56,7 @@ The time-traveling features help getting a meaningful impression of the connecti
 ### Type of System
 >What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
 
-The system is an interactive tool. It is part of the Elm package system and can be invoked by import and invocation through the source code.
+The system is an interactive tool. It is part of the Elm package system and can be invoked by import and invocation through the source code. It then serves as a debugging framework in which the Elm application is running.
 
 ---
 
@@ -65,6 +65,10 @@ The system is an interactive tool. It is part of the Elm package system and can 
 
 ### Example Workflow
 >Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
+
+The systems user interface consists of three horizontally aligned parts. Leftmost is an area where the user can view and edit Elm source code. The code is executed and changes are adopted immediately (in less than one second). In the middle there is an area where the running application generated from the code on the left is shown. The user can interact with the application in the same manner as they could without the debugging framework. On the right side there is an area that serves two purposes. At top is a slider that serves the purpose of going back in time. The unit time is measured in depends on which input the debugger has to watch (this is defined in the source code on the left-hand side). If the smallest granularity of change the subject application deals with is keyboard events, just keyboards events count as relevant time elapse.
+
+TODO: restructure to enumeration
 
 ### Which activities are made live by which mechanisms?
 >Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
