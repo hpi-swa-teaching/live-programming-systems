@@ -49,6 +49,10 @@ The focus is clearly on the liveness of the debugger, not the language itself.
 ### Design Goals of the System
 >What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
 
+The time-traveling Elm debugger helps understanding, how a specific change in the applications source code affects the applications output in context of the input given by the user.
+Although the tool is called a debugger, its main purpose is improving the developers understanding of an application rather than finding bugs.
+The time-traveling features help getting a meaningful impression of the connection between change in source code and its effect by providing access to all input that already happened rather than only the current input. Replaying the input helps finding out not only what the change in source code does to the current state but also what it would have done to every state before.
+
 ### Type of System
 >What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
 
