@@ -25,7 +25,15 @@ The focus is clearly on the liveness of the debugger, not the language itself.
 ### Context
   - In which context is the system used?
     For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.
-  - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
+
+    The context of the system is Application development in general and debugging of Elm applications in special.
+    Furthermore the Elm debugger can also be used for understanding the behavior of an application without any bug involved. Therefore code exploration is also considerable use case.
+
+  - Description of user context
+    (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
+
+    Since the system under focus is the version of the Elm debugger deployed at `http://debug.elm-lang.org/`, the user context is public presentation of software using a website. Also, the application may be used by amateur Elm developers since the set up effort is low and therefore the system is easily accessible. Professional will use their own setup of the Elm debugger, though, because the Elm debugger at `http://debug.elm-lang.org/` can only handle one file at a time which is not suitable for larger applications. 
+
 
 ### General Application Domain
   - What is typically created in or through this system?
