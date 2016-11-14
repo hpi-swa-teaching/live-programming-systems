@@ -1,0 +1,6 @@
+--require test/unit/.setup
+--compilers js:babel-register,styl:test/mochacfg.js,png:test/mochacfg.js
+--reporter spec
+--recursive
+--ui bdd
+test/unit/**/*.{es6,jsx,js}

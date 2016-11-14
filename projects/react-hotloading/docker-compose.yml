@@ -1,0 +1,5 @@
+hotloader:
+  build: ./code
+  dockerfile: ./Dockerfile
+  volumes:
+    - ./code/src:/home/code/src
