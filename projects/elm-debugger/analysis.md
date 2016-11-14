@@ -8,7 +8,7 @@ bibliography: references.bib
 - Your Name: Jonas Chromik
 - Your Topic: Elm Debugger
 
-Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
+>Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
 
 ## About the System itself
 >Summary of system properties
@@ -19,7 +19,7 @@ The debugger can be used while developing Elm applications. Unfortunately, the t
 ### System boundaries
 >What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
 
-This work studies the time-traveling Elm debugger (core/Debug package version <???>). This includes the debugger framework (tools for replaying input and watching values) together with an observed Elm application. The focus lies on the interaction between user and debugger as well as on the interaction between debugger and application.
+This work studies the time-traveling Elm debugger (core/Debug package version 3.0.0 or lower). This includes the debugger framework (tools for replaying input and watching values) together with an observed Elm application. The focus lies on the interaction between user and debugger as well as on the interaction between debugger and application.
 <figure>
 We do not cover the Elm language itself or packages used with Elm.
 The focus is clearly on the liveness of the debugger, not the language itself.
@@ -42,7 +42,7 @@ The focus is clearly on the liveness of the debugger, not the language itself.
 >  - What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
 >  - ...
 
-
+- Typical output of the system is a bug-free Elm source code file. Notice, that the purpose of the system is not only its output but also the user experience while creating the output. The website showing the debugger is for presentational purposes and therefore the users understanding of the concept is important.
 
 ### Design Goals of the System
 >What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
