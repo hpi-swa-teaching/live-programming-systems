@@ -43,6 +43,8 @@ The focus is clearly on the liveness of the debugger, not the language itself.
 >  - ...
 
 - Typical output of the system is a bug-free Elm source code file. Notice, that the purpose of the system is not only its output but also the user experience while creating the output. The website showing the debugger is for presentational purposes and therefore the users understanding of the concept is important.
+- The user either tries to find a bug in a piece of Elm source code or tries to understand how the source code works. Like in other debuggers too, the goal is understanding why and how an application works.
+- Subject to the Elm debugger are single-page websites built with Elm. Elm is a functional programming language on top of Node.js. Main use case of Elm is the construction of web user interfaces using a model-view-update (<?>) pattern.
 
 ### Design Goals of the System
 >What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
