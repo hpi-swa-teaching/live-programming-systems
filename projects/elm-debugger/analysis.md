@@ -74,8 +74,8 @@ The systems user interface consists of three horizontally aligned parts.
   2. Below the slider there is a pane that shows values the debugger watches. Using the function `Debug.watch` the debugger can be instructed to watch on a given value in source code. The watched value is permanently shown and updated.
 
 A usual interaction with the system is a cycle of editing source code using the editor part on the left side and observing changed behavior in the running application shown in the middle.
-Therefore the Elm code is compiled, run and all input that happened prior to the change is replayed. The changed Elm application is then in the same situation (concerning input) as the version before, but with changed behavior due to changes source code.
-Although a change in source code is immediately adapted, it may take some time until changed behavior emerges (see @Rein2016HLL). Replaying in connection with the users ability to roll back parts of the input helps finding a sequence of user interaction that makes the change emerge. The area showing watched values helps understanding why a certain behavior occurs.
+Therefore the Elm code is compiled, run and all input that happened prior to the change is replayed. The changed Elm application is then in the same situation (concerning input) as the version before, but with changed behavior due to changes source code. Therefore also the state of the application may be different.
+Although a change in source code is immediately adapted, it may take some time until changed behavior emerges (see @Rein2016HLL on Adaption and Emergence). Replaying in connection with the users ability to roll back parts of the input helps finding a sequence of user interaction that makes the change emerge. The area showing watched values helps understanding why a certain behavior occurs.
 
 ### Which activities are made live by which mechanisms?
 >Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
@@ -83,6 +83,11 @@ Although a change in source code is immediately adapted, it may take some time u
 - Feedback mechanism
 - If applicable: How is the emergence phase shortened?
 - Granularity: For example: Elm can only rerun the complete application
+
+In the cycle of changing code and observing changes behavior can be split in three phases:
+#### Editing, recompiling and reloading code
+#### Replaying input
+#### Observing Emergence
 
 ### Integration of live activities into overall system
 >Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
