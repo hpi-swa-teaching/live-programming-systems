@@ -86,6 +86,7 @@ Although a change in source code is immediately adapted, it may take some time u
 
 In the cycle of changing code and observing changes behavior can be split in three phases:
 #### Editing, recompiling and reloading code
+When code is changed, the Elm debugger automatically recompiles the code and reloads the application. This happens immediately without the user triggering these actions explicitly. This corresponds to liveness level 4 (see @Tanimoto2013PEL). The adaption time is usually fast (less than 1 second) and may only slow down due to the next phase (replaying input).
 #### Replaying input
 #### Observing Emergence
 
