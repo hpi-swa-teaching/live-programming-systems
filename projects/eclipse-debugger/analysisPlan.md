@@ -42,11 +42,15 @@ Summary of workflow observations
 Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
 
 ### Which activities are made live by which mechanisms?
-Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
+*Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
 - Actual interactions
 - Feedback mechanism
 - If applicable: How is the emergence phase shortened?
-- Granularity: For example: Elm can only rerun the complete application
+- Granularity: For example: Elm can only rerun the complete application*
+
+- JAVA Hot Code Replace (HCR)
+HCR has been specifically added as a standard technique to Java to facilitate experimental development and to foster iterative trial-and-error coding. HCR is reliably implemented only on 1.4.1 VMs and later.
+https://wiki.eclipse.org/FAQ_What_is_hot_code_replace%3F
 
 ### Integration of live activities into overall system
 Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
@@ -54,11 +58,35 @@ Which activities in the system are not interactive anymore? Which elements can b
 How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
 
 ### Limitations
-To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
-Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
+*To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?*
+*Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.*
+
+- **JAVA Hot Code Replace (HCR)**
+  HCR only works when the class signature does not change; you cannot remove or add fields to existing classes, for instance. However, HCR can be used to change the body of a method. HCR is reliably implemented only on 1.4.1 VMs and later.
+  https://wiki.eclipse.org/FAQ_What_is_hot_code_replace%3F
+
+    - Cannot change shape of class (add/delte methods/fields)
+    - Cannot change var references in an inner class (generates synthetic methods in outer class)
+    - (Some) cannot replace bottom (main method) stack frame or above native methods
+    - Cannot change code in and around try/catch blocks
+    [D'Anjou, Jim. The Java developer's guide to Eclipse. Addison-Wesley Professional, 2005.]
 
 ### What happens when the live parts of the system fail/break?
-1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
+*1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?*
+
+- **JAVA Hot Code Replace (HCR)**
+  If HCR fails due to running into the limitations described before, e.g. changing the source code of the main method and saving the changes, the eclipse debugger provides the developer three options: Continue, Terminate and Restart.
+  ![Obsolete method on stack](http://i.imgur.com/tPd69lv.png)
+    
+    - Continue
+    The developer can continue the execution, but there are no valid debug information for the changed stack frames available. You can continue stepping into and over method calls or resume normal code execution, but the changes made to the main method, will not take place, until restarting the debugging session.
+
+    - Terminate
+    Stops the current debuggin session.
+
+    - Restart
+    Restarts the debugging session, so that all changes will be included in the new session.
+
 2. How can the system itself break? What happens when there is a failure in the system/tool itself?
 
 ### Left out features
@@ -132,3 +160,16 @@ Everything that is particular about the environment and does not fit into the pr
 - Insert videos or web resources as markdown links
 - Insert references as: `@RefKey` and supply a bib file
 - No HTML tags please
+
+HCR has been specifically added as a standard technique to Java to facilitate experimental development and to foster iterative trial-and-error coding. HCR only works when the class signature does not change; you cannot remove or add fields to existing classes, for instance. However, HCR can be used to change the body of a method. HCR is reliably implemented only on 1.4.1 VMs and later
+[https://wiki.eclipse.org/FAQ_What_is_hot_code_replace%3F]
+
+
+HCR-Limitations:
+- Cannot change shape of class (add/delte methods/fields)
+- Cannot change var references in an inner class (generates synthetic methods in outer class)
+- (Some) cannot replace bottom (main method) stack frame or above native methods
+- Cannot change code in and around try/catch blocks
+
+[D'Anjou, Jim. The Java developer's guide to Eclipse. Addison-Wesley Professional, 2005.]
+[res/pics/]: 
