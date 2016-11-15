@@ -88,6 +88,10 @@ In the cycle of changing code and observing changes behavior can be split in thr
 #### Editing, recompiling and reloading code
 When code is changed, the Elm debugger automatically recompiles the code and reloads the application. This happens immediately without the user triggering these actions explicitly. This corresponds to liveness level 4 (see @Tanimoto2013PEL). The adaption time is usually fast (less than 1 second) and may only slow down due to the next phase (replaying input).
 #### Replaying input
+After recompiling and reloading, the Elm debugger tries to bring the application back to the state it had before. This is tried to achieve by replaying all relevant input. By doing this, the user has the experience as if the change made was always there (past input is processed again by the changed algorithm).
+The advantage of replaying input rather than restoring the applications state in terms of values bound to variables is avoidance of inconsistencies. We can not assume that the changes application can deal with the same state the application before did. Therefore that application has to start off with a blank state and process input made in order to achieve the state present before the change.
+
+<???What is the live principle here???>
 #### Observing Emergence
 
 ### Integration of live activities into overall system
