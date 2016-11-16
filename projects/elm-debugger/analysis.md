@@ -106,11 +106,25 @@ The smallest granularity of change is the whole application together with all pr
 ### Integration of live activities into overall system
 >Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
 
+- No interactive changes of values in running application
+- But: sliders in source code with live-reload
+- Immutable past. Input that already happened can not be changed
+- Liveness breaks apart for large amounts of input
+- Liveness interrupts when code is syntactically (?) incorrect (e.g. in terms of types)
+- Application itself is not live.
+- Browser is (usually) live.
+
 >How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
+
+ - no idea up to now, maybe a short list due to strong liveness (?)
 
 ### Limitations
 >To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
-Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
+
+ - Slowdown is continuous and system dependent. Can not give a concrete number. But: there is is slowdown for much input. Have to find out when it goes about the 100ms / 1s threshold.
+ - Yes, exception cause the liveness to interrupt, but not break down since it resumes when the exception is removed.
+
+>Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
 
 ### What happens when the live parts of the system fail/break?
 >1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
@@ -118,6 +132,9 @@ Further, what are conceptual limitations. For example, in a bi-directional mappi
 
 ### Left out features
 >Which features of the system were not described and why were they left out?
+
+ - debugger features that are not live (i.e. the console debugging functions 'log' and 'crash')
+ - multi-file / multi-page applications
 
 ---
 
