@@ -85,17 +85,23 @@ Although a change in source code is immediately adapted, it may take some time u
 - Granularity: For example: Elm can only rerun the complete application
 
 In the cycle of changing code and observing changes behavior can be split in three phases:
+
 #### Editing, recompiling and reloading code
 When code is changed, the Elm debugger automatically recompiles the code and reloads the application. This happens immediately without the user triggering these actions explicitly. This corresponds to liveness level 4 (see @Tanimoto2013PEL). The adaption time is usually fast (less than 1 second) and may only slow down due to the next phase (replaying input).
+
 #### Replaying input
 After recompiling and reloading, the Elm debugger tries to bring the application back to the state it had before. This is tried to achieve by replaying all relevant input. By doing this, the user has the experience as if the change made was always there (past input is processed again by the changed algorithm).
 The advantage of replaying input rather than restoring the applications state in terms of values bound to variables is avoidance of inconsistencies. We can not assume that the changes application can deal with the same state the application before did. Therefore that application has to start off with a blank state and process input made in order to achieve the state present before the change.
 The principle behind this step is "continuous feedback". The user does not have to restore the state themself since the debugger does it for him. This makes programming a continuous process with permanent feedback and permanent correction (cf. @Hancock2003RTP).
+
 #### Observing Emergence
 Observing emergence is hard because the time a change needs to emerge depends on the change itself. Although adaption is done quickly, it can take a long time until the application reaches a state where the change emerges. It is also possible that a change does not emerge at all. This happens, when the piece of source code where the change was done is unreachable.
 However, the time-traveling features of the Elm debugger make it easier to observe emergence of a change by not only showing the current state but also making all previous states of the application easily accessible. This implies that a change is observable as soon as it effect the application in any state the application was already in. Therefore the programmer can easily find out, if a change made is meaningful for the input that already happened. If there is no evidence for the emergence of the change in context of the previous input, the programmer has to generate further input to provoke emergence.
 
 There may be changes that do not affect the user interface of an application but only change internal, not so easily observable, behavior. The debuggers ability to show watched values separately helps finding these cases of emergence.
+
+#### Granularity
+The smallest granularity of change is the whole application together with all previous input. Whenever the source code of the application is changed, the debugger has to recompile and restart that application together with replaying all input. This may take a long time if the granularity of input is small (e.g. millisecond-wise timer events) and therefore much input happened. This leads to low performance for some kinds of applications.
 
 ### Integration of live activities into overall system
 >Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
