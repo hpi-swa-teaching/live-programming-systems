@@ -92,6 +92,10 @@ After recompiling and reloading, the Elm debugger tries to bring the application
 The advantage of replaying input rather than restoring the applications state in terms of values bound to variables is avoidance of inconsistencies. We can not assume that the changes application can deal with the same state the application before did. Therefore that application has to start off with a blank state and process input made in order to achieve the state present before the change.
 The principle behind this step is "continuous feedback". The user does not have to restore the state themself since the debugger does it for him. This makes programming a continuous process with permanent feedback and permanent correction (cf. @Hancock2003RTP).
 #### Observing Emergence
+Observing emergence is hard because the time a change needs to emerge depends on the change itself. Although adaption is done quickly, it can take a long time until the application reaches a state where the change emerges. It is also possible that a change does not emerge at all. This happens, when the piece of source code where the change was done is unreachable.
+However, the time-traveling features of the Elm debugger make it easier to observe emergence of a change by not only showing the current state but also making all previous states of the application easily accessible. This implies that a change is observable as soon as it effect the application in any state the application was already in. Therefore the programmer can easily find out, if a change made is meaningful for the input that already happened. If there is no evidence for the emergence of the change in context of the previous input, the programmer has to generate further input to provoke emergence.
+
+There may be changes that do not affect the user interface of an application but only change internal, not so easily observable, behavior. The debuggers ability to show watched values separately helps finding these cases of emergence.
 
 ### Integration of live activities into overall system
 >Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
