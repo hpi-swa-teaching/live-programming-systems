@@ -17,6 +17,9 @@ Karma is a tool for automatic test execution on JavaScript code.
 It was build by the developers of AngularJS. 
 They believe that "...quick feedback is what makes you productive and creative." - from karma website
 "The main purpose of Karma is to make your test-driven development easy, fast, and fun." - from karma github page
+- nodejs based test-runner for JavaScript
+- automatic config generation
+- can be integrated with grunt & gulp
 - live feedback on test Results
 - interchangeable testing framework (mocha, jasmine, QUnit, ...)
 - open source
@@ -25,19 +28,35 @@ They believe that "...quick feedback is what makes you productive and creative."
 
 ### System boundaries
 What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
+    * interchangeable test framework
+    * can only execute tests
+    * can only execute JavaScript
 
 ### Context
   - In which context is the system used?
     For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.
   - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
 
- - Application coding and continuous Integration
- - Users are professional developers
+    * Application development, coding and continuous Integration
+    * Users are professional developers
 
 ### General Application Domain
   - What is typically created in or through this system?
+    * test Results
+    * coverage report
+    * 
   - What are users trying to accomplish with it?
+    * get faster test Results
+    * write better code
+    * be more efficient
+    * don't worry about tools
+    * see how well their code is covered
+    * get live feedback on their code
+    * work test-driven
   - What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
+    * used for JavaScript applications --> web apps
+    * web services and clients
+
   - ...
 
 ### Design Goals of the System
@@ -52,6 +71,8 @@ What is the design rational behind the system? Which values are supported by the
 
 ### Type of System
 What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
+ - testing tool
+ - runs tests automatically and shows results & coverage
 
 ---
 
