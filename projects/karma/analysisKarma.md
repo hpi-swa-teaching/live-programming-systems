@@ -82,28 +82,58 @@ Summary of workflow observations
 ### Example Workflow
 Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
 
+- setup karma ?
+
+- start karma runner
+- write test
+- add code
+- test switches to green
+- change test
+- test switches to red
+
+- add screencast
+
 ### Which activities are made live by which mechanisms?
 Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
 - Actual interactions
 - Feedback mechanism
+  * live feedback
+  * on code changes there is "instantly" a feedback wether the code works
+  *
 - If applicable: How is the emergence phase shortened?
+  * what does this mean?
 - Granularity: For example: Elm can only rerun the complete application
 
 ### Integration of live activities into overall system
 Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
+ - test results can be manipulated
+
+ - karma confoguration can not be changed during runtime
+ - cannot add coverage report live
+ - cannot add files dynamically? or only new directories?
 
 How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
 
 ### Limitations
 To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
 Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
+- how many tests necessary to break liveness?
+- can complex tests break liveness?
+- multiple reports to break liveness?
+- how das coverage in general affect liveness?
 
 ### What happens when the live parts of the system fail/break?
 1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
+- failes test is no problem
+- missing object / file breaks execution
+  * restart necessary after that?
 2. How can the system itself break? What happens when there is a failure in the system/tool itself?
+- falsy configuration?
+-
 
 ### Left out features
 Which features of the system were not described and why were they left out?
+- multi browser support ? - not relevant?2
 
 ---
 
@@ -111,6 +141,10 @@ Which features of the system were not described and why were they left out?
 
 ### Mutable or immutable past
 To which category does the system or parts of it belong and why?
+
+- past is immutable
+- would it make sense to have the past mutable?
+- can be replayed by using git?
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
