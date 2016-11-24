@@ -28,9 +28,13 @@ They believe that "...quick feedback is what makes you productive and creative."
 
 ### System boundaries
 What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
-    * interchangeable test framework
-    * can only execute tests
-    * can only execute JavaScript
+- interchangeable test framework
+- can only execute tests
+- can only execute JavaScript
+
+my actual setup
+- visual code (autosave?, karma integration), karma in terminal + browser
+
 
 ### Context
   - In which context is the system used?
@@ -81,6 +85,10 @@ Summary of workflow observations
 
 ### Example Workflow
 Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
+
+work setup
+- need multiple screens for live feedback
+- otherwise change screen (not that live)
 
 - setup karma ?
 
@@ -150,6 +158,31 @@ To which category does the system or parts of it belong and why?
 
 ### Tanimoto's Level of Live Programming
 To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
+
+- level 1: informative
+   * e.g. flowchart as ancilly description)
+- level 2: informative and significant
+   * e.g. executable flowchart
+   * response is manually triggered by the programmer
+   * response is not immediate
+- level 3: informative, significant and responsive
+   * e.g. edit-triggered updates
+   * response is automatically triggered without the programmer doing so manually
+   * response is not immediate
+- level 4: informative, significant, responsive and live
+   * e.g. stream-driven updates
+   * response is triggered as soon as changes are saved
+- level 5: totally predictive:
+   * adds Programming via selection from running predicted behavior
+   * environment is ahead of the programmer
+
+- karma should be at level 4
+   * does executes the test as soon as changes are saved, but only on save?
+   * if you do not save there are no live updates
+   * only level 4 with autosaving IDE?
+   * only level 4 when response time is acceptable?
+   * cannot predict anything, so not level 5...
+
 
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
 
