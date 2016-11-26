@@ -1,4 +1,6 @@
 import javax.swing.JFrame;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class Main {
 
@@ -8,6 +10,12 @@ public class Main {
 		
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
+//            	try {
+//					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+//						| UnsupportedLookAndFeelException e) {
+//					e.printStackTrace();
+//				}
                 createAndShowGUI();
             }
         });

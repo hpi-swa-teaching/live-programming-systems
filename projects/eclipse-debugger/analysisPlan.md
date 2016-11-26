@@ -75,7 +75,7 @@ How does this workflow integrate with other parts of the system (potentially not
 *1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?*
 
 - **JAVA Hot Code Replace (HCR)**
-  If HCR fails due to running into the limitations described before, e.g. changing the source code of the main method and saving the changes, the eclipse debugger provides the developer three options: Continue, Terminate and Restart.
+  If HCR fails due to running into the limitations described before, e.g. changing the source code of the main method and saving the changes, the eclipse debugger handles this exception by letting the developer choose from three options: Continue, Terminate and Restart.
   ![Obsolete method on stack](http://i.imgur.com/tPd69lv.png)
     
     - Continue
@@ -97,17 +97,50 @@ Which features of the system were not described and why were they left out?
 ## Models
 
 ### Mutable or immutable past
-To which category does the system or parts of it belong and why?
+*To which category does the system or parts of it belong and why?*
+
+The eclipse debugger is an immutable past system. HCR only allows to replace classes (behavior and state) that will used during executed from now. If you replace code of a method currently executed, the stack frame will be reset. Side-effects of already executed code cannot be reverted automatically.
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
 ### Tanimoto's Level of Live Programming
-To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
+*To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?*
+
+In general, the eclipse debugger provides Tanimoto's liveness level 4 as long as HCR can be applied.
+//TODO question: Otherwise no liveness, because restart is needed? Refer to limitations again or is it enough in section "Limitations"?
+
+- Behavior manipulation allowing HCR
+
+  Liveness level 4: The behavior of the running program is immediately changed after the user made the change (a valid change to a class happens only when a user saves the source file containing the class inside the eclipse IDE, a keystroke is not a valid change to a source file) and the application is kept running.
+
+- Code evaluation
+
+  //TODO question: is only possible when pausing the system (e.g. halting at a breakpoint). Is this still live? The current thread is paused, the other threads keep running. level 2? (Ask for response and wait for computer's response?)
+  Ctrl+Shift+D
+  Display View
+
+- State manipulation allowing HCR
+
+  Liveness level 4: Actually, changing state is changing class variables which is a code manipulation. See above.
+
+- Runtime state manipulation
+
+  //TODO question: Only when halting at a breakpoint? Is it live at all?
 
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
 
 ### Steady Frame
-Which activities are designed as steady frames based on the formal definition and how?
+*Which activities are designed as steady frames based on the formal definition and how?*
+
+- Behavior manipulation allowing HCR
+
+  A steady frame regarding the state of the running application. An application's opened window for example keeps his position on the screen.
+
+- Runtime state manipulation
+
+  A steady frame for runtime state is provided only in combination with the "Variables" view, which is only active after pausing the current execution via a breakpoint or the "Pause" button.
+  //TODO sind aber alle Variablen, nicht objektbezogen
+  //TODO question: Is working only when halting the system via breakpoints.
 
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
 
