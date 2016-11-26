@@ -1,84 +1,40 @@
 ---
-title: Karma
-author: Stephan Detje
-bibliography: refsKarma.bib
+title: Extempore
+author: Florian Wagner
+bibliography: Name of your bibfile
 ---
 
 # Live Programming Seminar
-- Your Name: Stephan Detje
-- Your Topic: Karma
+- Your Name: Florian Wagner
+- Your Topic: Extempore
 
 Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
 
 ## About the System itself
-Summary of system properties
-
-Karma is a tool for automatic test execution on JavaScript code. 
-It was build by the developers of AngularJS. 
-They believe that "...quick feedback is what makes you productive and creative." - from karma website
-"The main purpose of Karma is to make your test-driven development easy, fast, and fun." - from karma github page
-- nodejs based test-runner for JavaScript
-- automatic config generation
-- can be integrated with grunt & gulp
-- live feedback on test Results
-- interchangeable testing framework (mocha, jasmine, QUnit, ...)
-- open source
-- active community
-- test in multiple browsers
+Extempore is a plattform for live programming, especially music. It supports two languages, both LISP Dialects, which can be used for the actual programs. During runtime code can be submitted to the system and is evaluated in the context of the current state of the system, as build by previous instructions and code.
 
 ### System boundaries
-What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
-- interchangeable test framework
-- can only execute tests
-- can only execute JavaScript
-
-my actual setup
-- visual code (autosave?, karma integration), karma in terminal + browser
-
+Extempore is build around a server/client architecture, where the clients submit code via TCP to the server, running extempore. The clients can be anything that supports TCP, even telnet, as the server reads a raw TCP-Stream and evaluates it. To evaluate the code, the server implements two different dialects of LISP, which operate in a semi-shared environment [TODO: what is shared, what isn't]. One of these is an implementation of R5RS Scheme and the other is a custom dialect called "xtlang" which has explicit memory management to avoid the overhead of garbage collection. Extempore can interact with the world through a Foreign Function Interface.
+Apart from the server application itself, a usual installation of extempore also packages libraries written in xtlang, which can be loaded to create certain capabilities. For example, there are libraries dealing with synthesizing of music or rendering of graphics.
+Since extempore has a focus on musical programming, the core application also includes an interface to the soundcard, which enables samples to be written from user-code. In this way, the user can create sound. Extempore offers libraries for this purpose, which come with the usual installation.
+Extempore does not supply any built-in code editing, the user has to provide his own method of submitting code to the server. Extempore also does not package most C-Libraries it interacts with through FFI, those also have to be provided by the user, if he wishes to peruse them.
 
 ### Context
-  - In which context is the system used?
-    For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.
-  - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
-
-    * Application development, coding and continuous Integration
-    * Users are professional developers
+Extempore is mainly used for live performances, especially for music (Algoraves). The programs are often a mix of tested and prepared code as a basis of more ad-hoc and performative code to produce the effects, that the programmer wants to achieve at a given moment.
+Most of the performative code is discarded after the performance or kept for historical value.
+However it is often necessary to write libraries of auxilliary code to facilitate those performances and these libraries are often developed using a more traditional edit-test cycle. The code of the libraries is also often kept around and built upon for further performances and can be shared and developed with other users of extempore.
 
 ### General Application Domain
   - What is typically created in or through this system?
-    * test Results
-    * coverage report
-    * 
   - What are users trying to accomplish with it?
-    * get faster test Results
-    * write better code
-    * be more efficient
-    * don't worry about tools
-    * see how well their code is covered
-    * get live feedback on their code
-    * work test-driven
   - What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
-    * used for JavaScript applications --> web apps
-    * web services and clients
-
   - ...
 
 ### Design Goals of the System
 What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
- - live feedback
- - easy to configure
- - "just develop without having to worry about the setup"
- - develop with confidence
- - because quick feedback makes you more productive and creative
- - continuous Integration
-
 
 ### Type of System
-What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
- - testing tool
- - runs tests automatically and shows results & coverage
-
----
+Extempore is most aptly described as an execution environment. The System itself provides an environment in which to run the code of the user, a means for the user to submit said code to the environment as well as capabilities for the code to interact with external software (libraries) and the sound system of the host machine.
 
 ## Workflows
 Summary of workflow observations
@@ -86,62 +42,28 @@ Summary of workflow observations
 ### Example Workflow
 Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
 
-work setup
-- need multiple screens for live feedback
-- otherwise change screen (not that live)
-
-- setup karma ?
-
-- start karma runner
-- write test
-- add code
-- test switches to green
-- change test
-- test switches to red
-
-- add screencast
-
 ### Which activities are made live by which mechanisms?
 Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
 - Actual interactions
 - Feedback mechanism
-  * live feedback
-  * on code changes there is "instantly" a feedback wether the code works
-  *
 - If applicable: How is the emergence phase shortened?
-  * what does this mean?
 - Granularity: For example: Elm can only rerun the complete application
 
 ### Integration of live activities into overall system
 Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
- - test results can be manipulated
-
- - karma confoguration can not be changed during runtime
- - cannot add coverage report live
- - cannot add files dynamically? or only new directories?
 
 How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
 
 ### Limitations
 To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
 Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
-- how many tests necessary to break liveness?
-- can complex tests break liveness?
-- multiple reports to break liveness?
-- how das coverage in general affect liveness?
 
 ### What happens when the live parts of the system fail/break?
 1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
-- failes test is no problem
-- missing object / file breaks execution
-  * restart necessary after that?
 2. How can the system itself break? What happens when there is a failure in the system/tool itself?
-- falsy configuration?
--
 
 ### Left out features
 Which features of the system were not described and why were they left out?
-- multi browser support ? - not relevant?2
 
 ---
 
@@ -150,39 +72,10 @@ Which features of the system were not described and why were they left out?
 ### Mutable or immutable past
 To which category does the system or parts of it belong and why?
 
-- past is immutable
-- would it make sense to have the past mutable?
-- can be replayed by using git?
-
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
 ### Tanimoto's Level of Live Programming
 To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
-
-- level 1: informative
-   * e.g. flowchart as ancilly description)
-- level 2: informative and significant
-   * e.g. executable flowchart
-   * response is manually triggered by the programmer
-   * response is not immediate
-- level 3: informative, significant and responsive
-   * e.g. edit-triggered updates
-   * response is automatically triggered without the programmer doing so manually
-   * response is not immediate
-- level 4: informative, significant, responsive and live
-   * e.g. stream-driven updates
-   * response is triggered as soon as changes are saved
-- level 5: totally predictive:
-   * adds Programming via selection from running predicted behavior
-   * environment is ahead of the programmer
-
-- karma should be at level 4
-   * does executes the test as soon as changes are saved, but only on save?
-   * if you do not save there are no live updates
-   * only level 4 with autosaving IDE?
-   * only level 4 when response time is acceptable?
-   * cannot predict anything, so not level 5...
-
 
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
 
