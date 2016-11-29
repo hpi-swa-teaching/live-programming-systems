@@ -151,6 +151,7 @@ Which features of the system were not described and why were they left out?
 To which category does the system or parts of it belong and why?
 
 - past is immutable
+- restart "programm" on every save --> mutable?
 - would it make sense to have the past mutable?
 - can be replayed by using git?
 
@@ -169,6 +170,7 @@ To which level of liveness do single activities belong, based on the definitions
    * e.g. edit-triggered updates
    * response is automatically triggered without the programmer doing so manually
    * response is not immediate
+   * edit program while it is running
 - level 4: informative, significant, responsive and live
    * e.g. stream-driven updates
    * response is triggered as soon as changes are saved
@@ -176,9 +178,10 @@ To which level of liveness do single activities belong, based on the definitions
    * adds Programming via selection from running predicted behavior
    * environment is ahead of the programmer
 
-- karma should be at level 4
+- karma should be at level 3
    * does executes the test as soon as changes are saved, but only on save?
    * if you do not save there are no live updates
+   * cannot edit program while running (cannot actually edit program)
    * only level 4 with autosaving IDE?
    * only level 4 when response time is acceptable?
    * cannot predict anything, so not level 5...
@@ -210,6 +213,13 @@ Description of the implementation of live activities. Each implementation patter
 The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
 
 Abstract form: Scrubbing is enabled through incremental compilation which enables quick recompilation of parts of an application...
+
+- streaming:
+  - show partial results
+  - show already executed test results (15/70 - 14 / 1 / 0)
+
+- update while typing / update on keystroke
+  - reexecute tests on save
 
 ### Within or outside of the application
 For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
