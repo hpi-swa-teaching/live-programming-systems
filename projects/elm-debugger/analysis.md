@@ -13,8 +13,26 @@ bibliography: references.bib
 ## About the System itself
 >Summary of system properties
 
-The system studied is the time-traveling Elm Debugger. The Elm debugger can be tried out at `http://debug.elm-lang.org/` where three example Elm applications using the debugger are presented.
-The debugger can be used while developing Elm applications. Unfortunately, the time-traveling features where removed from the Elm core/Debug package in version 4.0.0. Therefore we focus on the version deployed at `http://debug.elm-lang.org/` since we want to inspect the debugger including the time-traveling features.
+The system studied is the time-traveling Elm Debugger.
+Actually there are at least three different time-traveling debuggers for Elm. In chronological order according to the time of development:
+1. The native Elm package `core/Debug`.
+2. The third-party package `jinjor/elm-time-travel`.
+3. The runtime debugger.
+
+In the following we shortly describe the properties of the three debuggers.
+
+#### core/Debug
+This is the first time-traveling Elm debugger which was published first with Elm 0.12 and the Elm `core` package in version 1.0.0. Later, the time-traveling features were removed from the `core/Debug` package in version 4.0.0.
+<<< TODO: WHY? >>>
+Due to dependency issues and fast changes in the Elm language itself as well as in its packages, it is now hard to create an Elm setup that is capable of running this time-traveling Debugger.
+<<< TODO: MORE ABOUT THE ISSUES? >>>
+Nevertheless, this Debugger is deployed at [http://debug.elm-lang.org/](http://debug.elm-lang.org/) and can be tried out there. The site provides three examples that make use of the `core/Debug` package.
+
+#### jinjor/elm-time-travel
+<<< TODO: WRITE! >>>
+
+#### Runtime Debugger
+<<< TODO: WRITE! >>>
 
 ### System boundaries
 >What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
