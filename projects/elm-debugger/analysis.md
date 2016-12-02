@@ -50,7 +50,14 @@ The Elm version 0.18 introduced a debugger that is not a package that can be inv
 The window that opens when clicking "Explore History" shows the message history on the left. On the right there is an area that displays the model an the time the selected message was send. Also, when selecting a certain message send, the application is brought back to the point when the message send took place.
 
 The idea behind the import/export concept is to create more meaningful and reproducible bug reports. Unfortunately this deprives the debugger of live development features.
-<<< TODO: DESCRIBE DEBUGGER WINDOW >>>
+
+#### Analyzed System
+Initially the `core/Debug` package was the system to be analyzed. After finding out about the difficulties of setting up an Elm environment that is capable of running the debugger, we decided to rather analyze the newer Elm runtime debugger. Considerations that led us to that decision were:
+ - The time-traveling `core/Debug` package is hard to set up due to the fact that it was built on a much older Elm version which is highly different from the current Elm implementation. We had to use an old Elm version (0.12) which was, other than newer versions, not available via the Node package manager but only via Haskell and Cabal. Since we do not have much knowledge about Haskell and Cabal and moreover ran into dependency conflicts, we assumed it would be easier to make use of another debugger.
+ - Even if we were able to set up an old Elm version capable of running the `core/Debug` debugger, the results of our analysis would not be easily reproducible since everyone else would also have to got through the complicated set-up process. Newer version of Elm are easier to set up (using NPM).
+ - <<< TODO: Newer version --> will work for longer. >>>
+ - <<< TODO: More JS, easier to inspect and change. >>>
+
 
 ### System boundaries
 >What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
