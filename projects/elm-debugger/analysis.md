@@ -38,11 +38,19 @@ The tool is structured as follows:
 
 
 #### jinjor/elm-time-travel
-After the time-traveling features were removed from `core/Debug`, there was no time-traveling Debugger in Elm anymore. Therefore Yosuke Torii (jinjor) created the package `jinjor/elm-time-travel` which aims for being a replacement for `core/Debug`. Examples using this package are deployed at [http://jinjor.github.io/elm-time-travel/](http://jinjor.github.io/elm-time-travel/). Comparing this site with [http://debug.elm-lang.org/](http://debug.elm-lang.org/) shows, that both have a similar structure despite there are differences.
+After the time-traveling features were removed from `core/Debug`, there was no time-traveling Debugger in Elm anymore. Therefore Yosuke Torii (jinjor) created the package `jinjor/elm-time-travel` which is based on Elm 0.17 and aims for being a replacement for `core/Debug`. Examples using this package are deployed at [http://jinjor.github.io/elm-time-travel/](http://jinjor.github.io/elm-time-travel/). Comparing this site with [http://debug.elm-lang.org/](http://debug.elm-lang.org/) shows, that both have a similar structure despite there are differences.
 In contrast to `core/Debug`, this package does not show source code. There is only a two-part view which shows the generated web page on the left and a tool bar on the right. The tool bar does, other than `core/Debug`, not show variables or its content but message send (which are corresponding to input). By selecting a very message send, the user can jump to the point in execution where the message send happened. The debugger than pauses the execution and shows the Elm applications model before and after the message send happened. Like in `core/Debug`, the message/input history is immutable. Generating more input does not change the history at the point currently inspected but rather appends another message to the history.
 
 #### Runtime Debugger
-<<< TODO: WRITE! >>>
+The Elm version 0.18 introduced a debugger that is not a package that can be invoked in the source code but rather part of the runtime environment. The debugger is invoked when the Elm application is built using the Elm Reactor (`elm-reactor`) or Elm Make with debug flag set (`elm-make Application.elm --debug`). The debugger than appears as a box in the bottom right corner of the application under observation. This box has three parts:
+ 1. The top part is captioned "Explore History" and shows the number of message sends in brackets behind the caption. Clicking on it opens the window described below.
+ 2. An "Import" button that opens a file dialog where the user can select a history file which is then replayed.
+ 3. An "Export" button that opens a file dialog where the user can save the current history.
+
+The window that opens when clicking "Explore History" shows the message history on the left. On the right there is an area that displays the model an the time the selected message was send. Also, when selecting a certain message send, the application is brought back to the point when the message send took place.
+
+The idea behind the import/export concept is to create more meaningful and reproducible bug reports. Unfortunately this deprives the debugger of live development features.
+<<< TODO: DESCRIBE DEBUGGER WINDOW >>>
 
 ### System boundaries
 >What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
