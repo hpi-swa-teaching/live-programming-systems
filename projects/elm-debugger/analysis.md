@@ -55,8 +55,15 @@ The idea behind the import/export concept is to create more meaningful and repro
 Initially the `core/Debug` package was the system to be analyzed. After finding out about the difficulties of setting up an Elm environment that is capable of running the debugger, we decided to rather analyze the newer Elm runtime debugger. Considerations that led us to that decision were:
  - The time-traveling `core/Debug` package is hard to set up due to the fact that it was built on a much older Elm version which is highly different from the current Elm implementation. We had to use an old Elm version (0.12) which was, other than newer versions, not available via the Node package manager but only via Haskell and Cabal. Since we do not have much knowledge about Haskell and Cabal and moreover ran into dependency conflicts, we assumed it would be easier to make use of another debugger.
  - Even if we were able to set up an old Elm version capable of running the `core/Debug` debugger, the results of our analysis would not be easily reproducible since everyone else would also have to got through the complicated set-up process. Newer version of Elm are easier to set up (using NPM).
- - <<< TODO: Newer version --> will work for longer. >>>
- - <<< TODO: More JS, easier to inspect and change. >>>
+ - The development of Elm is really fast-paced. Therefore we argue that using the newest possible version is crucial to make sure the results of our analysis are easily reproducible as long as possible. Using `core/Debug` which is the oldest of the three considered debuggers would contradict this argument.
+ - Over time, Elm moved from a Haskell based implementation more and more to JavaScript. With the two newer debuggers (`jinjor/elm-time-travel` and the runtime debugger) there was no need to deal with Haskell or Cabal. We only had to cope with JavaScript and NPM which we considered to be easy since we already had experience with that.
+
+For our analysis we decided use a modified version of the runtime debugger. We could not use the original version because the live programming features (i.e. live reloading and live replaying of history) were removed in favor of saving/loading the history to/from a file.
+
+The following section describes how we changed the runtime debugger to satisfy our needs.
+
+#### Runtime Debugger setup
+<<< TODO: WRITE! >>>
 
 
 ### System boundaries
