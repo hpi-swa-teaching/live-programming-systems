@@ -122,11 +122,9 @@ The focus lies on how the user interacts with the debugger.
 >  - Description of user context
     (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
 
-  - The context of the system is Application development in general and debugging of Elm applications in special.
-  Furthermore the Elm debugger can also be used for understanding the behavior of an application without any bug involved. Therefore code exploration is also considerable use case.
-
-  - Since the system under focus is the version of the Elm debugger deployed at `http://debug.elm-lang.org/`, the user context is public presentation of software using a website. Also, the application may be used by amateur Elm developers since the set up effort is low and therefore the system is easily accessible. Professionals will use their own setup of the Elm debugger, though, because the Elm debugger at `http://debug.elm-lang.org/` can only handle one file at a time which is not suitable for larger applications.
-
+ - The context of the system is Application development in general and debugging of Elm applications in special.
+ Furthermore the Elm debugger can also be used for understanding the behavior of an application without any bug involved. Therefore code exploration is also considerable use case.
+ - The Elm programming language is relatively new and therefore it does not have a large user base. Hence it is not clear how the debugger will be used. Concluding from other programming language and debuggers, the Elm debugger will probably be used for professional and/or amateur software development. We assume an amateur user context is more likely because the user interface is simple and the setup overhead is small.
 
 ### General Application Domain
 >  - What is typically created in or through this system?
