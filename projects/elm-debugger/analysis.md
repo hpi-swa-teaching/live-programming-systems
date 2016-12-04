@@ -94,7 +94,7 @@ There are many ways to achieve such a setup. We only describe one possible way.
  5. Open a browser, enable the live reload plug-in and visit your project. This is usually on `http://localhost:8000`.
  6. Start developing.
 
-<<< TODO: WRITE! >>>
+There is an example project at [https://github.com/jchromik/lps16-elm-examples](https://github.com/jchromik/lps16-elm-examples) that shows prerequisites, setup and start-up process.
 
 ### System boundaries
 >What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
