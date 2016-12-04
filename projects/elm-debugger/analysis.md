@@ -99,10 +99,22 @@ There is an example project at [https://github.com/jchromik/lps16-elm-examples](
 ### System boundaries
 >What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
 
-This work studies the time-traveling Elm debugger (core/Debug package version 3.0.0 or lower). This includes the debugger framework (tools for replaying input and watching values) together with an observed Elm application. The focus lies on the interaction between user and debugger as well as on the interaction between debugger and application.
-<figure>
-We do not cover the Elm language itself or packages used with Elm.
-The focus is clearly on the liveness of the debugger, not the language itself.
+This work studies a modified version of the debugging features introduced in Elm 0.18. The modifications were necessary to enable live programming related features that were not present before. Initially the `core/Debug` debugger which included the aforementioned live programming features was subject to this work. We changed the subject to the runtime debugger. The reasons are listed in the previous section.
+The debugging features studied include means of
+ - viewing the message history,
+ - inspecting the state of the application,
+ - going back in time by partially replaying the message history, as well as
+ - importing and exporting the message history.
+
+Furthermore we study the features we added, namely:
+ - storing history to the session storage
+ - loading history from the session storage
+ - clearing the history from the session storage
+ - live (in terms of automatically) replaying the existing history on page reload
+ - live (in terms of automatically) reloading the page if a file has been changed
+
+We do not cover the Elm language itself or any parts related to the execution environment. Operating systems, browsers, and all parts of the Elm execution environment not related to the stated debugging features are not covered.
+The focus lies on how the user interacts with the debugger.
 
 ### Context
 >  - In which context is the system used?
