@@ -77,6 +77,23 @@ All changes took place in `elm-lang/virtual-dom` in version 2.0.2, the most rece
 The following sections describes how the modified debugger can be used.
 
 #### Runtime Debugger Setup
+To achieve an impression of liveness inside the Elm runtime debugger, two steps need to be performed:
+ 1. Exchange the original `elm-lang/virtual-dom` package with the modified one described above.
+ 2. Apply live reloading on the Elm application.
+
+Exchanging the `elm-lang/virtual-dom` is done as follows: After installing the Elm packages required for your projects (this are at least `elm-lang/core`, `elm-lang/html`, and `elm-lang/virtual-dom`) replace the contents of the folder where your copy of `elm-lang/virtual-dom` lies in with the contents of [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom). An `elm-lang/virtual-dom` package in version 2.0.2 should be located in  `elm-stuff/packages/elm-lang/virtual-dom/2.0.2`. The modifications made are based on 2.0.2. Other versions starting with 2 may work as well since there are only minor changes between the versions.
+Now live replaying history when refreshing the page should work when using the Elm Reactor. Also, the buttons "Load", "Store", and "Clear" should be visible below the "Import" and "Export" buttons.
+The next step describes how to automatically reload the page when a change has happened.
+
+We need to setup a live reload server that watches the files under development and issues a page reload if any file was changed. Also, we need either a script or a browser plug-in, that reloads the page, whenever the live reload server fires.
+There are many ways to achieve such a setup. We only describe one possible way.
+ 1. Install a Node.js based live reload server with `npm install -g livereload` (for more informations see [https://github.com/napcs/node-livereload](https://github.com/napcs/node-livereload))
+ 2. Install a browser plug-in that listens on the live reload server. We used [http://livereload.com/extensions/](http://livereload.com/extensions/) and installed it on a Chromium Browser from the Google Web Store.
+ 3. Start the Elm Reactor in your project directory with `elm-reactor`.
+ 4. Start the live reload server and tell to watch your project directory including Elm files with `livereload /path/to/project -e 'elm'`.
+ 5. Open a browser, enable the live reload plug-in and visit your project. This is usually on `http://localhost:8000`.
+ 6. Start developing.
+
 <<< TODO: WRITE! >>>
 
 ### System boundaries
