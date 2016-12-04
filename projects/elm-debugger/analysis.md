@@ -62,9 +62,18 @@ For our analysis we decided use a modified version of the runtime debugger. We c
 
 The following section describes how we changed the runtime debugger to satisfy our needs.
 
+#### Runtime Debugger modifications
+The package that creates the debugger interface is the elm-lang/virtual-dom package. It is responsible for the debugger box in the bottom right corner, the debugger window showing message sends and state of the application, as well as functionality for importing and exporting history including history replay after a history file is loaded.
+For enabling live history replay, did the following:
+ 1. Add a button "Store" that works like the "Export" button but stores the history in the session storage rather than in a user selected file. Therefore this button provides a one-click functionality.
+ 2. Add a button "Load" that works like the "Import" button but loads the history from the session storage rather than from a user selected file. Like "Store", this button is also a one-click feature.
+ 3. Add a window `load` listener that triggers a `click` event on the "Load" button when the page is loaded.
+ 4. Add a window `beforeunload` listener that triggers a `click` event on the "Store" button when the page about to be left.
+ 5. Add a "Clear" button that clears the session storage and than reloads the page preventing the `beforeunload` listener to store the history.
+<<< TODO: Why calling click listener on load / beforeunload? >>>
+
 #### Runtime Debugger setup
 <<< TODO: WRITE! >>>
-
 
 ### System boundaries
 >What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
