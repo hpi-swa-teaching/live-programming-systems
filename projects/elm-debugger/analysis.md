@@ -70,9 +70,13 @@ For enabling live history replay, did the following:
  3. Add a window `load` listener that triggers a `click` event on the "Load" button when the page is loaded.
  4. Add a window `beforeunload` listener that triggers a `click` event on the "Store" button when the page about to be left.
  5. Add a "Clear" button that clears the session storage and than reloads the page preventing the `beforeunload` listener to store the history.
-The indirection of triggering click events on the "Load" and "Store" buttons is necessary, because calling the functions for loading and storing right away would require creating `load` and `beforeunload` listeners in the Elm source code. Unfortunately we were not able to find a good way of doing this.
 
-#### Runtime Debugger setup
+The indirection of triggering click events on the "Load" and "Store" buttons is necessary, because calling the functions for loading and storing right away would require creating `load` and `beforeunload` listeners in the Elm source code. Unfortunately we were not able to find a good way of doing this.
+All changes took place in `elm-lang/virtual-dom` in version 2.0.2, the most recent version at the time of writing this (2016-12-04). The modified version of the package can be found at [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom) which is a fork of [https://github.com/elm-lang/virtual-dom](https://github.com/elm-lang/virtual-dom).
+
+The following sections describes how the modified debugger can be used.
+
+#### Runtime Debugger Setup
 <<< TODO: WRITE! >>>
 
 ### System boundaries
