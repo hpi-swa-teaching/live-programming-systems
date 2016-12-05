@@ -209,13 +209,8 @@ The smallest granularity of change is the whole application together with all pr
 ### Integration of live activities into overall system
 >Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
 
-- No interactive changes of values in running application
-- But: sliders in source code with live-reload
-- Immutable past. Input that already happened can not be changed
-- Liveness breaks apart for large amounts of input
-- Liveness interrupts when code is syntactically (?) incorrect (e.g. in terms of types)
-- Application itself is not live.
-- Browser is (usually) live.
+The major limitation to the systems liveness is the concept, that every change has to happen though the source code editor. It is neither possible to change the data model from the debugger window nor can the message history be altered, although appending to the message history is of course possible. Also, the applications user interfaces can not be altered from the browser window. Another limitation to the debuggers liveness is the slowdown that happens when there are large amounts of input. If this is the case then input replay requires more time, therefore adaption takes longer and liveness degrades. If the applications source code is syntactically incorrect, liveness interrupts until the code is correct again.  
+In summary, it can be stated, that there is only one path that is automated and therefore made live. Namely, editing the source in a manner that it is syntactically correct afterwards, then recompiling and reloading the page, and then doing exactly the same interaction with the application again. Everything else that the debugger does is not live since it only offers different ways of looking at the application running.
 
 >How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
 
