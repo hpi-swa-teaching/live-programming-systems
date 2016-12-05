@@ -214,7 +214,11 @@ In summary, it can be stated, that there is only one path that is automated and 
 
 >How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
 
- - no idea up to now, maybe a short list due to strong liveness (?)
+<<< TODO: figure where browser encapsulates debugger and debugger encapsulates app >>>
+
+There are two borders to the live debugger: the Elm application and the browser. The Elm application, live or not, runs inside the debugger and is not influenced in its behavior. The application behaves just as if the debugger was not present. All the debugger does is logging the message sends and the corresponding state, and all effect the debugger has to the application is the ability to restart it and feed it with parts of the logged input. On the other side, the influence of the the (live) browser on the debugger is much stronger. The debugger relies on the session storage which is managed by the browser. Therefore the user can easily influence for example the message history by editing the session storage through the browser. Moreover, most browser provide the ability to change appearance and behavior of the shown website by giving the user access to the source files the page is generated from.  
+All in all it can be stated that while the browser has a potentially strong influence on the debugger, the debugger has only a weak influence on the Elm application running inside. The only mean of influencing the debugger has is restarting and replaying input. Model or source code manipulation is not provided.
+
 
 ### Limitations
 >To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
