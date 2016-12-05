@@ -159,15 +159,25 @@ Please note, the system under analysis is not the Elm runtime environment. We on
 ### Example Workflow
 >Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
 
-The systems user interface consists of three horizontally aligned parts.
-1. Leftmost is an area where the user can view and edit Elm source code. The code is executed and changes are adopted immediately (in less than one second).
-2. In the middle there is an area where the running application generated from the code on the left is shown. The user can interact with the application in the same manner as they could without the debugging framework.
-3. On the right side there is an area that serves two purposes.
-  1. At top is a slider that serves the purpose of going back in time. This is realized by replaying all relevant input. Every input generated either by the user or by clock events counts as a discrete step in time. By dragging the slider input can be rolled back or replayed.
-  2. Below the slider there is a pane that shows values the debugger watches. Using the function `Debug.watch` the debugger can be instructed to watch on a given value in source code. The watched value is permanently shown and updated.
+The setup for using the Elm debugger consists of three components.
+ 1. A text editor for changing the source code of the observed Elm application.
+ 2. A live reload server for automatically adapting changes in source code.
+ 3. An Elm setup with modified debugging features.
+ 4. A browser satisfying the following conditions:
+   1. The browser provides a live reload plug-in that listens to the live reload server and reloads the page if the live reload server notices a change in the observed files.
+   2. The browser shows the output of the Elm Reactor running the observed Elm application. This is usually served on `http://localhost:8000`.
 
-A usual interaction with the system is a cycle of editing source code using the editor part on the left side and observing changed behavior in the running application shown in the middle.
-Therefore the Elm code is compiled, run and all input that happened prior to the change is replayed. The changed Elm application is then in the same situation (concerning input) as the version before, but with changed behavior due to changes source code. Therefore also the state of the application may be different.
+The browser than shows the Elm application with some additional UI elements for interacting with the debugger. This was already described in the section "About the System itself / Runtime Debugger".
+
+A usual interaction with the system is as follows:
+ 1. Edit source code using the text editor.
+ 2. Save the file.
+ 3. The live reload server notices the files changed and send an event to the browser plug-in.
+ 4. The browser plug-in reloads the page.
+ 5. Before unloading the page for reload, the modified debugger saves the message history to the session storage.
+ 6. After (re)loading the page, the modified debugger replays the message history from the session storage.
+
+After this cycle the Elm application is in the same situation as before (in terms of input) but with changed source code and therefore potentially changed behavior. Therefore also the state of the application may be different.
 Although a change in source code is immediately adapted, it may take some time until changed behavior emerges (see @Rein2016HLL on Adaption and Emergence). Replaying in connection with the users ability to roll back parts of the input helps finding a sequence of user interaction that makes the change emerge. The area showing watched values helps understanding why a certain behavior occurs.
 
 ### Which activities are made live by which mechanisms?
