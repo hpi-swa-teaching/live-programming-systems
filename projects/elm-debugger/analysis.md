@@ -146,7 +146,10 @@ The time-traveling features help getting a meaningful impression of the connecti
 ### Type of System
 >What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
 
-The system is an interactive tool. It is part of the Elm package system and can be invoked by import and invocation through the source code. It then serves as a debugging framework in which the Elm application is running.
+The system is an interactive tool because it is interactive and it is a tool.  
+The system is interactive since the user can interact with it. The content shown is not static but changes when the user for example goes back in time by selecting different points in the message history.
+The system is a tool because it helps developing Elm applications but is not necessarily required.
+Please note, the system under analysis is not the Elm runtime environment. We only analyze the debugging features.
 
 ---
 
