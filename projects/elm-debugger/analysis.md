@@ -235,11 +235,14 @@ Whenever there is an error in the observed Elm application, liveness stops immed
 >1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
 >2. How can the system itself break? What happens when there is a failure in the system/tool itself?
 
+If the application under development is erroneous, the execution of debugger and observed application is stopped and only an only error message is displayed (without any possibility to interact). This behavior is equivalent to the behavior when the Elm debugger is not involved since it is caused by the Elm runtime environment.
+When there is an error in the Elm debugger itself, the behavior is the same: An error message is shown and the execution stops. In both cases the execution resumes as soon as the error is fixed.  
+If there is an error and the the liveness interrupts, there is still the browser web debugger that can be used as a fallback system. But since the code generating the page is compiled Elm source code, it is not easy to understand and required advanced knowledge about the domain.
+
 ### Left out features
 >Which features of the system were not described and why were they left out?
 
- - debugger features that are not live (i.e. the console debugging functions 'log' and 'crash')
- - multi-file / multi-page applications
+There are no features that are part of the debugger but left out. However we did not cover the Elm runtime environment, browsers or made any assumption about the observed Elm applications. The scope of this work only contains the Elm debugger and nothing in scope was left out.
 
 ---
 
