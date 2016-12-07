@@ -329,39 +329,43 @@ Implementing live replaying requires implementing a store and a load phase. When
 The store function saves the message history to the session storage as JSON. The load function gets the message history from the session storage and then send each message contained to simulate the user interaction that happened before.
 The concrete implementation of storing and loading is quite complex since it requires heavy interoperability between Elm and JavaScript.  
 Storing works as follows:
- 1. A `window.beforeunload` listener simulates a button click event on the "Store" button. This is implemented in JavaScript since Elm does not support load/unload/beforeunload listener.  
- Relevant part in `src/Native/VirtualDom.js`:
- ```javascript
- window.addEventListener('beforeunload', function(event) {
-      document.getElementById("store").click();
- });
- ```
- 2. The "Store" button sends the `storeMsg` specified in a `Config` data structure.
- Button creation in function `viewImportExport` in `src/VirtualDom/Overlay.elm`:
- ```elm
- button storeMsg "Store" "store"
- ```
- The function `button` is created in the same file:
- ```elm
- button : msg -> String -> String -> Node msg
- button msg label identifier =
-      span [ onClick msg, style [("cursor","pointer")], id identifier ] [ text label ]
- ```
- This shows that the button is actually implemented as a `span` element. When the `span` element is clicked, the Message `msg` is send.  
- The `storeMsg` mentioned above is defined in `src/VirtualDom/Debug.elm` inside a `Config` data structure:
- ```elm
- overlayConfig : Overlay.Config (Msg msg)
- overlayConfig =
-      { resume = Resume
-      , open = Open
-      , importHistory = Import
-      , exportHistory = Export
-      , loadHistory = Load
-      , storeHistory = Store
-      , clearHistory = Clear
-      , wrap = OverlayMsg
-      }
- ```
+##### 1. Event when unloading page
+A `window.beforeunload` listener simulates a button click event on the "Store" button. This is implemented in JavaScript since Elm does not support load/unload/beforeunload listener.  
+Relevant part in `src/Native/VirtualDom.js`:
+```javascript
+window.addEventListener('beforeunload', function(event) {
+    document.getElementById("store").click();
+});
+```
+##### 2. How the "Store" button works
+The "Store" button sends the `storeMsg` specified in a `Config` data structure.
+Button creation in function `viewImportExport` in `src/VirtualDom/Overlay.elm`:
+```elm
+button storeMsg "Store" "store"
+```
+The function `button` is created in the same file:
+```elm
+button : msg -> String -> String -> Node msg
+button msg label identifier =
+    span [ onClick msg, style [("cursor","pointer")], id identifier ] [ text label ]
+```
+This shows that the button is actually implemented as a `span` element. When the `span` element is clicked, the Message `msg` is send.  
+The `storeMsg` mentioned above is defined in `src/VirtualDom/Debug.elm` inside a `Config` data structure:
+```elm
+overlayConfig : Overlay.Config (Msg msg)
+overlayConfig =
+    { resume = Resume
+    , open = Open
+    , importHistory = Import
+    , exportHistory = Export
+    , loadHistory = Load
+    , storeHistory = Store
+    , clearHistory = Clear
+    , wrap = OverlayMsg
+    }
+```
+Therefore a click on the "Store" button sends the message `Store`.
+##### 3. What happens when the `Store` message is send
 <<< TODO: concrete implementation >>>
 
 <<< TODO: abstract concept >>>
