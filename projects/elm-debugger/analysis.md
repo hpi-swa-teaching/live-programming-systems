@@ -223,10 +223,13 @@ All in all it can be stated that while the browser has a potentially strong infl
 ### Limitations
 >To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
 
- - Slowdown is continuous and system dependent. Can not give a concrete number. But: there is is slowdown for much input. Have to find out when it goes about the 100ms / 1s threshold.
- - Yes, exception cause the liveness to interrupt, but not break down since it resumes when the exception is removed.
+There are two conditions that confine the Elm debuggers liveness: Large amounts of input and errors in the observed Elm application.  
+Large amounts of input are a soft limitation. The liveness does not break apart at a specific amount of input but rather decreases continuously due to the message replay getting slower. According to @Johnson2010DMM there are two relevant thresholds that are crucial to the users experience of waiting time and slowdown: 100ms and 1s. When trying to find a specific number of messages where the liveness breaks apart, we have to find out how many message are at least required to exceed these thresholds. Doing this, we have to keep in mind that this value depends on the Elm application observed, the messages send (more specific: what the Elm application does if the message is received) and the executing machine.  
+Whenever there is an error in the observed Elm application, liveness stops immediately and an error message is displayed. Liveness resumes as soon as the error is fixed. This is a hard limitation to the debuggers liveness.
 
 >Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
+
+<<< TODO: WRITE! >>>
 
 ### What happens when the live parts of the system fail/break?
 >1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
