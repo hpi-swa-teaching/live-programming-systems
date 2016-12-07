@@ -308,7 +308,6 @@ Please note that is only applies to the modified version of `elm-lang/virtual-do
 >Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
 #### Live reloading
-
 Live reloading is implemented through utilization of a live reload server and a live reload plug-in. The live reload server can be installed with:
 ```
 npm install -g livereload
@@ -326,10 +325,47 @@ Now live reloading is enabled.
 The concept behind this is live reloading. This means adapting changes in source code immediately by reloading the page whenever any of the source files has changed. This is an event-driven concept.
 
 #### Live replaying
-
+Implementing live replaying requires implementing a store and a load phase. When the page is reloaded, the store function is called before the page is unloaded and the load function is called when the page is loaded again.
+The store function saves the message history to the session storage as JSON. The load function gets the message history from the session storage and then send each message contained to simulate the user interaction that happened before.
+The concrete implementation of storing and loading is quite complex since it requires heavy interoperability between Elm and JavaScript.  
+Storing works as follows:
+ 1. A `window.beforeunload` listener simulates a button click event on the "Store" button. This is implemented in JavaScript since Elm does not support load/unload/beforeunload listener.  
+ Relevant part in `src/Native/VirtualDom.js`:
+ ```javascript
+ window.addEventListener('beforeunload', function(event) {
+      document.getElementById("store").click();
+ });
+ ```
+ 2. The "Store" button sends the `storeMsg` specified in a `Config` data structure.
+ Button creation in function `viewImportExport` in `src/VirtualDom/Overlay.elm`:
+ ```elm
+ button storeMsg "Store" "store"
+ ```
+ The function `button` is created in the same file:
+ ```elm
+ button : msg -> String -> String -> Node msg
+ button msg label identifier =
+      span [ onClick msg, style [("cursor","pointer")], id identifier ] [ text label ]
+ ```
+ This shows that the button is actually implemented as a `span` element. When the `span` element is clicked, the Message `msg` is send.  
+ The `storeMsg` mentioned above is defined in `src/VirtualDom/Debug.elm` inside a `Config` data structure:
+ ```elm
+ overlayConfig : Overlay.Config (Msg msg)
+ overlayConfig =
+      { resume = Resume
+      , open = Open
+      , importHistory = Import
+      , exportHistory = Export
+      , loadHistory = Load
+      , storeHistory = Store
+      , clearHistory = Clear
+      , wrap = OverlayMsg
+      }
+ ```
 <<< TODO: concrete implementation >>>
 
 <<< TODO: abstract concept >>>
+
 
 #### Example: Scrubbing
 >The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
