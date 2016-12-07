@@ -307,6 +307,30 @@ Please note that is only applies to the modified version of `elm-lang/virtual-do
 ### Implementations of single activities
 >Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
+#### Live reloading
+
+Live reloading is implemented through utilization of a live reload server and a live reload plug-in. The live reload server can be installed with:
+```
+npm install -g livereload
+```
+This requires an existing Node.js installation.
+After installation, the live reload server has to be started. Doing this, we have to tell the server firstly, which path has to be watched, and secondly, to watch Elm files as well (this is not enabled by default). The following command does this:
+```
+livereload /path/to/project -e 'elm'
+```
+Now the live reload server is up and running. Now we need to install the live reload plug-in which receives a notification from the live reload server whenever a file to be watched changes. Subsequently the plug-in reloads the page. Using the Chromium web browser, install the plug-in "LiveReload" (we used version 2.1.0). Then visit the web page showing the Elm application (usually `http://localhost:8000`) and enable the plug-in by clicking on the button next to the address bar.
+Now live reloading is enabled.
+<<< TODO: pictures of addon installation and button to click on >>>
+
+
+The concept behind this is live reloading. This means adapting changes in source code immediately by reloading the page whenever any of the source files has changed. This is an event-driven concept.
+
+#### Live replaying
+
+<<< TODO: concrete implementation >>>
+
+<<< TODO: abstract concept >>>
+
 #### Example: Scrubbing
 >The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
 
