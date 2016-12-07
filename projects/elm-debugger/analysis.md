@@ -334,7 +334,7 @@ A `window.beforeunload` listener simulates a button click event on the "Store" b
 Relevant part in `src/Native/VirtualDom.js`:
 ```javascript
 window.addEventListener('beforeunload', function(event) {
-    document.getElementById("store").click();
+  document.getElementById("store").click();
 });
 ```
 ##### 2. How the "Store" button works
@@ -347,25 +347,48 @@ The function `button` is created in the same file:
 ```elm
 button : msg -> String -> String -> Node msg
 button msg label identifier =
-    span [ onClick msg, style [("cursor","pointer")], id identifier ] [ text label ]
+  span [ onClick msg, style [("cursor","pointer")], id identifier ] [ text label ]
 ```
 This shows that the button is actually implemented as a `span` element. When the `span` element is clicked, the Message `msg` is send.  
 The `storeMsg` mentioned above is defined in `src/VirtualDom/Debug.elm` inside a `Config` data structure:
 ```elm
 overlayConfig : Overlay.Config (Msg msg)
 overlayConfig =
-    { resume = Resume
-    , open = Open
-    , importHistory = Import
-    , exportHistory = Export
-    , loadHistory = Load
-    , storeHistory = Store
-    , clearHistory = Clear
-    , wrap = OverlayMsg
-    }
+  { resume = Resume
+  , open = Open
+  , importHistory = Import
+  , exportHistory = Export
+  , loadHistory = Load
+  , storeHistory = Store
+  , clearHistory = Clear
+  , wrap = OverlayMsg
+  }
 ```
 Therefore a click on the "Store" button sends the message `Store`.
 ##### 3. What happens when the `Store` message is send
+The `Store` message is then processed by the function `wrapUpdate` which is also defined in `src/VirtualDom/Debug.elm`. The relevant part is that a function `store` is called and provided metadata and (even more important) the message history.
+```elm
+Store ->
+  withGoodMetadata model <| \metadata ->
+    model ! [ store metadata model.history ]
+```
+The function `store` then makes a transition to a function defined in the JavaScript part (`Native.Debug.store`):
+```elm
+store : Metadata -> History model msg -> Cmd (Msg msg)
+store metadata history =
+  let
+    historyLength =
+      History.size history
+
+    json =
+      Encode.object
+        [ ("metadata", Metadata.encode metadata)
+        , ("history", History.encode history)
+        ]
+  in
+    Task.perform (\_ -> NoOp) (Native.Debug.store historyLength json)
+```
+#### 4. The `store` function in JavaScript
 <<< TODO: concrete implementation >>>
 
 <<< TODO: abstract concept >>>
