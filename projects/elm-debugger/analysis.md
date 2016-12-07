@@ -271,12 +271,24 @@ The system provides level 4 liveness. According to @Tanimoto2013PEL in level 4 l
 >  1. relevant variables can be seen and/or manipulated at specific locations within the scene (the framing part), and
 >  2. these variables are defined and presented so as to be constantly present and constantly meaningful (the steady part).
 
-The relevant "steady frame" variable in context of the Elm debugger is the message history. The message history is stored in the session storage (a specific location within the scene). Also, the message history is constantly present, as it persists between the page reloads, and constantly meaningful, because only valid message histories are stored in the session storage.
+The relevant "steady frame" variable in context of the Elm debugger is the message history. The message history is stored in the session storage (a specific location within the scene). Also, the message history is constantly present, as the session storage persists between the page reloads, and constantly meaningful, because only valid message histories are stored in the session storage.
 
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
 
 ### Impact on distances
 >How do the activities affect the different distances: temporal, spatial, semantic?
+
+#### Temporal distances
+Temporal distances emerge whenever the liveness is disturbed. As mentioned before, there are two situations in which the liveness is disturbed: large amounts of input and erroneous code.
+Large amounts of input lead to long replay times which creates a significant temporal distance between change in source code and observable change in the running application (long adaption time).
+Erroneous code stops the debuggers and the applications execution. During this time period, the debugger is not present. Therefore there is a temporal distance that lasts as long as it takes to fix the error.
+
+#### Spatial distances
+When changing between interacting with the observed application and interacting with the debugger, there may be a spatial difference. This happens when the application is left aligned and mostly occupies the top part of the window. This happens automatically when creating a web page without styling. The spatial difference emerges because the debugger controls are always at the bottom right corner and therefore as far as possible form the applications content away.
+
+#### Semantic distances
+Editing the source code and afterwards observing the effect creates a semantic distance due to the fact that editing happens in an editor while observing the effect happens in a web browser.  
+Another activity creating a significant semantic distance is inspecting the message history and/or the corresponding state. This is achieved by clicking on the "Explore History" button in the debugger control box. This opens a separate window showing the message history. Having the history in a separate window leads to a high semantic distance between application and message history.
 
 *D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
 
