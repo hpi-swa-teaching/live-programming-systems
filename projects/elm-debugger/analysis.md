@@ -251,10 +251,15 @@ There are no features that are part of the debugger but left out. However we did
 ### Mutable or immutable past
 >To which category does the system or parts of it belong and why?
 
+The system is a mutable past system because changes in source code may influence the current state as well as previous state that are reachable by going back in the message history. This happens because the Elm debugger restores state by replaying input. If a change is the observed applications source code does affect the initial state or the way the applications deals with input, the current state together with all past states will be altered.
+
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
 ### Tanimoto's Level of Live Programming
 To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
+
+The system provides level 4 liveness. According to @Tanimoto2013PEL in level 4 liveness "[...] the computer wouldn’t wait but would keep running the program, modifying the behavior as specified by the programmer as soon as changes were made.". This is exactly what the Elm debugger does. As opposed to liveness level 3 where there is waiting time between a change the programmer made and the corresponding effect. The Elm debugger would provide level three liveness if it was not event driven but use polling with a significantly long turn around time. Level 5 is also not the level of liveness the system provides because level 5 would include tactical prediction. The Elm debugger itself does not predict anything. There may be an IDE or text editor in use that tries to predict what the programmer wants to do and gives a selection of options. But since the IDE or text editor in use is not part of the Elm debugger by our definition, this does not count as liveness level 5.
+
 >
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
 
