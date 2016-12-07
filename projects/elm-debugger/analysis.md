@@ -389,6 +389,19 @@ store metadata history =
     Task.perform (\_ -> NoOp) (Native.Debug.store historyLength json)
 ```
 #### 4. The `store` function in JavaScript
+This function is defined in `src/Native/Debug.js`. It stores the message history (provided in the argument `json`) in the session storage (as `elmHistory`).
+```javascript
+function store(historyLength, json)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		if(!sessionStorage.getItem("elmClearFlag")) {
+			sessionStorage.setItem("elmHistory", JSON.stringify(json));
+		}
+		sessionStorage.removeItem("elmClearFlag");
+	});
+}
+```
 <<< TODO: concrete implementation >>>
 
 <<< TODO: abstract concept >>>
