@@ -299,6 +299,11 @@ Another activity creating a significant semantic distance is inspecting the mess
 ### Extend of liveness in technical artifacts
 >What parts of the system implements the liveness? (Execution environment, library, tool...)
 
+The system contains two parts that enable liveness: Live reloading and live replaying history.  
+Live reloading is enabled by a external tools that are not related to Elm and only used _together with_ Elm. The tools in use are a live reload server that watches the Elm files of the observed application and a live reload browser plug-in that reloads the page whenever the live reload server recognized a change.  
+Live replaying history is enabled by the `elm-lang/virtual-dom` package. Although this package is treated as every other Elm package, it is actually an integral part of the Elm runtime environment (like `elm-lang/core` and `elm-lang/html`).  
+Please note that is only applies to the modified version of `elm-lang/virtual-dom` which can be found at [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom). The original `elm-lang/virtual-dom` package was not able to replay history automatically on page reload.
+
 ### Implementations of single activities
 >Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
