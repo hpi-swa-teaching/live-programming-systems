@@ -517,10 +517,61 @@ The message history can only be altered by appending new elements to it. This is
 Changing source code files is the way of the programmer influencing the behavior of the application. When a file belonging to the application has been changed, the module the file belongs to is recompiled. Unlike Smalltalk, there is no way of partially recompiling only the changed part (like a single method). Elm clearly operates on a file level as smallest level of granularity.
 
 ### Relevant operations
-Message history:  
 On the message history only appending and clearing is possible. Appending is done by interacting with the application or (for some applications) by waiting for a timer to fire. Clearing is performed through a clear button that simply empties the message history. It is also possible to import a message history from file or to save the currently loaded message history to file. This feature is intended to make bug more reproducible for it makes clear which sequence of events has lead to the bug emerging.  
-Source code files:
-On source code files every operations that can be performed on files are relevant, i.e. adding, deleting, modifying, as well as combinations of the aforementioned. When adding features to the application or building an previously non-existent application from scratch, adding (characters, lines, functions, ...) is the predominant operation. When refactoring or searching for bugs, all operations are relevant. 
+On source code files every operations that can be performed on files are relevant, i.e. adding, deleting, modifying, as well as combinations of the aforementioned. When adding features to the application or building an previously non-existent application from scratch, adding (characters, lines, functions, ...) is the predominant operation. When refactoring or searching for bugs, all operations are relevant.
+
+### Example data
+#### Message history
+The message history is a JSON string that looks like this:
+```json
+{
+  "metadata":{
+    "versions":{
+      "elm":"0.18.0"
+    },
+    "types":{
+      "message":"Main.Msg",
+      "aliases":{
+
+      },
+      "unions":{
+        "Main.Msg":{
+          "args":[
+
+          ],
+          "tags":{
+            "Decrement":[
+
+            ],
+            "Increment":[
+
+            ]
+          }
+        }
+      }
+    }
+  },
+  "history":[
+    {
+      "ctor":"Increment"
+    },
+    {
+      "ctor":"Increment"
+    },
+    {
+      "ctor":"Increment"
+    },
+    {
+      "ctor":"Decrement"
+    }
+  ]
+}
+```
+The message history has two parts: metadata and history. The metadata defines the version of the Elm runtime environment (`metadata.versions.elm`) and types of messages in use. The value `Main.Msg` in `metadata.types.message` is a so called union type that defines which message are existent in the applications context. Union types define a set of values a variable of this type can accept. In this case `Main.Msg` is defined as `type Msg = Increment | Decrement` which means that the messages `Increment` and `Decrement` can be sent. `metadata.types.aliases` is empty and would be occupied if any type aliases would be occupied if there were any type aliases in use for message sends relevant to the message history. In `metadata.types.unions`, `Main.Msg` is described. `metadata.types.unions.args` is for type variables when creating generic union types. `metadata.types.unions.tags` contains the values `Main.Msg` variables can have, for this application `Increment` and `Decrement`. The array behind the tags is for the type of data that are passed together with the type. `Increment` and `Decrement` do not have any data passed with but there are cases where not only a keyword is sent but also data.
+More on the topic of union types can be found here: [https://guide.elm-lang.org/types/union_types.html](https://guide.elm-lang.org/types/union_types.html).
+The history part of the message history contains the messages sent. The message are applied top to bottom. The field `ctor` contains the keyword. If there are data passed together with the keyword, the data are provided together with the keyword in the object that encapsulates the `ctor` field.
+
+#### Source code files
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
