@@ -483,7 +483,7 @@ Upload jsonString ->
 The argument `jsonString` contains the message history. The message history is unpacked using the function `assessImport` defined in `src/VirtualDom/Overlay.elm`. `assessImport` either successfully unpacks the history and provides the `rawHistory` in a native Elm data format, or it fails and returns an error message. On success, the history is replayed by the function `loadNewHistory`.
 
 
-The concept behind replaying the history is the following. The debugger keeps track of everything that the user does to the application in a history. When the application is reloaded (see "Live reloading", the previous section), the history is stored in a way that it persists the reloading. After reloading, the application is in a blank state. To bring the application back to the situation it was in before reloading, every element of the history has to be applied in order. We purposely use the term "situation" because the state can be different to the state before reloading. This happens, when the changes made to the application affect the model or the way the model is updated. 
+The concept behind replaying the history is the following. The debugger keeps track of everything that the user does to the application in a history. When the application is reloaded (see "Live reloading", the previous section), the history is stored in a way that it persists the reloading. After reloading, the application is in a blank state. To bring the application back to the situation it was in before reloading, every element of the history has to be applied in order. We purposely use the term "situation" because the state can be different to the state before reloading. This happens, when the changes made to the application affect the model or the way the model is updated.
 
 
 #### Example: Scrubbing
@@ -493,6 +493,12 @@ The concept behind replaying the history is the following. The debugger keeps tr
 
 ### Within or outside of the application
 >For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
+
+#### Live reloading
+When the system is the Elm debugger, live reloading happens from outside the system. There is an extra service that watches the files under development that is completely separated from the debugger itself. The browser plug-in that reloads the page when the service notifies it is also not part of the debugger. Both are components that are build _around_ the analyzed system itself. They are crucial for the system to work as intended, though. This is equivalent to the presence of browsers and operating systems being prerequisites for the Elm debugger.
+
+#### Live replaying
+Live replaying is part of the debugger itself. As described above, it is implemented in the `elm-lang/virtual-dom` package, which also provides all other parts of the debugger. 
 
 ---
 
