@@ -388,7 +388,7 @@ store metadata history =
   in
     Task.perform (\_ -> NoOp) (Native.Debug.store historyLength json)
 ```
-#### 4. The `store` function in JavaScript
+##### 4. The `store` function in JavaScript
 This function is defined in `src/Native/Debug.js`. It stores the message history (provided in the argument `json`) in the session storage (as `elmHistory`).
 ```javascript
 function store(historyLength, json)
@@ -402,9 +402,88 @@ function store(historyLength, json)
 	});
 }
 ```
-<<< TODO: concrete implementation >>>
 
-<<< TODO: abstract concept >>>
+
+Loading works as follows:
+##### 1. Event when loading page
+A `window.load` listener simulates a button click event on the "Load" button. This is implemented in JavaScript since Elm does not support load/unload/beforeunload listener.  
+Relevant part in `src/Native/VirtualDom.js`:
+```javascript
+window.addEventListener("load", function(event) {
+	setTimeout(function(){
+		document.getElementById("load").click();
+	},200);
+});
+```
+The delay of 200ms makes sure that the "Load" button has its click event listener readily registered.
+##### 2. How the "Load" button works
+The "Load" button sends the `loadMsg` specified in a `Config` data structure.
+Button creation in function `viewImportExport` in `src/VirtualDom/Overlay.elm`:
+```elm
+button loadMsg "Load" "load"
+```
+The function `button` is created in the same file:
+```elm
+button : msg -> String -> String -> Node msg
+button msg label identifier =
+  span [ onClick msg, style [("cursor","pointer")], id identifier ] [ text label ]
+```
+This shows that the button is actually implemented as a `span` element. When the `span` element is clicked, the Message `msg` is send.  
+The `loadMsg` mentioned above is defined in `src/VirtualDom/Debug.elm` inside a `Config` data structure:
+```elm
+overlayConfig : Overlay.Config (Msg msg)
+overlayConfig =
+  { resume = Resume
+  , open = Open
+  , importHistory = Import
+  , exportHistory = Export
+  , loadHistory = Load
+  , storeHistory = Store
+  , clearHistory = Clear
+  , wrap = OverlayMsg
+  }
+```
+Therefore a click on the "Load" button sends the message `Load`.
+##### 3. What happens when the `Load` message is send
+The `Load` message is then processed by the function `wrapUpdate` which is also defined in `src/VirtualDom/Debug.elm`. The relevant part is that a function `load` is called.
+```elm
+Load ->
+  withGoodMetadata model <| \_ ->
+    model ! [ load ]
+```
+The function `load` then makes a transition to a function defined in the JavaScript part (`Native.Debug.load`) and sends the result as payload of another message (`Upload`):
+```elm
+load : Cmd (Msg msg)
+load =
+  Task.perform Upload Native.Debug.load
+```
+##### 4. The `load` function in JavaScript
+This function is defined in `src/Native/Debug.js`. It loads the message history from the session storage and passes it back to Elm using a callback.
+```javascript
+var load = _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+{
+	var elmHistory = sessionStorage.getItem("elmHistory");
+	if(elmHistory) {
+		callback(_elm_lang$core$Native_Scheduler.succeed(elmHistory));
+	}
+});
+```
+##### 5. Applying the message history
+The Elm function `load` sent a message `Upload` with the result of the JavaScript function `load`. No we have a look at what happens when `Upload` is received. Again, `wrapUpdate` is the function dealing with the message:
+```elm
+Upload jsonString ->
+  withGoodMetadata model <| \metadata ->
+    case Overlay.assessImport metadata jsonString of
+      Err newOverlay ->
+        { model | overlay = newOverlay } ! []
+
+      Ok rawHistory ->
+        loadNewHistory rawHistory userUpdate model
+```
+The argument `jsonString` contains the message history. The message history is unpacked using the function `assessImport` defined in `src/VirtualDom/Overlay.elm`. `assessImport` either successfully unpacks the history and provides the `rawHistory` in a native Elm data format, or it fails and returns an error message. On success, the history is replayed by the function `loadNewHistory`.
+
+
+The concept behind replaying the history is the following. The debugger keeps track of everything that the user does to the application in a history. When the application is reloaded (see "Live reloading", the previous section), the history is stored in a way that it persists the reloading. After reloading, the application is in a blank state. To bring the application back to the situation it was in before reloading, every element of the history has to be applied in order. We purposely use the term "situation" because the state can be different to the state before reloading. This happens, when the changes made to the application affect the model or the way the model is updated. 
 
 
 #### Example: Scrubbing
