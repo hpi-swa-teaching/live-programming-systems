@@ -516,6 +516,12 @@ There are two relevant units of change: the message history and source code file
 The message history can only be altered by appending new elements to it. This is made by normally interacting with the application. There is no behavioral difference to executing the application without the debugger. The distinctiveness lies in the debugger keeping track of input happening to the application. This is only relevant in context of replaying the history for the purpose of bringing the application to a specific situation it was in before.
 Changing source code files is the way of the programmer influencing the behavior of the application. When a file belonging to the application has been changed, the module the file belongs to is recompiled. Unlike Smalltalk, there is no way of partially recompiling only the changed part (like a single method). Elm clearly operates on a file level as smallest level of granularity.
 
+### Relevant operations
+Message history:  
+On the message history only appending and clearing is possible. Appending is done by interacting with the application or (for some applications) by waiting for a timer to fire. Clearing is performed through a clear button that simply empties the message history. It is also possible to import a message history from file or to save the currently loaded message history to file. This feature is intended to make bug more reproducible for it makes clear which sequence of events has lead to the bug emerging.  
+Source code files:
+On source code files every operations that can be performed on files are relevant, i.e. adding, deleting, modifying, as well as combinations of the aforementioned. When adding features to the application or building an previously non-existent application from scratch, adding (characters, lines, functions, ...) is the predominant operation. When refactoring or searching for bugs, all operations are relevant. 
+
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
 ---
