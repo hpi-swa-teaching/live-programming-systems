@@ -567,11 +567,59 @@ The message history is a JSON string that looks like this:
   ]
 }
 ```
-The message history has two parts: metadata and history. The metadata defines the version of the Elm runtime environment (`metadata.versions.elm`) and types of messages in use. The value `Main.Msg` in `metadata.types.message` is a so called union type that defines which message are existent in the applications context. Union types define a set of values a variable of this type can accept. In this case `Main.Msg` is defined as `type Msg = Increment | Decrement` which means that the messages `Increment` and `Decrement` can be sent. `metadata.types.aliases` is empty and would be occupied if any type aliases would be occupied if there were any type aliases in use for message sends relevant to the message history. In `metadata.types.unions`, `Main.Msg` is described. `metadata.types.unions.args` is for type variables when creating generic union types. `metadata.types.unions.tags` contains the values `Main.Msg` variables can have, for this application `Increment` and `Decrement`. The array behind the tags is for the type of data that are passed together with the type. `Increment` and `Decrement` do not have any data passed with but there are cases where not only a keyword is sent but also data.
+The message history has two parts: metadata and history. The metadata define the version of the Elm runtime environment (`metadata.versions.elm`) and types of messages in use. The value `Main.Msg` in `metadata.types.message` is a so called union type that defines which message are existent in the applications context. Union types define a set of values a variable of this type can accept. In this case `Main.Msg` is defined as `type Msg = Increment | Decrement` which means that the messages `Increment` and `Decrement` can be sent. `metadata.types.aliases` is empty and would be occupied if any type aliases would be occupied if there were any type aliases in use for message sends relevant to the message history. In `metadata.types.unions`, `Main.Msg` is described. `metadata.types.unions.args` is for type variables when creating generic union types. `metadata.types.unions.tags` contains the values `Main.Msg` variables can have, for this application `Increment` and `Decrement`. The array behind the tags is for the type of data that are passed together with the type. `Increment` and `Decrement` do not have any data passed with but there are cases where not only a keyword is sent but also data.
 More on the topic of union types can be found here: [https://guide.elm-lang.org/types/union_types.html](https://guide.elm-lang.org/types/union_types.html).
 The history part of the message history contains the messages sent. The message are applied top to bottom. The field `ctor` contains the keyword. If there are data passed together with the keyword, the data are provided together with the keyword in the object that encapsulates the `ctor` field.
 
 #### Source code files
+The Elm source code for an application that generates the message history shown above is the following:
+```elm
+import Html exposing (Html, button, div, text)
+import Html.Events exposing (onClick)
+
+
+main =
+  Html.beginnerProgram { model = model, view = view, update = update }
+
+
+-- MODEL
+
+type alias Model = Int
+
+model : Model
+model =
+  0
+
+
+-- UPDATE
+
+type Msg = Increment | Decrement
+
+update : Msg -> Model -> Model
+update msg model =
+  case msg of
+    Increment ->
+      model + 1
+
+    Decrement ->
+      model - 1
+
+
+-- VIEW
+
+view : Model -> Html Msg
+view model =
+  div []
+    [ button [ onClick Decrement ] [ text "-" ]
+    , div [] [ text (toString model) ]
+    , button [ onClick Increment ] [ text "+" ]
+    ]
+```
+As one can see a model-view-update pattern is used which is typical for Elm applications. Also, there is no debugger package imported explicitly through the applications source code. This is a major difference between the runtime debugger we analyzed in this work and the two other debuggers mentioned at the beginning. The Elm source code does not have to be changed in order to use the debugger. In the following we will provide an explanation of the source code.
+The application creates a simple counter with three elements, an area that shows the current value of the counter and two buttons, one for incrementing and one for decrementing the counter.
+<<< TODO: FIGURE >>>
+The first two lines are for importing elements we want to use in the application. The statement `main = Html.beginnerProgram { ... }` assembles a simple web page out of the components model, view, and update we define below. Our model is a simple integer number that stores the counters value. Initially the value is 0. The update part has a type `Msg` that allows two messages for updating the model: `Increment` and `Decrement`. After defining this type, the function `update` defines what the effects of receiving these messages are. I.e., receiving `Increment` increments the model and receiving `Decrement` decrements the model. The view part defines the graphical representation and the way the user interacts with the application. It creates a text area that shows the model and two buttons, one with a "+" on it that sends the `Increment` message when clicked and one with a "-" on it that sends the `Decrement` message when clicked.
+The messages `Increment` and `Decrement` are the same messages that appear in the message history. The type that defines these messages, `Msg` or more specifically `Main.Msg`, also appears there.
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
