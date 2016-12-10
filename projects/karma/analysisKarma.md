@@ -150,7 +150,7 @@ Which features of the system were not described and why were they left out?
 ### Mutable or immutable past
 To which category does the system or parts of it belong and why?
 
-- past is immutable
+- past is mutable
 - restart "programm" on every save --> mutable?
 - would it make sense to have the past mutable?
 - can be replayed by using git?
@@ -184,6 +184,7 @@ To which level of liveness do single activities belong, based on the definitions
    * cannot edit program while running (cannot actually edit program)
    * only level 4 with autosaving IDE?
    * only level 4 when response time is acceptable?
+   * could have tests run continuously
    * cannot predict anything, so not level 5...
 
 
@@ -218,8 +219,11 @@ Abstract form: Scrubbing is enabled through incremental compilation which enable
   - show partial results
   - show already executed test results (15/70 - 14 / 1 / 0)
 
-- update while typing / update on keystroke
+- update on save
   - reexecute tests on save
+
+- evalutaion on multiple examples
+  - test = examples
 
 ### Within or outside of the application
 For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
@@ -228,12 +232,60 @@ For each activity: Does the activity happen from within the running application 
 
 ## Benchmark
 1. **Unit of change:** Determine relevant units of change from the user perspective. Use the most common ones.
+- successful / failed / erronous tests
+- number of executed tests
+- execution system (cross browser testing)
+- 
+- execution time?
+
 2. **Relevant operations:** Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
-3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
+- ?
+- fix tests to change stats?
+
+3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. 
+The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
+- ?
+
 4. **Reproducible setup of system and benchmark**
   1. Description of installation on Ubuntu 16.04.1 LTS
-  2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. At the same time the emergence phase ends when the rendering has finished and the result is perceivable. The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
+  - install node/npm
+  - clone angular repository
+  - install grunt-cli (using npm)
+  - npm install in angular repository
+  - exectue grunt autotest to run test continuously
+  - start making changes on the code
+
+  2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. 
+  So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. 
+  At the same time the emergence phase ends when the rendering has finished and the result is perceivable. 
+  The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
+
+  3. Benchmark System properties
+  - angular suite
+  - ~8200 commits on master branch (as of Dec. 2016)
+  - ~1500 contributors
+  - ~5806 tests
+  - ~191k lines of code
+  - huge project
+
 5. **Results for adaptation and emergence phase**
+- first execution ~31s
+- first change ~26s
+- second change ~24s
+- third change ~25s
+- 4th change ~25s
+- 5th change ~26s, 98 test failed, first failed test after ~17s
+--> not live anymore (response time to high)
+--> can create specific configs though (for smaller parts of the system --> better performance)
+
+
+## Benchmark 2 - smaller system
+- bricks game
+- < 100 commits
+- < 100 tests
+
+- < x lines of code
+
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
