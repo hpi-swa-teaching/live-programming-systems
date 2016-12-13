@@ -638,12 +638,23 @@ For using the Elm debugger, you need an Elm project that is to be debugged. Ther
  3. You do not have a project and do not know Elm.
 
 If you already have a project change to the project folder. Have a look at the `elm-package.json` and make sure `elm-lang/virtual-dom` is part of the dependency specification and fixed on version 2.0.2. If you changed something, rerun `elm-package install`.  
-If you do not have a project at hand but know Elm, change to a folder where you want to create your project in. Create at least one Elm file where your code goes in. Afterwards run `elm-package install` to install dependencies and `elm-reactor` to start your Elm application once for making sure your Elm setup works. Now have a look at the `elm-package.json` and add `"elm-lang/virtual-dom": "2.0.2 <= v < 2.0.3"` to the `dependencies` object. If `"elm-lang/virtual-dom"` is already key to the `dependencies` object, alter the value to match the aforementioned key-value pair.
+If you do not have a project at hand but know Elm, change to a folder where you want to create your project in. Create at least one Elm file where your code goes in. Afterwards run `elm-package install` to install dependencies and `elm-reactor` to start your Elm application once for making sure your Elm setup works. Now have a look at the `elm-package.json` and add `"elm-lang/virtual-dom": "2.0.2 <= v < 2.0.3"` to the `dependencies` object. If `"elm-lang/virtual-dom"` is already key to the `dependencies` object, alter the value to match the aforementioned key-value pair.  
 If you do not know Elm, you can check out an example project from GitHub. Change to the folder your experiments may take place in and execute `git clone https://github.com/jchromik/lps16-elm-examples.git`. Afterwards execute `elm-package install`. You do not have to alter the `elm-package.json`, it is already configured to use the correct version of `elm-lang/virtual-dom`.
 
-#### 3. Exchange `elm-lang/virtual-dom`
+#### 3. Replace `elm-lang/virtual-dom`
+From your Elm project folder, change to the folder the `elm-lang/virtual-dom` package is located in: `cd elm-stuff/packages/elm-lang/virtual-dom`. Then delete the folder 2.0.2: `rm -rf 2.0.2`. Now clone a modified version of `elm-lang/virtual-dom` in the folder just deleted: `git clone https://github.com/jchromik/virtual-dom.git 2.0.2`. You have now successfully replaced the original package with a modified fork.
+
+Hint: When you are using the example project form GitHub, you can just run `setup.sh`. This installs the correct Elm packages and replaces `elm-lang/virtual-dom`.
 
 #### 4. Start Everything
+All commands have to take place in your Elm project directory.
+ 1. Start the Elm Reactor: `elm-reactor`
+ 2. Start the live reload server: `livereload . -e 'elm'`
+ 3. Start the Chromium browser.
+ 4. Got to `localhost:8000`.
+ 5. Select Elm file (Counter.elm or OnlyNumbers.elm if you are using the example project).
+ 6. Enable live reload plug-in by clicking on the button in the top-right corner of the browser window.
+ 7. Start editing the selected Elm file.
 
 ### Setup of the Benchmark
 
