@@ -621,6 +621,34 @@ The application creates a simple counter with three elements, an area that shows
 The first two lines are for importing elements we want to use in the application. The statement `main = Html.beginnerProgram { ... }` assembles a simple web page out of the components model, view, and update we define below. Our model is a simple integer number that stores the counters value. Initially the value is 0. The update part has a type `Msg` that allows two messages for updating the model: `Increment` and `Decrement`. After defining this type, the function `update` defines what the effects of receiving these messages are. I.e., receiving `Increment` increments the model and receiving `Decrement` decrements the model. The view part defines the graphical representation and the way the user interacts with the application. It creates a text area that shows the model and two buttons, one with a "+" on it that sends the `Increment` message when clicked and one with a "-" on it that sends the `Decrement` message when clicked.
 The messages `Increment` and `Decrement` are the same messages that appear in the message history. The type that defines these messages, `Msg` or more specifically `Main.Msg`, also appears there.
 
+### Setup of the System
+On a freshly set up Ubuntu 16.04.1 LTS the following steps have to be performed in order to achieve a up and running Elm debugger setup with observed Elm application. (Note that there are many alternative ways. We only describe one.)
+
+#### 1. Install Technology Stack
+ 1. Install Node.js together with the Node Package Manager (NPM) via APT: `sudo apt install nodejs npm`
+ 2. Install the Elm platform at version 0.18 via NPM: `sudo npm install -g elm@0.18`
+ 3. Install the live reload server via NPM: `sudo npm install -g livereload`
+ 4. Install the Chromium browser via APT: `sudo apt install chromium-browser`
+ 5. Install the live reload plug-in via the Chrome Web Store: Visit [https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei) with the Chromium browser and click the "ADD TO CHROME" button.
+
+#### 2. Set up Project
+For using the Elm debugger, you need an Elm project that is to be debugged. There are three options:
+ 1. You already have an existing project on which you want to try the debugger.
+ 2. You do not have a project at hand, but you know Elm and can easily create a project.
+ 3. You do not have a project and do not know Elm.
+
+If you already have a project change to the project folder. Have a look at the `elm-package.json` and make sure `elm-lang/virtual-dom` is part of the dependency specification and fixed on version 2.0.2. If you changed something, rerun `elm-package install`.  
+If you do not have a project at hand but know Elm, change to a folder where you want to create your project in. Create at least one Elm file where your code goes in. Afterwards run `elm-package install` to install dependencies and `elm-reactor` to start your Elm application once for making sure your Elm setup works. Now have a look at the `elm-package.json` and add `"elm-lang/virtual-dom": "2.0.2 <= v < 2.0.3"` to the `dependencies` object. If `"elm-lang/virtual-dom"` is already key to the `dependencies` object, alter the value to match the aforementioned key-value pair.
+If you do not know Elm, you can check out an example project from GitHub. Change to the folder your experiments may take place in and execute `git clone https://github.com/jchromik/lps16-elm-examples.git`. Afterwards execute `elm-package install`. You do not have to alter the `elm-package.json`, it is already configured to use the correct version of `elm-lang/virtual-dom`.
+
+#### 3. Exchange `elm-lang/virtual-dom`
+
+#### 4. Start Everything
+
+### Setup of the Benchmark
+
+### Benchmark Results
+
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
 ---
