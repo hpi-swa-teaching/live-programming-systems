@@ -656,7 +656,11 @@ All commands have to take place in your Elm project directory.
  6. Enable live reload plug-in by clicking on the button in the top-right corner of the browser window.
  7. Start editing the selected Elm file.
 
+Hint: The example project contains scripts for starting and stopping Elm Reactor and live reload server at once.
+
 ### Setup of the Benchmark
+We are benchmarking the runtime of a single development cycle. The cycle includes everything that happens between the programmer saving changed source code and the end of the adaption phase, i.e. recompiling, reloading, and replaying. For benchmarking this we log the time the Elm application starts reloading (through a `beforeunload` listener) and log the time again when the history is completely replayed. Our start time is the time the page starts reloading, because the debugger itself has no influence on everything that happens prior to this. If the live reload server, the live reload plug-in, or the browser itself need much time for propagating the event saying that a source file has been changed, this is not a performance issue of the Elm debugger and therefore not to be benchmarked.  
+Using this setup we get a log file with pairs of timestamps: start and end of the cycle. By calculating the difference between these time stamps we get the runtime of the Elm debugger for one cycle. This calculation as well as parsing the log is done by a small python script.
 
 ### Benchmark Results
 
