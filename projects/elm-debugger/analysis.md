@@ -676,24 +676,39 @@ Benchmarks we performed:
 In the following we show how we programmatically generated input for the benchmarks.  
 1.1. counter predictable:
 ```javascript
-for(var i=0; i<num_messages; i++) {
-  // click decrement button
+for(var i=0; i<numMessages; i++) {
   document.getElementsByTagName('button')[0].click();
 }
 ```
 1.2. counter unpredictable
 ```javascript
-
+for(var i=0; i<numMessages; i++) {
+  if(Math.floor(Math.random()*2) == 0) {
+    document.getElementsByTagName("button")[0].click();
+  } else {
+    document.getElementsByTagName("button")[1].click()
+  }
+}
 ```
 2.1. onlynumbers predictable reject
 ```javascript
-
+for(var i=0; i<numMessages; i++) {
+  var element = document.getElementsByTagName("input")[0];
+  var evt = new Event("input");
+  element.value += 'a';
+  element.dispatchEvent(evt);
+}
 ```
 2.2. onlynumbers predictable keep
 ```javascript
-
+for(var i=0; i<numMessages; i++) {
+  var element = document.getElementsByTagName("input")[0];
+  var evt = new Event("input");
+  element.value += '1';
+  element.dispatchEvent(evt);
+}
 ```
-2.3. onlynumbers unpredictable
+2.3. onlynumbers   unpredictable
 ```javascript
 
 ```
