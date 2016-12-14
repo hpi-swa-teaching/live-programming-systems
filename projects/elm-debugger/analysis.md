@@ -666,12 +666,37 @@ Log files, benchmarking shell script, and analyze script can be found at [https:
 
 Benchmarks we performed:
  1. On Counter application: User can increment/decrement a counter. Model update correspondingly `model+1` or `model-1`.
-   1. Predictable input: Only decrementing.
-   2. Unpredictable input: Randomly chosen sequence of increment and decrement.
+   1. Predictable input: Only decrementing. Denoted as: "*counter predictable*"
+   2. Unpredictable input: Randomly chosen sequence of increment and decrement. Denoted as: "*counter unpredictable*"
  2. On OnlyNumbers application: User gives a sequence of characters and the application filters for numbers (digits). Model update is string filter operation.
-   1. Predictable input, reject all: Repeated input of a single non-digit character. For example: 'a'.
-   2. Predictable input, keep all: Repeated input of a single digit character. For example: '1'.
-   3. Unpredictable input: Randomly chosen sequence of various characters.
+   1. Predictable input, reject all: Repeated input of a single non-digit character. For example: 'a'. Denoted as: "*onlynumbers predictable reject*"
+   2. Predictable input, keep all: Repeated input of a single digit character. For example: '1'. Denoted as: "*onlynumbers predictable keep*"
+   3. Unpredictable input: Randomly chosen sequence of various characters. Denoted as: "*onlynumbers unpredictable*"
+
+In the following we show how we programmatically generated input for the benchmarks.  
+1.1. counter predictable:
+```javascript
+for(var i=0; i<num_messages; i++) {
+  // click decrement button
+  document.getElementsByTagName('button')[0].click();
+}
+```
+1.2. counter unpredictable
+```javascript
+
+```
+2.1. onlynumbers predictable reject
+```javascript
+
+```
+2.2. onlynumbers predictable keep
+```javascript
+
+```
+2.3. onlynumbers unpredictable
+```javascript
+
+```
 
 ### Benchmark Results
 
