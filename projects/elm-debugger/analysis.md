@@ -664,6 +664,15 @@ The benchmark was performed by a shell script which changed touched the source c
 Using this setup we get a log file with pairs of timestamps: start and end of the cycle. By calculating the difference between these time stamps we get the runtime of the Elm debugger for one cycle. This calculation as well as parsing the log is done by a small python script.  
 Log files, benchmarking shell script, and analyze script can be found at [https://github.com/jchromik/lps16-elm-examples](https://github.com/jchromik/lps16-elm-examples). The `elm-lang/virtual-dom` modifications for logging benchmark result can be found on branch `benchmark` in [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom).
 
+Benchmarks we performed:
+ 1. On Counter application: User can increment/decrement a counter. Model update correspondingly `model+1` or `model-1`.
+   1. Predictable input: Only decrementing.
+   2. Unpredictable input: Randomly chosen sequence of increment and decrement.
+ 2. On OnlyNumbers application: User gives a sequence of characters and the application filters for numbers (digits). Model update is string filter operation.
+   1. Predictable input, reject all: Repeated input of a single non-digit character. For example: 'a'.
+   2. Predictable input, keep all: Repeated input of a single digit character. For example: '1'.
+   3. Unpredictable input: Randomly chosen sequence of various characters.
+
 ### Benchmark Results
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
