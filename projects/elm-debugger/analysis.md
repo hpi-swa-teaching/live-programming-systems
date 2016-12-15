@@ -660,8 +660,8 @@ Hint: The example project contains scripts for starting and stopping Elm Reactor
 
 ### Setup of the Benchmark
 We are benchmarking the runtime of a single development cycle. The cycle includes everything that happens between the programmer saving changed source code and the end of the adaption phase, i.e. recompiling, reloading, and replaying. For benchmarking this we log the time the Elm application starts reloading (through a `beforeunload` listener) and log the time again when the history is completely replayed. Our start time is the time the page starts reloading, because the debugger itself has no influence on everything that happens prior to this. If the live reload server, the live reload plug-in, or the browser itself need much time for propagating the event saying that a source file has been changed, this is not a performance issue of the Elm debugger and therefore not to be benchmarked.  
-The benchmark was performed by a shell script which changed touched the source code file under observation 100 times with a waiting period of three seconds between the file operations. The waiting period is three seconds long because found out, that one cycle usually takes less than one second. Choosing a three second waiting period ensured that the file is certainly not touched while the adaption cycle is still running. All benchmarks were preceded by a VM warmup phase.  
-Using this setup we get a log file with pairs of timestamps: start and end of the cycle. By calculating the difference between these time stamps we get the runtime of the Elm debugger for one cycle. This calculation as well as parsing the log is done by a small python script.  
+The benchmark was performed by a shell script which changed touched the source code file under observation 100 times with a waiting period of three seconds between the file operations. The waiting period is three seconds long because found out, that one cycle usually takes less than one second. Choosing a three second waiting period ensured that the file is certainly not touched while the adaption cycle is still running.
+Using this setup we get a log file with pairs of timestamps: start and end of the cycle. By calculating the difference between these timestamps we get the runtime of the Elm debugger for one cycle. This calculation as well as parsing the log is done by a small python script. Chart generation is done with R. 
 Log files, benchmarking shell script, and analyze script can be found at [https://github.com/jchromik/lps16-elm-examples](https://github.com/jchromik/lps16-elm-examples). The `elm-lang/virtual-dom` modifications for logging benchmark result can be found on branch `benchmark` in [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom).
 
 Benchmarks we performed:
@@ -669,48 +669,48 @@ Benchmarks we performed:
    1. Predictable input: Only decrementing. Denoted as: "*counter predictable*"
    2. Unpredictable input: Randomly chosen sequence of increment and decrement. Denoted as: "*counter unpredictable*"
  2. On OnlyNumbers application: User gives a sequence of characters and the application filters for numbers (digits). Model update is string filter operation.
-   1. Predictable input, reject all: Repeated input of a single non-digit character. For example: 'a'. Denoted as: "*onlynumbers predictable reject*"
-   2. Predictable input, keep all: Repeated input of a single digit character. For example: '1'. Denoted as: "*onlynumbers predictable keep*"
+   1. Predictable input, keep all: Repeated input of a single digit character. For example: '1'. Denoted as: "*onlynumbers predictable keep*"
+   2. Predictable input, reject all: Repeated input of a single non-digit character. For example: 'a'. Denoted as: "*onlynumbers predictable reject*"
    3. Unpredictable input: Randomly chosen sequence of various characters. Denoted as: "*onlynumbers unpredictable*"
 
 In the following we show how we programmatically generated input for the benchmarks.  
 1.1. counter predictable:
 ```javascript
 for(var i=0; i<numMessages; i++) {
-  document.getElementsByTagName('button')[0].click();
+  elmHistory.history.push({"ctor":"Increment"});
 }
 ```
 1.2. counter unpredictable
 ```javascript
 for(var i=0; i<numMessages; i++) {
   if(Math.floor(Math.random()*2) == 0) {
-    document.getElementsByTagName("button")[0].click();
-  } else {
-    document.getElementsByTagName("button")[1].click()
+		elmHistory.history.push({"ctor":"Increment"});
+	} else {
+		elmHistory.history.push({"ctor":"Decrement"});
+	}
+}
+```
+2.1. onlynumbers predictable keep
+```javascript
+for(var i=0; i<numMessages; i++) {
+  elmHistory.history.push({"ctor":"Change","_0":"1"});
+}
+```
+2.2. onlynumbers predictable reject
+```javascript
+for(var i=0; i<numMessages; i++) {
+  elmHistory.history.push({"ctor":"Change","_0":"a"});
+}
+```
+2.3. onlynumbers unpredictable
+```javascript
+for(var i=0; i<numMessages; i++) {
+  if(Math.floor(Math.random()*2) == 0) {
+		elmHistory.history.push({"ctor":"Change","_0":"1"});
+	} else {
+	  elmHistory.history.push({"ctor":"Change","_0":"a"});
   }
 }
-```
-2.1. onlynumbers predictable reject
-```javascript
-for(var i=0; i<numMessages; i++) {
-  var element = document.getElementsByTagName("input")[0];
-  var evt = new Event("input");
-  element.value += 'a';
-  element.dispatchEvent(evt);
-}
-```
-2.2. onlynumbers predictable keep
-```javascript
-for(var i=0; i<numMessages; i++) {
-  var element = document.getElementsByTagName("input")[0];
-  var evt = new Event("input");
-  element.value += '1';
-  element.dispatchEvent(evt);
-}
-```
-2.3. onlynumbers   unpredictable
-```javascript
-
 ```
 
 ### Benchmark Results
