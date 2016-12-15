@@ -214,7 +214,8 @@ In summary, it can be stated, that there is only one path that is automated and 
 
 >How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
 
-<<< TODO: figure where browser encapsulates debugger and debugger encapsulates app >>>
+![Browser encapsulates Debugger and Debugger encapsulates Application](ressources/browser_debugger_app.png)
+Browser encapsulates Debugger and Debugger encapsulates Application
 
 There are two borders to the live debugger: the Elm application and the browser. The Elm application, live or not, runs inside the debugger and is not influenced in its behavior. The application behaves just as if the debugger was not present. All the debugger does is logging the message sends and the corresponding state, and all effect the debugger has to the application is the ability to restart it and feed it with parts of the logged input. On the other side, the influence of the the (live) browser on the debugger is much stronger. The debugger relies on the session storage which is managed by the browser. Therefore the user can easily influence for example the message history by editing the session storage through the browser. Moreover, most browser provide the ability to change appearance and behavior of the shown website by giving the user access to the source files the page is generated from.  
 All in all it can be stated that while the browser has a potentially strong influence on the debugger, the debugger has only a weak influence on the Elm application running inside. The only mean of influencing the debugger has is restarting and replaying input. Model or source code manipulation is not provided.
@@ -321,8 +322,12 @@ livereload /path/to/project -e 'elm'
 ```
 Now the live reload server is up and running. Now we need to install the live reload plug-in which receives a notification from the live reload server whenever a file to be watched changes. Subsequently the plug-in reloads the page. Using the Chromium web browser, install the plug-in "LiveReload" (we used version 2.1.0). Then visit the web page showing the Elm application (usually `http://localhost:8000`) and enable the plug-in by clicking on the button next to the address bar.
 Now live reloading is enabled.
+
 ![Live reload plug-in installation page](ressources/live_reload_plug-in_page.png)
+Live reload plug-in installation page
+
 ![Live reload button next to the address bar](ressources/live_reload_plug-in_button.png)
+Live reload button next to the address bar
 
 The concept behind this is live reloading. This means adapting changes in source code immediately by reloading the page whenever any of the source files has changed. This is an event-driven concept.
 
@@ -619,7 +624,10 @@ view model =
 ```
 As one can see a model-view-update pattern is used which is typical for Elm applications. Also, there is no debugger package imported explicitly through the applications source code. This is a major difference between the runtime debugger we analyzed in this work and the two other debuggers mentioned at the beginning. The Elm source code does not have to be changed in order to use the debugger. In the following we will provide an explanation of the source code.
 The application creates a simple counter with three elements, an area that shows the current value of the counter and two buttons, one for incrementing and one for decrementing the counter.
+
 ![Simple counter application with debugger box in the bottom right corner](ressources/counter_raw.png)
+Simple counter application with debugger box in the bottom right corner
+
 The first two lines are for importing elements we want to use in the application. The statement `main = Html.beginnerProgram { ... }` assembles a simple web page out of the components model, view, and update we define below. Our model is a simple integer number that stores the counters value. Initially the value is 0. The update part has a type `Msg` that allows two messages for updating the model: `Increment` and `Decrement`. After defining this type, the function `update` defines what the effects of receiving these messages are. I.e., receiving `Increment` increments the model and receiving `Decrement` decrements the model. The view part defines the graphical representation and the way the user interacts with the application. It creates a text area that shows the model and two buttons, one with a "+" on it that sends the `Increment` message when clicked and one with a "-" on it that sends the `Decrement` message when clicked.
 The messages `Increment` and `Decrement` are the same messages that appear in the message history. The type that defines these messages, `Msg` or more specifically `Main.Msg`, also appears there.
 
