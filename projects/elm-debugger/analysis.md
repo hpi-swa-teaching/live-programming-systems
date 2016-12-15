@@ -321,8 +321,8 @@ livereload /path/to/project -e 'elm'
 ```
 Now the live reload server is up and running. Now we need to install the live reload plug-in which receives a notification from the live reload server whenever a file to be watched changes. Subsequently the plug-in reloads the page. Using the Chromium web browser, install the plug-in "LiveReload" (we used version 2.1.0). Then visit the web page showing the Elm application (usually `http://localhost:8000`) and enable the plug-in by clicking on the button next to the address bar.
 Now live reloading is enabled.
-<<< TODO: pictures of addon installation and button to click on >>>
-
+![Live reload plug-in installation page](ressources/live_reload_plug-in_page.png)
+![Live reload button next to the address bar](ressources/live_reload_plug-in_button.png)
 
 The concept behind this is live reloading. This means adapting changes in source code immediately by reloading the page whenever any of the source files has changed. This is an event-driven concept.
 
