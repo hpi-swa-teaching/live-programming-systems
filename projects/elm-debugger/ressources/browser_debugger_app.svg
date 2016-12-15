@@ -17,8 +17,8 @@
    inkscape:version="0.91 r13725"
    sodipodi:docname="browser_debugger_app.svg"
    inkscape:export-filename="/home/scandic/Documents/LPS/live-programming-systems/projects/elm-debugger/ressources/browser_debugger_app.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-xdpi="22.5"
+   inkscape:export-ydpi="22.5">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -29,7 +29,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.24748737"
-     inkscape:cx="-198.16569"
+     inkscape:cx="-883.04912"
      inkscape:cy="469.48507"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -48,7 +48,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -96,7 +96,7 @@
          id="tspan3346"
          sodipodi:role="line">DEBUGGER</tspan></text>
     <rect
-       style="fill:#b3b3b3;stroke:#000000;stroke-width:4"
+       style="fill:#cccccc;stroke:#000000;stroke-width:4"
        id="rect3348"
        width="600"
        height="400"
