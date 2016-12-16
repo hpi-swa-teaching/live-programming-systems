@@ -22,10 +22,9 @@ Actually there are at least three different time-traveling debuggers for Elm. In
 In the following we shortly describe the properties of the three debuggers.
 
 #### core/Debug
-This is the first time-traveling Elm debugger which was published first with Elm 0.12 and the Elm `core` package in version 1.0.0. Later, the time-traveling features were removed from the `core/Debug` package in version 4.0.0.
-<<< TODO: WHY? >>>
+This is the first time-traveling Elm debugger which was published first with Elm 0.12 and the Elm `core` package in version 1.0.0. Later, the time-traveling features were removed from the `core/Debug` package in version 4.0.0 (compare [http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Debug](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Debug) and [http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Debug](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Debug)).
+In the GitHub issue [https://github.com/elm-lang/elm-reactor/issues/186](https://github.com/elm-lang/elm-reactor/issues/186) Evan Czaplicki, the designer of Elm, said that the features were removed because "It was not possible to fit all the upgrades into Elm 0.17" whereas upgrades refers to, among others, the time-traveling features of the debugger.
 Due to dependency issues and fast changes in the Elm language itself as well as in its packages, it is now hard to create an Elm setup that is capable of running this time-traveling Debugger.
-<<< TODO: MORE ABOUT THE ISSUES? >>>
 Nevertheless, this Debugger is deployed at [http://debug.elm-lang.org/](http://debug.elm-lang.org/) and can be tried out there. The site provides three examples that make use of the `core/Debug` package.
 The tool is structured as follows:
  - Leftmost there is an editor that shows Elm source code. The source code can be changed. Adaption takes place automatically as the user types.
@@ -42,7 +41,7 @@ After the time-traveling features were removed from `core/Debug`, there was no t
 In contrast to `core/Debug`, this package does not show source code. There is only a two-part view which shows the generated web page on the left and a tool bar on the right. The tool bar does, other than `core/Debug`, not show variables or its content but message send (which are corresponding to input). By selecting a very message send, the user can jump to the point in execution where the message send happened. The debugger than pauses the execution and shows the Elm applications model before and after the message send happened. Like in `core/Debug`, the message/input history is immutable. Generating more input does not change the history at the point currently inspected but rather appends another message to the history.
 
 #### Runtime Debugger
-The Elm version 0.18 introduced a debugger that is not a package that can be invoked in the source code but rather part of the runtime environment. The debugger is invoked when the Elm application is built using the Elm Reactor (`elm-reactor`) or Elm Make with debug flag set (`elm-make Application.elm --debug`). The debugger than appears as a box in the bottom right corner of the application under observation. This box has three parts:
+The Elm version 0.18 introduced a debugger that is not a package that can be invoked in the source code but rather part of the runtime environment (see [http://elm-lang.org/blog/the-perfect-bug-report](http://elm-lang.org/blog/the-perfect-bug-report)). The debugger is invoked when the Elm application is built using the Elm Reactor (`elm-reactor`) or Elm Make with debug flag set (`elm-make Application.elm --debug`). The debugger than appears as a box in the bottom right corner of the application under observation. This box has three parts:
  1. The top part is captioned "Explore History" and shows the number of message sends in brackets behind the caption. Clicking on it opens the window described below.
  2. An "Import" button that opens a file dialog where the user can select a history file which is then replayed.
  3. An "Export" button that opens a file dialog where the user can save the current history.
