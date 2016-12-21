@@ -13,13 +13,21 @@ Generally try to drill down on reasons behind properties of the system. Make use
 ## About the System itself
 Summary of system properties
 
+> Webpack - React native with activated hotloading - Webapp with reduxstate - 
+
 ### System boundaries
 What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
+
+> Browser based using react and neccesarily webpack for providing filewatching
 
 ### Context
   - In which context is the system used?
     For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.
   - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
+
+> Development Kontext -> HotReloading
+> How does Reloading work? -> Functions have proxies to other functions that are being replaced
+> Redux states for UI
 
 ### General Application Domain
   - What is typically created in or through this system?
@@ -32,7 +40,7 @@ What is the design rational behind the system? Which values are supported by the
 
 ### Type of System
 What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
-
+> library  / interactive tool?
 ---
 
 ## Workflows
@@ -41,12 +49,21 @@ Summary of workflow observations
 ### Example Workflow
 Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
 
+> Immutable past <br>
+> Should use hot reloading <br>
+> Developer wants to make changes to the code i.e. adding a new function that gets called. Therefore application needs to be reloaded.
+> to have a smoother dev-process the state of the session before should be automatically reapplied
+
+
 ### Which activities are made live by which mechanisms?
 Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
 - Actual interactions
 - Feedback mechanism
 - If applicable: How is the emergence phase shortened?
 - Granularity: For example: Elm can only rerun the complete application
+
+> Welche Kriterien für Live-Experience Relevant
+> Beispiel: Ui-Patterns HCI
 
 ### Integration of live activities into overall system
 Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
@@ -95,6 +112,8 @@ How do the activities affect the different distances: temporal, spatial, semanti
 ### Extend of liveness in technical artifacts
 What parts of the system implements the liveness? (Execution environment, library, tool...)
 
+> React through hotloading
+
 ### Implementations of single activities
 Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
@@ -118,6 +137,9 @@ For each activity: Does the activity happen from within the running application 
 5. **Results for adaptation and emergence phase**
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
+
+> Adaptation Phase duration (save bis änderung zum Browser Propagiert (bis proxies umgemappt wurden))
+> Emergence Phase (Änderung im Browser angekommen (Proxies umgemappt) & reapplying changes im browser)
 
 ---
 
