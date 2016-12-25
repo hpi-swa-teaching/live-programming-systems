@@ -60,23 +60,28 @@ Karma also runs a headless ?chromium? browser to execute the tests in.
     * Users are professional developers
 
 ### General Application Domain
-  - What is typically created in or through this system?
-    * test Results
-    * coverage report
-    * 
-  - What are users trying to accomplish with it?
-    * get faster test Results
-    * write better code
-    * be more efficient
-    * don't worry about tools
-    * see how well their code is covered
-    * get live feedback on their code
-    * work test-driven
-  - What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
-    * used for JavaScript applications --> web apps
-    * web services and clients
+<!-- What is typically created in or through this system? -->
 
-  - ...
+The main results produced by karma are test results.
+It can show results for single or multiple tests.
+Moreover, it displays execution time.
+Furthermore, it can generate an html document which contains a coverage report.
+If integrated in Webstorm it coverage reports can also be displayed directly in the IDE.
+
+<!-- What are users trying to accomplish with it? -->
+The main benefit for the users of karma is live feedback on test results.
+The users aim to get feedback on whether their code works well as fast as possible, if possible even instantly.
+This should help them to increase their efficiency and be more productive.
+It should also support them in developing better and more robust application by identifying untested code through the coverage report.
+In general all of the beforementioned points support a test-driven development workflow.
+Furthermore, it helps them to worry less about their tools with features like auto configuration.
+
+<!-- 
+What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
+-->
+Since karma is used for application development with JavaScript it is applied in the same application domains as JavaScript is.
+Therefore, karma is mainly used for web applications and applications with client-server architecture. 
+
 
 ### Design Goals of the System
 What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
