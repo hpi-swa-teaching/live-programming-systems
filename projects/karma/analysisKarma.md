@@ -8,32 +8,47 @@ bibliography: refsKarma.bib
 - Your Name: Stephan Detje
 - Your Topic: Karma
 
+<!--
 Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
+-->
 
 ## About the System itself
-Summary of system properties
+### Summary of system properties
 
 Karma is a tool for automatic test execution on JavaScript code. 
-It was build by the developers of AngularJS. 
-They believe that "...quick feedback is what makes you productive and creative." - from karma website
-"The main purpose of Karma is to make your test-driven development easy, fast, and fun." - from karma github page
-- nodejs based test-runner for JavaScript
-- automatic config generation
-- can be integrated with grunt & gulp
-- live feedback on test Results
-- interchangeable testing framework (mocha, jasmine, QUnit, ...)
-- open source
-- active community
-- test in multiple browsers
+It was build by the developers of AngularJS.
+They did not find a test execution framework which satisfied their needs, so they decided to build on themselves.
+They believe that "...quick feedback is what makes you productive and creative." (- from karma website)
+
+Karma is a based on nodejs and used to test javascript modules.
+Its main objective is giving live feedback on test results.
+It is very easy and intuitive to set up.
+On first start a configuration can be generated.
+Karma offers integration with the most popular build tools for node models, e.g. grunt and gulp.
+Moreover, the actual testing library is interchangeable, so the developer can choose his favorite, e.g. mocha, Jasmine or QUinit.
+Besides support for unit tests karma also offers the possibility to execute tests in multiple browsers.
+Karma can also calculate a coverage support which can be displayed in multiple formats.
+
+Furthermore, karma has is aivalable as open source, so anyone can contribute.
+There is an active community which continuously strives to improve it.
 
 ### System boundaries
+<!--
 What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
-- interchangeable test framework
-- can only execute tests
-- can only execute JavaScript
+-->
 
-my actual setup
-- visual code (autosave?, karma integration), karma in terminal + browser
+In general karma can be used with any editor or IDE.
+It is integrated in some IDEs like Webstorm.
+Webstorm can display test results and the coverage report in a very appealing way.
+However, karma can be used with any IDE which has a terminal.
+Any other editor can be used as well in combination with an external terminal window.
+
+![Karma-Webstorm Integration](resources/karma-webstorm.png)
+*Screenshot of Webstorm IDE with karma integration, source: https://confluence.jetbrains.com/download/attachments/51966353/karma-testresults.png*
+
+I am using visual code for development.
+Additionally I have a terminal window on a second screen which continuously runs the karama runner.
+Karma also runs a headless ?chromium? browser to execute the tests in.
 
 
 ### Context
@@ -45,23 +60,28 @@ my actual setup
     * Users are professional developers
 
 ### General Application Domain
-  - What is typically created in or through this system?
-    * test Results
-    * coverage report
-    * 
-  - What are users trying to accomplish with it?
-    * get faster test Results
-    * write better code
-    * be more efficient
-    * don't worry about tools
-    * see how well their code is covered
-    * get live feedback on their code
-    * work test-driven
-  - What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
-    * used for JavaScript applications --> web apps
-    * web services and clients
+<!-- What is typically created in or through this system? -->
 
-  - ...
+The main results produced by karma are test results.
+It can show results for single or multiple tests.
+Moreover, it displays execution time.
+Furthermore, it can generate an html document which contains a coverage report.
+If integrated in Webstorm it coverage reports can also be displayed directly in the IDE.
+
+<!-- What are users trying to accomplish with it? -->
+The main benefit for the users of karma is live feedback on test results.
+The users aim to get feedback on whether their code works well as fast as possible, if possible even instantly.
+This should help them to increase their efficiency and be more productive.
+It should also support them in developing better and more robust application by identifying untested code through the coverage report.
+In general all of the beforementioned points support a test-driven development workflow.
+Furthermore, it helps them to worry less about their tools with features like auto configuration.
+
+<!-- 
+What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
+-->
+Since karma is used for application development with JavaScript it is applied in the same application domains as JavaScript is.
+Therefore, karma is mainly used for web applications and applications with client-server architecture. 
+
 
 ### Design Goals of the System
 What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
@@ -71,6 +91,7 @@ What is the design rational behind the system? Which values are supported by the
  - develop with confidence
  - because quick feedback makes you more productive and creative
  - continuous Integration
+"The main purpose of Karma is to make your test-driven development easy, fast, and fun." - from karma github page
 
 
 ### Type of System
@@ -103,6 +124,9 @@ work setup
 
 ### Which activities are made live by which mechanisms?
 Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
+
+--> ui perspective. get workflow first
+
 - Actual interactions
 - Feedback mechanism
   * live feedback
@@ -110,6 +134,8 @@ Description of each concrete activity in the workflow and the underlying livenes
   *
 - If applicable: How is the emergence phase shortened?
   * what does this mean?
+  * emergence is shortened by displaying partial results earlier
+  * if it had smart test execution
 - Granularity: For example: Elm can only rerun the complete application
 
 ### Integration of live activities into overall system
@@ -244,7 +270,14 @@ For each activity: Does the activity happen from within the running application 
 
 3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. 
 The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
-- ?
+
+Benchmark System properties
+  - angular suite
+  - ~8200 commits on master branch (as of Dec. 2016)
+  - ~1500 contributors
+  - ~5806 tests
+  - ~191k lines of code
+  - huge project
 
 4. **Reproducible setup of system and benchmark**
   1. Description of installation on Ubuntu 16.04.1 LTS
@@ -260,15 +293,14 @@ The sample should also work in combination with any emergence mechanisms of the 
   At the same time the emergence phase ends when the rendering has finished and the result is perceivable. 
   The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
 
-  3. Benchmark System properties
-  - angular suite
-  - ~8200 commits on master branch (as of Dec. 2016)
-  - ~1500 contributors
-  - ~5806 tests
-  - ~191k lines of code
-  - huge project
 
 5. **Results for adaptation and emergence phase**
+
+### adaptation phase
+- compilation
+- time till tests are reexecuted
+
+### emergence phase:
 - first execution ~31s
 - first change ~26s
 - second change ~24s
@@ -278,6 +310,8 @@ The sample should also work in combination with any emergence mechanisms of the 
 --> not live anymore (response time to high)
 --> can create specific configs though (for smaller parts of the system --> better performance)
 
+--> first responce
+--> is there a difference between making changces in tests or code?
 
 ## Benchmark 2 - smaller system
 - bricks game
