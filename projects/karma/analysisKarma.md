@@ -44,6 +44,7 @@ However, karma can be used with any IDE which has a terminal.
 Any other editor can be used as well in combination with an external terminal window.
 
 ![Karma-Webstorm Integration](resources/karma-webstorm.png)
+
 *Screenshot of Webstorm IDE with karma integration, source: https://confluence.jetbrains.com/download/attachments/51966353/karma-testresults.png*
 
 I am using visual code for development.
@@ -52,12 +53,18 @@ Karma also runs a headless ?chromium? browser to execute the tests in.
 
 
 ### Context
+<!--  
   - In which context is the system used?
     For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.
   - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
+-->
 
-    * Application development, coding and continuous Integration
-    * Users are professional developers
+Karma is used for application development. 
+To be more specific, for realtime testing while developing the application.
+Since continous testing is central in agile development karma will mostly be found in agile projects.
+It supports many points of the agile manifesto like test-driven development (TDD) and continous integration and can therefore be a very useful tool.
+Thus, the users of Karma are mostly professional developers.
+
 
 ### General Application Domain
 <!-- What is typically created in or through this system? -->
@@ -84,20 +91,33 @@ Therefore, karma is mainly used for web applications and applications with clien
 
 
 ### Design Goals of the System
+<!--
 What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
- - live feedback
- - easy to configure
- - "just develop without having to worry about the setup"
- - develop with confidence
- - because quick feedback makes you more productive and creative
- - continuous Integration
-"The main purpose of Karma is to make your test-driven development easy, fast, and fun." - from karma github page
+ -->
+
+Auto-Testing tools in general are designed to improve the developers workflow for TDD.
+Therefore, one design goal of Karma is to provide test results as fast as posssible.
+This gives the developers more confidence while they are writing code, since they will know immediately whether their changes break current implementations.
+On the GitHub page of karma they summarize the purpose of karma as follows:
+"The main purpose of Karma is to make your test-driven development easy, fast, and fun." 
+[GitHubKarma][GitHubKarma]
+@RefKey[GitHubKarma]
+
+In general the main design rational of karma is to give the developers less to worry about.
+To achieve this, simple configuration is important for karma.
+The users should not get additional overhead when using it.
+In the end all of this is supposed to make the developer more productive and efficient, while also increasing code quality.
+
+<!-- - continuous Integration -->
 
 
 ### Type of System
+<!--
 What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
- - testing tool
- - runs tests automatically and shows results & coverage
+-->
+
+As mentioned earlier karma is an automatic testing tool.
+It can execute test automatically and calculate coverage reports.
 
 ---
 
@@ -155,6 +175,9 @@ Further, what are conceptual limitations. For example, in a bi-directional mappi
 - can complex tests break liveness?
 - multiple reports to break liveness?
 - how das coverage in general affect liveness?
+- when tests are still running and changes are made, restart is delayed
+- verbose output after first failure causes longer execution time for standard reporter (in case of angular + 2min)
+- --> needs extra adjustment
 
 ### What happens when the live parts of the system fail/break?
 1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
@@ -218,11 +241,33 @@ To which level of liveness do single activities belong, based on the definitions
 
 ### Steady Frame
 Which activities are designed as steady frames based on the formal definition and how?
+- what actually is a steady frame?
+- test execution temrinal window is steady frame?
+- display of test results is designed as steady frame
 
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
 
 ### Impact on distances
 How do the activities affect the different distances: temporal, spatial, semantic?
+
+- which activities?
+
+- temporal
+  * is very important
+  * fast feedback on test results
+  * so the developer knows which exact change caused the break
+
+- spatial
+  * distance on screen
+  * when using Webstorm distance is smaller
+  * when using second screen distance is high (but ok)
+  * popup over code would be much nicer
+  * depends on setup of the user
+
+- semantic
+  * not high
+  * in good setup, no clicks required to see effect
+
 
 *D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
 
@@ -336,3 +381,10 @@ Everything that is particular about the environment and does not fit into the pr
 - Insert videos or web resources as markdown links
 - Insert references as: `@RefKey` and supply a bib file
 - No HTML tags please
+
+
+## My Questions
+- Image Sources?
+- type of system?
+- steady frame?
+- temporal, spatial, semantic distance?
