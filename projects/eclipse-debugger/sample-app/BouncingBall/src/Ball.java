@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.io.IOException;
 
 public class Ball {
     private Point location;
@@ -33,8 +34,13 @@ public class Ball {
     }
 
 	public void paint(Graphics g) {
-		g.setColor(getColor());
-		g.fillOval(location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius());
+//		g.setColor(getColor());
+//		g.fillOval(location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius());
+		try {
+			g.drawImage(javax.imageio.ImageIO.read(Ball.class.getResourceAsStream("ball.png")), location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius(), null);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void recflectVertical() {

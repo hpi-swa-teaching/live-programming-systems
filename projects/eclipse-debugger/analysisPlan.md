@@ -268,7 +268,7 @@ if (position.y + ball.getRadius() > getHeight() || position.y - ball.getRadius()
 ```
 The changes are immediately visible without the need to restart.
 
-16. Now we want to change the direction vector of our ball, so that it moves very slow, but without terminating the application. We place a breakpoint in the method `move()` by double clicking next to the line number. The debugger immediately holds at the breakpoint:
+16. Now, we want to change the direction vector of our ball, so that it moves very slow, but without terminating the application. We place a breakpoint in the method `move()` by double clicking next to the line number. The debugger immediately holds at the breakpoint:
 ![Breakpoint halt](./res/pics/breakpoint_halt.png)
 We can hover over the variables `dx` and `dy` to view their current values:
 ![Hover variable](./res/pics/hover_variable.png)
@@ -276,6 +276,37 @@ In the menu bar we click on "Window" > "Show View" > "Variables". In this view w
 ![Variables view](./res/pics/variables_view.png)
 We change the value of `dx` to `1`. Then we remove the breakpoint by double clicking next to the line number again and press "F8" to resume the execution.
 The ball is moving very slow now.
+
+17. Finally, we want to replace the single colored ball with an image of a football. We switch back to the "Java Perspective" and a PNG image to our Java project's source folder named `ball.png`.
+![Adding image](./res/pics/add_image.png)
+At the moment, we do not know exactly, how to load and draw an image in Java and want to try out some ideas. We switch back to the "Debug Perspective" and set a breakpoint at `g.setColor(getColor());` in method `public void paint(Graphics g)` of class `Ball.java`.
+We press "F11" to start debugging.
+The execution stops at our breakpoint. To get a playground- or workspace-like environment, we click in the menu bar "Window" > "Show View" > "Display". In this view we have access to all variables available in the context of the current executed method. We type `g.` and get some code completion suggestions. We type `g.image` to find a method which can draw an image.
+![Code completion for g.image](./res/pics/code_completion_image.png)
+We decide on the fifth entry which needs an instance of `Image`, the drawing position and width and height of the image.
+Now we need an instance of `Image`. We know that there is a class `ImageIO` which can read images. We type `ImageIO` and trigger code completion by pressing *Ctrl+Space* to get the full qualified name `javax.imageio.ImageIO` of the class. We trigger code completion again by typing `javax.imageio.ImageIO.read`. There is a method accepting an `InputStream`, which we will use.
+![Code completion for ImageIO.read](./res/pics/code_completion_imageio_read.png)
+To get an input stream for our image `ball.png` we can use the system class loader by typing `Ball.class.getResourceAsStream("ball.png")`. To test this code snippet, we select the whole line of code we want to execute and press *Ctrl+Shift+D*. The result is:
+![Evaluation of code creating an InputStream from ball.png](./res/pics/ball_image_loading_eval.png)
+Now, that we have a valid input stream, we can test drawing an image. We combine our code snippets to `g.drawImage(javax.imageio.ImageIO.read(Ball.class.getResourceAsStream("ball.png")), 10, 10, null)`, select the line of code and press *Ctrl+Shift+D*.
+![Evaluation of code drawing ball.png](./res/pics/ball_drawing_eval.png)
+The result is `(boolean) true` which means, that the drawing was successful. We switch to our running application but cannot see any image of a ball, because the actual drawing is not done yet. We press "F8" to continue execution. The program stops again at our breakpoint at `g.setColor(getColor());`. We switch again to our running application and now we see the image of the ball drawn at position (10, 10).
+![Application drawing ball.png](./res/pics/ball_image_drawn.png)
+Now we can replace the actual drawing code of method `public void paint(Graphics g)` with `g.drawImage(javax.imageio.ImageIO.read(Ball.class.getResourceAsStream("ball.png")), location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius(), null);`.
+The code is not valid yet and by hovering over the red-line code we see that a try-catch-statement is needed. We add it by selecting "Surround with try/catch".
+![Try-catch needed](./res/pics/add_try_catch.png)
+The drawing code looks like this:
+```java
+public void paint(Graphics g) {
+  try {
+    g.drawImage(javax.imageio.ImageIO.read(Ball.class.getResourceAsStream("ball.png")), location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius(), null);
+  } catch (IOException e) {
+    e.printStackTrace();
+  }
+}
+```
+Now we remove the breakpoint, save our changes and press "F8" to resume execution. The application is still running and we can switch to it and see the bouncing image of a ball.
+![Final application with image of ball drawn](./res/pics/ball_image_drawn_correctly.png)
 
 ### Which activities are made live by which mechanisms?
 *Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
