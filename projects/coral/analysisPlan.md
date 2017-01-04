@@ -20,21 +20,13 @@ The name Coral is used for a standalone application with a node editor and a liv
 ### System boundaries
 > What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
 
-* focusing on standalone app with live preview because the live programming aspects are also available in the standalone version and it is easier to install than the Maya plug-in
-* the latest available version 0.3 is used
-* only built-in nodes of version 0.3 are considered
+The subject of this report is the standalone Coral application in version 0.3.
+Only the very basic built-in nodes are considered as the other nodes don't add any more new live aspects and would make the mechanisms more difficult to understand.
 
 ### Context
 >   - In which context is the system used?
 For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.
 - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
-
-* Context
-* development of pipeline "tools" for CGI tasks (i.e. modification of geometries or moving and renaming files)
-* User:
-* professional CGI artist / pipeline TD
-* knows terminology of CGI domain
-* probably knows how complex a task is and how it could be parallised
 
 Coral is used for different tasks in a  3D / CGI studio, for example the deformation of 3D models, replication of models in specific patterns ("Crowd Instancing") and the creation of animations. Another totally different usecase is the creation of so called pipeline tools, that are used for example to transfer artefacts from one production step to another.
 
@@ -47,6 +39,8 @@ Requirements to the system are dependability and performance because of its use 
 - What are users trying to accomplish with it?
 - What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
 - ...
+
+**TODO**
 
 * Coral is development and runtime environment at the same time:
 * the node-networks are created in the application and then directly used to complete a single task (like creating a geometry) or to be a permanent part of a data pipeline (i.e. for interactions in Maya)
@@ -69,9 +63,9 @@ There are many so called pipeline tasks in a computer graphics design studio. Th
 * decrease duration needed for single production steps by eliminating the need to code and by increasing the efficiency by using transparent multithreading
 
 **Parts reflecting this:**
-* Comprehensability and changability through *dataflow architecture* with nodes and connections
-* automatic and transparent multithreading by using *Intel TBB* and *"slicing"* (splitting large operations in multiple small ones)
-* making changes instantly visible with the *live preview*
+* Comprehensability and changability through **dataflow architecture** with nodes and connections
+* automatic and transparent multithreading by using **Intel TBB** and **"slicing"** (splitting large operations in multiple small ones)
+* making changes instantly visible with the **live preview**
 
 ### Type of System
 > What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
@@ -214,12 +208,12 @@ To which category does the system or parts of it belong and why?
 
 Because of its dataflow design Coral belongs to the **Immutable Past** category. Changing a value or adding a node only influences the current state of the node network and is not affected for example by previous user input.
 
-Interestingly there is the possibility to create systems *in* Coral that show indications of a *Mutable Past*. An example for this is the bouncing ball in the example workflow that is created by using only time depending functions. After changing the speed of the ball it doens't continue from its current positon but moves to where it would have been if the speed would have been like that from the beginning.
+Interestingly there is the possibility to create systems *in* Coral that show indications of a **Mutable Past**. An example for this is the bouncing ball in the example workflow that is created by using only time-dependent functions. After changing the speed of the ball it doens't continue from its current positon but jumps to where it would have been if the speed was like that from the beginning on.
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
 ### Tanimoto's Level of Live Programming
-To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
+> To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
 
 All activities in Coral belong to Tanimoto Level 4. There is no perceivable lag between changing a value or connecting nodes and seeing the results. There are no compilation steps involved, the node network is created as a hierarchy of C++ objects at runtime.
 
