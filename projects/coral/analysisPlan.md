@@ -8,7 +8,7 @@ bibliography: refs.bib
 - Your Name: Tim Henning
 - Your Topic: Coral
 
-Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
+> Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
 
 ## About the System itself
 > Summary of system properties
@@ -36,11 +36,11 @@ For example: Application development (coding, debugging, exploration), education
 * knows terminology of CGI domain
 * probably knows how complex a task is and how it could be parallised
 
-Coral is used for different tasks in a  3D / CGI studio, for example the deformation of 3D models, replication of models in specific patterns (â€šCrowd Instancingâ€˜) and the creation of animations. Another totally different usecase is the creation of so called pipeline tools, that are used for example to transfer artefacts from one colleage to another.
+Coral is used for different tasks in a  3D / CGI studio, for example the deformation of 3D models, replication of models in specific patterns ("Crowd Instancing") and the creation of animations. Another totally different usecase is the creation of so called pipeline tools, that are used for example to transfer artefacts from one production step to another.
 
-Coral is used only by professional 3D artists and pipeline technical directors (TD). They know the terminology and know the typical CGI workflow.
+Coral is used only by professional 3D artists and pipeline technical directors (TD). They know the terminology and typical CGI workflow which means the program doens't have to focus on being easy to understand.
 
-Requirements to the system are dependability, performance and ease-of-use. The most important requirement to use Coral for pipeline tools is comprehensibility to be able to make complex pipeline task understanble for all colleagues and not just the one that created the tool.
+Requirements to the system are dependability and performance because of its use in a professional environment and the large datasize of models and textures. The most important requirement to use Coral for pipeline tools is comprehensibility to be able to make complex pipeline task understanble for all artists in the studio and not just the technical director that created the tool.
 
 ### General Application Domain
 > - What is typically created in or through this system?
@@ -58,10 +58,25 @@ Requirements to the system are dependability, performance and ease-of-use. The m
 
 There are many so called pipeline tasks in a computer graphics design studio. These task consist of multiple steps that modify a dataset like a geometrical model and often spread across different applications. The goal of Coral is to visualize this process and to make it easy to change parts of the pipeline and directly see the changes in the result.
 
+**Design Rationals:**
+* adjustements should be immediately visible
+* complex logical and math operations should be easier to understand through the use of simple nodes
+* changes to the node network should be possible at every time and without any compilation step
+* pipeline work should be more comprehensable and easier to adjust to changing requirements
+
+**Values:**
+* increase performance of model deformations
+* decrease duration needed for single production steps by eliminating the need to code and by increasing the efficiency by using transparent multithreading
+
+**Parts reflecting this:**
+* Comprehensability and changability through *dataflow architecture* with nodes and connections
+* automatic and transparent multithreading by using *Intel TBB* and *"slicing"* (splitting large operations in multiple small ones)
+* making changes instantly visible with the *live preview*
+
 ### Type of System
 > What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
 
-Coral is an interactive node-based tool with a graphical user interface meant for use by 3D artists and coders. It uses a C++ library that is also called Coral but that is not the main subject of this report.
+Coral is an interactive node-based tool with a graphical user interface meant for use by 3D artists and developers. It is part of the dataflow category.
 
 ## Workflows
 Summary of workflow observations
@@ -69,17 +84,17 @@ Summary of workflow observations
 ### Example Workflow
 > Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
 
-The following workflow will describe how to create a „bouncing ball“ with Coral. This doesn‘t seem to be a typical application but it could be used to animate the position of given 3D model that falls to the floor in the scene.
+The following workflow will describe how to create a "bouncing ball" with Coral. This doesn‘t seem to be a typical application but it could be used to animate the position of given 3D model that falls to the floor in the scene.
 
-1. First we will add a “Vec3” node from the left panel by dragging it to the node editor area in the middle. This will be our ball position.
-2. Then we add a “DrawPoint” node and connect the output of the previous added Vec3 node with the “points” input of the DrawPoint node. Now we should be able to see a small point in the center of the “viewport” window.
+1. First we will add a "Vec3" node from the left panel by dragging it to the node editor area in the middle. This will be our ball position.
+2. Then we add a "DrawPoint" node and connect the output of the previous added Vec3 node with the “points” input of the DrawPoint node. Now we should be able to see a small point in the center of the “viewport” window.
 3. To make the point bigger we can just click on the DrawPoint node and increase the “sizes” value in the node inspector on the right. The point should immediately appear bigger.
 
    The node network (left), inspector and viewport should now look like in the following screenshot:
 
-![Drawing a point](./images/vec_draw_inspector_viewport.png)
+   ![Drawing a point](./images/vec_draw_inspector_viewport.png)
 
-   This is already describes most of the major aspects of live programming in Coral. Nodes can be added at any time to the node editor and in the same moment when it is connected to the existing node network the changes become visible. Changing a value in the node inspector is shown live if the user uses the spinbox arrows or as soon as the user hits the enter key after typing in a new value.
+   This is already describes most of the major aspects of live programming in Coral. Nodes can be added at any time to the node editor and in the same moment when they are connected to the existing node network the changes become visible. Changing a value in the node inspector is shown live if the user uses the spinbox arrows or as soon as the user hits the enter key after typing in a new value.
 
    At the moment we only see a static point. To make it bounce we need to animate the y-position.
 
@@ -89,9 +104,9 @@ The following workflow will describe how to create a „bouncing ball“ with Co
 7. Connect the output of the “Mul” node to the y-input of the ball position Vec3 node. We can now already see the ball moving up and down, though it doesn’t bounce off the floor but travels through it instead.
 8. To make the ball seem to bounce on the floor we can just use the absolute value of the position by inserting a “Abs” node between the “Mul” node and the y-input of the Vec3 node.
 
-   The node network noe looks like this:
+   The node network now looks like this:
 
-![Bouncing Ball](./images/y_animated.png)
+   ![Bouncing Ball](./images/y_animated.png)
 
    In the last step we can see how easy it is to change the node network and that we can instantly see the results. This is an important “live programming” aspect in Coral.
 
@@ -102,13 +117,13 @@ To see if Coral has an immutable or mutable past, we could now animate the x-pos
 10. Add a “Sub” node, connect it to the Div node from step 9 and to another new Float node. This Float value is the start position of the ball as an offset from the viewport origin. Set it to 10.
 11. Connect the output of the “Sub” node to the x-input of the ball position Vec3 node.
 
-We just added the top part of the network in the following screenshot:
+   We just added the top part of the network in the following screenshot:
 
-![Ball moving forward](./images/x_and_y_animated.png)
+   ![Ball moving forward](./images/x_and_y_animated.png)
 
-The ball is now moving slowly from left to right while bouncing off the floor.
+   The ball is now moving slowly from left to right while bouncing off the floor.
 
-#### Mutable or Immutable Past?
+**Mutable or Immutable Past?**
 
 If we wait till the ball is on the right side of the viewport and then set the speed of the forward movement lower, the ball doesn’t just move slower from its previous position on but is now back in the middle of the screen. This shows that in this particular setup we have a mutable past.
 
@@ -166,19 +181,27 @@ values, even collapsing multiple nodes to one “super” node.
 > To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
 Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
 
+**TODO**
+
 Performance? Max. size of geometries? Max amount of nodes / connections?
 
 ### What happens when the live parts of the system fail/break?
 > 1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
 
+**TODO**
+
 Prevent connecting wrong datatypes and showing a helpful tooltip
 
 > 2. How can the system itself break? What happens when there is a failure in the system/tool itself?
+
+**TODO**
 
 Fault Injection?
 
 ### Left out features
 > Which features of the system were not described and why were they left out?
+
+**TODO**
 
 Coral C++ Library, Maya Integration, Geometries, Textures, Kernel Node, Audio Node
 
@@ -189,10 +212,16 @@ Coral C++ Library, Maya Integration, Geometries, Textures, Kernel Node, Audio No
 ### Mutable or immutable past
 To which category does the system or parts of it belong and why?
 
+Because of its dataflow design Coral belongs to the **Immutable Past** category. Changing a value or adding a node only influences the current state of the node network and is not affected for example by previous user input.
+
+Interestingly there is the possibility to create systems *in* Coral that show indications of a *Mutable Past*. An example for this is the bouncing ball in the example workflow that is created by using only time depending functions. After changing the speed of the ball it doens't continue from its current positon but moves to where it would have been if the speed would have been like that from the beginning.
+
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
 ### Tanimoto's Level of Live Programming
 To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
+
+All activities in Coral belong to Tanimoto Level 4. There is no perceivable lag between changing a value or connecting nodes and seeing the results. There are no compilation steps involved, the node network is created as a hierarchy of C++ objects at runtime.
 
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
 
@@ -206,13 +235,13 @@ The whole application is designed as a steady frame. All active nodes are always
 ### Impact on distances
 > How do the activities affect the different distances: temporal, spatial, semantic?
 
-Temporal: The fact that every operation is instantly executed and its results visible within one frame decreases the temporal distance to a minimum. There is no conscious effort needed to understand the causality of an action and its reactions.
+**Temporal:** The fact that every operation is instantly executed and its results visible within one frame decreases the temporal distance to a minimum. There is no conscious effort needed to understand the causality of an action and its reactions.
 
-Spatial: The spatial distance can be quit large in Coral. A change in the node network on the left of the screen can result in a different model displayed in the viewport on the right of the screen that is barely visible. Changes could also result in different values that are only shown in the node inspector after selecting the right node.
+**Spatial:** The spatial distance can be quit large in Coral. A change in the node network on the left of the screen can result in a different model displayed in the viewport on the right of the screen that is barely visible. Changes could also result in different values that are only shown in the node inspector after selecting the right node.
 
-Semantic Distance: To understand which value affects which part of the model can be very hard even for professional CGI artists and developers. There is no mechanism in Coral to decrease the semantic distance for example with matching colors of a value and its affected parts in the model. This means the semantic distance is higher than it should be and could be enhanced.
+**Semantic Distance:** To understand which value affects which part of the model can be very hard even for professional CGI artists and developers. There is no mechanism in Coral to decrease the semantic distance for example with matching colors of a value and its affected parts in the model. This means the semantic distance is higher than it should be and could be enhanced.
 
-Perspective: The visualization of the model in the viewport is well suited for this application domain. It is not only a table of meaningless values or a 2D projection of the model but the way the model will later be renderen, only without textures and lighting.
+**Perspective:** The visualization of the model in the viewport is well suited for this application domain. It is not only a table of meaningless values or a 2D projection of the model but the way the model will later be renderen, only without textures and lighting.
 
 *D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
 
@@ -228,17 +257,18 @@ The liveness is implemented in the Coral C++ library (it is the runtime environm
 ### Implementations of single activities
 > Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
-TODO
+> #### Example: Scrubbing
+> The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
+
+> Abstract form: Scrubbing is enabled through incremental compilation which enables quick recompilation of parts of an application...
+
+**TODO:**
+
 * adding a node
 * removing a node
 * making a connection
 * removing a connection
 * changing a value in the inspector
-
-#### Example: Scrubbing
-> The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
-
-> Abstract form: Scrubbing is enabled through incremental compilation which enables quick recompilation of parts of an application...
 
 ### Within or outside of the application
 > For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
