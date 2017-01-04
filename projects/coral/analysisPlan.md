@@ -69,33 +69,48 @@ Summary of workflow observations
 ### Example Workflow
 > Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
 
-The following workflow will describe how to create a â€žbouncing ballâ€œ with Coral. This doesnâ€˜t seem to be a typical application but it could be used to animate the position of given 3D model that falls to the floor in the scene.
+The following workflow will describe how to create a „bouncing ball“ with Coral. This doesn‘t seem to be a typical application but it could be used to animate the position of given 3D model that falls to the floor in the scene.
 
-1. First we will add a â€œVec3â€ node from the left panel by dragging it to the node editor area in the middle. This will be our ball position.
-2. Then we add a â€œDrawPointâ€ node and connect the output of the previous added Vec3 node with the â€œpointsâ€ input of the DrawPoint node. Now we should be able to see a small point in the center of the â€œviewportâ€ window.
-3. To make the point bigger we can just click on the DrawPoint node and increase the â€œsizesâ€ value in the node inspector on the right. The point should immediately appear bigger.
+1. First we will add a “Vec3” node from the left panel by dragging it to the node editor area in the middle. This will be our ball position.
+2. Then we add a “DrawPoint” node and connect the output of the previous added Vec3 node with the “points” input of the DrawPoint node. Now we should be able to see a small point in the center of the “viewport” window.
+3. To make the point bigger we can just click on the DrawPoint node and increase the “sizes” value in the node inspector on the right. The point should immediately appear bigger.
 
-This is already describes most of the major aspects of live programming in Coral. Nodes can be added at any time to the node editor and in the same moment when it is connected to the existing node network the changes become visible. Changing a value in the node inspector is shown live if the user uses the spinbox arrows or as soon as the user hits the enter key after typing in a new value.
+   The node network (left), inspector and viewport should now look like in the following screenshot:
 
-At the moment we only see a static point. To make it bounce we need to animate the y-position.
+![Drawing a point](./images/vec_draw_inspector_viewport.png)
 
-4. To create an animation, we need a â€œTimeâ€ node. It outputs the time as the number of frames since the start of the animation.
-5. Add a â€œDivâ€ node and connect the Time node to the top and a new â€œFloatâ€ node to the bottom. The current frame number is now divided by the float value so that the float value is the inverse speed of the ball. Set it to 8 in the node inspector on the right after clicking on the node.
-6. Add a â€œTrigonometricFuncâ€ node and connect it to the output of the â€œDivâ€ node. Set it to â€œSinâ€ in the node inspector and add a â€œMulâ€ node to the output. Add a â€œFloatâ€ node to the other input of the â€œMulâ€ node. With this float value we can change the maximum height of the bouncing ball. Set it to 5.
-7. Connect the output of the â€œMulâ€ node to the y-input of the ball position Vec3 node. We can now already see the ball moving up and down, though it doesnâ€™t bounce off the floor but travels through it instead.
-8. To make the ball seem to bounce on the floor we can just use the absolute value of the position by inserting a â€œAbsâ€ node between the â€œMulâ€ node and the y-input of the Vec3 node.
+   This is already describes most of the major aspects of live programming in Coral. Nodes can be added at any time to the node editor and in the same moment when it is connected to the existing node network the changes become visible. Changing a value in the node inspector is shown live if the user uses the spinbox arrows or as soon as the user hits the enter key after typing in a new value.
 
-In the last step we can see how easy it is to change the node network and that we can instantly see the results. This is an important â€œlive programmingâ€ aspect in Coral.
+   At the moment we only see a static point. To make it bounce we need to animate the y-position.
 
-The ball is now bouncing off the floor (without any friction of course).
+4. To create an animation, we need a “Time” node. It outputs the time as the number of frames since the start of the animation.
+5. Add a “Div” node and connect the Time node to the top and a new “Float” node to the bottom. The current frame number is now divided by the float value so that the float value is the inverse speed of the ball. Set it to 8 in the node inspector on the right after clicking on the node.
+6. Add a “TrigonometricFunc” node and connect it to the output of the “Div” node. Set it to “Sin” in the node inspector and add a “Mul” node to the output. Add a “Float” node to the other input of the “Mul” node. With this float value we can change the maximum height of the bouncing ball. Set it to 5.
+7. Connect the output of the “Mul” node to the y-input of the ball position Vec3 node. We can now already see the ball moving up and down, though it doesn’t bounce off the floor but travels through it instead.
+8. To make the ball seem to bounce on the floor we can just use the absolute value of the position by inserting a “Abs” node between the “Mul” node and the y-input of the Vec3 node.
+
+   The node network noe looks like this:
+
+![Bouncing Ball](./images/y_animated.png)
+
+   In the last step we can see how easy it is to change the node network and that we can instantly see the results. This is an important “live programming” aspect in Coral.
+
+   The ball is now bouncing off the floor (without any friction of course).
 To see if Coral has an immutable or mutable past, we could now animate the x-position, too, so that the ball is slowly moving from left to right.
 
-9. Add a â€œDivâ€ node, connect it to the Time node (an output can be connected to multiple inputs) and to a new Float node. The Float value is the inverse speed of forward movement of the ball. Set it to 30.
-10. Add a â€œSubâ€ node, connect it to the Div node from step 9 and to another new Float node. This Float value is the start position of the ball as an offset from the viewport origin. Set it to 10.
-11. Connect the output of the â€œSubâ€ node to the x-input of the ball position Vec3 node.
+9. Add a “Div” node, connect it to the Time node (an output can be connected to multiple inputs) and to a new Float node. The Float value is the inverse speed of forward movement of the ball. Set it to 30.
+10. Add a “Sub” node, connect it to the Div node from step 9 and to another new Float node. This Float value is the start position of the ball as an offset from the viewport origin. Set it to 10.
+11. Connect the output of the “Sub” node to the x-input of the ball position Vec3 node.
+
+We just added the top part of the network in the following screenshot:
+
+![Ball moving forward](./images/x_and_y_animated.png)
 
 The ball is now moving slowly from left to right while bouncing off the floor.
-If we wait till it is on the right side of the viewport and then set the speed of the forward movement lower, the ball doesnâ€™t just move slower from its previous position on but is now back in the middle of the screen. This shows that in this particular setup we have a mutable past.
+
+#### Mutable or Immutable Past?
+
+If we wait till the ball is on the right side of the viewport and then set the speed of the forward movement lower, the ball doesn’t just move slower from its previous position on but is now back in the middle of the screen. This shows that in this particular setup we have a mutable past.
 
 ### Which activities are made live by which mechanisms?
 > Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
@@ -108,31 +123,36 @@ The main mechanism to provide liveness in Coral is its dataflow architecture.
 This means that changing a value in one node of the node network instantly 
 affects all the nodes connected to its output. In general the change is forwarded in the network till it reaches a node without outputs.
 
+The main mechanism to provide liveness in Coral is its dataflow architecture.
+This means that changing a value in one node of the node network instantly 
+affects all the nodes connected to its output. In general the change is forwarded in the network till it reaches a node without outputs.
+
 Activities:
-â€¢	Adding Nodes
-â—¦	Actual Interactions: Dragging a node from the list of nodes to the node network
-â—¦	Feedback Mechanism: Showing node in the GUI; if the node has any â€œinitializationâ€ functions, they are immediately executed
-â—¦	Emergence Phase shortened somehow: no
-â—¦	Granularity: other nodes are not affected
-â—¦	Mechanism: creating an instance of the block and adding it to the network, calling its initialization functions
-â€¢	Removing Nodes
-â—¦	Actual Interactions: removing a node by selecting it and hit delete
-â—¦	Feedback Mechanism: Hiding node in the GUI; when removing a node that is still connected, the connections are removed and the network is reevaluated without it
-â—¦	Emergence Phase shortened somehow: no
-â—¦	Granularity: Only the nodes connected to the node that is removed are reevaluated
-â—¦	Mechanism: removing all connections (and by that reevaluating the other nodes without it) and deleting the nodes instance
-â€¢	Connecting Nodes
-â—¦	Actual Interactions: click and hold on the output of a node and release the click above the input of another node
-â—¦	Feedback Mechanism: Drawing the line red and showing a tooltip if the output has the wrong data type; otherwise drawing the previously dotted line normal
-â—¦	Emergence Phase shortened somehow: no
-â—¦	Granularity: Only connected nodes are reevaluated
-â—¦	Mechanism: applying the value of the output to the input and reevaluating the rest of the network
-â€¢	Changing a value in the node inspector
-â—¦	Actual Interactions: select a node by clicking on it and changing a value in the node inspector either with a spinbox or by typing the new value and hitting enter
-â—¦	Feedback Mechanism: immediately showing the result i.e. in the viewport
-â—¦	Emergence Phase shortened somehow: no
-â—¦	Granularity: Only connected nodes are reevaluated
-â—¦	Mechanism: applying the value reevaluating the rest of the network
+
+* Adding Nodes
+  * Actual Interactions: Dragging a node from the list of nodes to the node network
+  * Feedback Mechanism: Showing node in the GUI; if the node has any “initialization” functions, they are immediately executed
+  * Emergence Phase shortened somehow: no
+  * Granularity: other nodes are not affected
+  * Mechanism: creating an instance of the block and adding it to the network, calling its initialization functions
+* Removing Nodes
+  * Actual Interactions: removing a node by selecting it and hit delete
+  * Feedback Mechanism: Hiding node in the GUI; when removing a node that is still connected, the connections are removed and the network is reevaluated without it
+  * Emergence Phase shortened somehow: no
+  * Granularity: Only the nodes connected to the node that is removed are reevaluated
+  * Mechanism: removing all connections (and by that reevaluating the other nodes without it) and deleting the nodes instance
+* Connecting Nodes
+  * Actual Interactions: click and hold on the output of a node and release the click above the input of another node
+  * Feedback Mechanism: Drawing the line red and showing a tooltip if the output has the wrong data type; otherwise drawing the previously dotted line normal
+  * Emergence Phase shortened somehow: no
+  * Granularity: Only connected nodes are reevaluated
+  * Mechanism: applying the value of the output to the input and reevaluating the rest of the network
+* Changing a value in the node inspector
+  * Actual Interactions: select a node by clicking on it and changing a value in the node inspector either with a spinbox or by typing the new value and hitting enter
+  * Feedback Mechanism: immediately showing the result i.e. in the viewport
+  * Emergence Phase shortened somehow: no
+  * Granularity: Only connected nodes are reevaluated
+  * Mechanism: applying the value reevaluating the rest of the network
 
 ### Integration of live activities into overall system
 > Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
@@ -140,7 +160,7 @@ Activities:
 > How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
 
 Everything is live: Adding and removing nodes or connections, changing 
-values, even collapsing multiple nodes to one â€œsuperâ€ node.
+values, even collapsing multiple nodes to one “super” node.
 
 ### Limitations
 > To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
@@ -179,7 +199,7 @@ To which level of liveness do single activities belong, based on the definitions
 ### Steady Frame
 > Which activities are designed as steady frames based on the formal definition and how?
 
-The whole application is designed as a steady frame. All active nodes are always visible (except they are collapsed, but then the collapsed node is visible). The values of the nodes are accessable within one click and then shown in the node browser. The values are always up-to-date / meaningful (at least when the user hits the enter key). The live preview is also always up-to-date and doesnâ€™t need an explicit refresh by the user.
+The whole application is designed as a steady frame. All active nodes are always visible (except they are collapsed, but then the collapsed node is visible). The values of the nodes are accessable within one click and then shown in the node browser. The values are always up-to-date / meaningful (at least when the user hits the enter key). The live preview is also always up-to-date and doesn’t need an explicit refresh by the user.
 
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
 
@@ -209,11 +229,11 @@ The liveness is implemented in the Coral C++ library (it is the runtime environm
 > Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
 TODO
-â€¢	adding a node
-â€¢	removing a node
-â€¢	making a connection
-â€¢	removing a connection
-â€¢	changing a value in the inspector
+* adding a node
+* removing a node
+* making a connection
+* removing a connection
+* changing a value in the inspector
 
 #### Example: Scrubbing
 > The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
