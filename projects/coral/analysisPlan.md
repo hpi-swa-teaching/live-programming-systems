@@ -132,18 +132,14 @@ The main mechanism to provide liveness in Coral is its dataflow architecture.
 This means that changing a value in one node of the node network instantly 
 affects all the nodes connected to its output. In general the change is forwarded in the network till it reaches a node without outputs.
 
-The main mechanism to provide liveness in Coral is its dataflow architecture.
-This means that changing a value in one node of the node network instantly 
-affects all the nodes connected to its output. In general the change is forwarded in the network till it reaches a node without outputs.
-
 Activities:
 
 * Adding Nodes
   * Actual Interactions: Dragging a node from the list of nodes to the node network
-  * Feedback Mechanism: Showing node in the GUI; if the node has any “initialization” functions, they are immediately executed
+  * Feedback Mechanism: Showing node in the GUI
   * Emergence Phase shortened somehow: no
   * Granularity: other nodes are not affected
-  * Mechanism: creating an instance of the block and adding it to the network, calling its initialization functions
+  * Mechanism: creating an instance of the block and adding it to the network; if the node has any “initialization” functions, they are immediately executed
 * Removing Nodes
   * Actual Interactions: removing a node by selecting it and hit delete
   * Feedback Mechanism: Hiding node in the GUI; when removing a node that is still connected, the connections are removed and the network is reevaluated without it
@@ -246,7 +242,7 @@ The whole application is designed as a steady frame. All active nodes are always
 ### Extend of liveness in technical artifacts
 > What parts of the system implements the liveness? (Execution environment, library, tool...)
 
-The liveness is implemented in the Coral C++ library (it is the runtime environment of the application) and in the Coral Standalone GUI (i.e. the node inspector).
+The liveness is implemented in the Coral C++ library (it is the runtime environment of the application) and in the Coral Standalone GUI (i.e. the node inspector that allows chaning object properties at runtime).
 
 ### Implementations of single activities
 > Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
@@ -259,6 +255,103 @@ The liveness is implemented in the Coral C++ library (it is the runtime environm
 **TODO:**
 
 * adding a node
+
+```python
+# coralUi/py/coralUi/nodeBox.py lines 152-155:
+newNodeName = coralApp.executeCommand("CreateNode",
+                                                className = className,
+                                                name = className,
+                                                parentNode = parentNode)
+```
+
+```python
+# coral/py/coral/coralApp.py lines 370-400:
+def _instantiateNode(className, name, parent):
+    coralNodeClass = findNodeClass(className)
+    
+    coralNode = None
+    if coralNodeClass.__dict__.has_key("createUnwrapped"):
+        coralNode = coralNodeClass.createUnwrapped(name, parent)
+    else:
+        coralNode = coralNodeClass(name, parent)
+    
+    # [...]
+    
+    slicer = coralNode.slicer()
+    if not coralNode.sliceable() and slicer:
+        logError("This node can't be nested under a slicer node like " + slicer.className() + ", sorry : (")
+        return None
+
+    # [...]
+
+    coralNode._postInit()
+    
+    parent.addNode(coralNode)
+    
+    if hasattr(coralNode, "postInit") and CoralAppData.loadingNetwork == False:
+        coralNode.postInit()
+    
+    # [...]
+    
+    return coralNode
+```
+
+```c++
+// coral/builtinNodes/MathNodes.h lines 131-140:
+class TrigonometricFunctions: public Node{
+public:
+	TrigonometricFunctions(const std::string &name, Node *parent);
+	void updateSlice(Attribute *attribute, unsigned int slice);
+
+private:
+	NumericAttribute *_inNumber;
+	NumericAttribute *_outNumber;
+	EnumAttribute *_function;
+};
+```
+
+```c++
+// coral/builtinNodes/MathNodes.cpp lines 500-577:
+TrigonometricFunctions::TrigonometricFunctions(const std::string &name, Node *parent): Node(name, parent){
+	setSliceable(true);
+
+	_inNumber = new NumericAttribute("inNumber", this);
+	_outNumber = new NumericAttribute("outNumber", this);
+	_function = new EnumAttribute("func", this);
+
+	addInputAttribute(_inNumber);
+	addInputAttribute(_function);
+	addOutputAttribute(_outNumber);
+
+	setAttributeAffect(_inNumber, _outNumber);
+	setAttributeAffect(_function, _outNumber);
+
+	std::vector<std::string> specialization;
+	specialization.push_back("Float");
+	specialization.push_back("FloatArray");
+
+	std::vector<std::string> funcSpecialization;
+	funcSpecialization.push_back("Int");
+
+	setAttributeAllowedSpecializations(_inNumber, specialization);
+	setAttributeAllowedSpecializations(_outNumber, specialization);
+	
+	addAttributeSpecializationLink(_inNumber, _outNumber);
+	
+	Enum *func = _function->outValue();
+	func->addEntry(0, "cos");
+	func->addEntry(1, "sin");
+	func->addEntry(2, "tan");
+	func->addEntry(3, "acos");
+	func->addEntry(4, "asin");
+	func->addEntry(5, "atan");
+	func->addEntry(6, "cosh");
+	func->addEntry(7, "sinh");
+	func->addEntry(8, "tanh");
+}
+```
+
+
 * removing a node
 * making a connection
 * removing a connection
