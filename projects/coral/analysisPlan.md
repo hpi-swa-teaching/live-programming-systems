@@ -352,10 +352,224 @@ TrigonometricFunctions::TrigonometricFunctions(const std::string &name, Node *pa
 ```
 
 
+```python
+# coralUi/py/coralUi/nodeEditor/nodeUi.py lines 143-170:
+    def buildFromCoralNode(self):
+        coralNode = self._coralNode()
+        self._label.setText(coralNode.name())
+        
+        self._clearAttributeUis()
+        
+        attrs = []
+        for attribute in coralNode.inputAttributes():
+            attributeUi = nodeEditor.NodeEditor._createAttributeUi(attribute, self)
+            self.addInputAttributeUi(attributeUi)
+            
+            attrs.append(attributeUi)
+            
+        for attribute in coralNode.outputAttributes():
+            attributeUi = nodeEditor.NodeEditor._createAttributeUi(attribute, self)
+            self.addOutputAttributeUi(attributeUi)
+            
+            attrs.append(attributeUi)
+        
+        if self._attributesProxyEnabled:
+            offset = 0
+            for attr in attrs:
+                proxy = attr.proxy()
+                proxy.setPos(0, offset)
+                
+                offset += proxy.size().height() * 2
+                
+        self.updateLayout()
+
+```
+
 * removing a node
+
+```python
+# coralUi/py/coralUi/nodeEditor/nodeUi.py lines 385-405:
+    def deleteIt(self):
+        if self.isSelected():
+            nodeEditor.NodeEditor._setSelectedNodes([])
+        
+        if self._nodeViewWatching:
+            parentNodeUi = self.parentNodeUi()
+            if parentNodeUi:
+                self._nodeViewWatching().setCurrentNodeUi(parentNodeUi)
+        
+        attrs = copy.copy(self._attributeUis)
+        for attr in attrs:
+            attr.deleteIt()
+        
+        nodes = copy.copy(self._nodeUis)
+        for node in nodes:
+            node.deleteIt()
+            
+        self.setParentNodeUi(None)
+        
+        if nodeEditor.NodeEditor._nodeUis.has_key(self._coralNodeId):
+            del nodeEditor.NodeEditor._nodeUis[self._coralNodeId]
+```
+
+```c++
+// coral/src/Attribute.cpp lines 494-533:
+void Attribute::deleteIt(){
+	if(_deleteItCallback && !isDeleted()){
+		_deleteItCallback(this);
+	}
+	
+	if(parent()){
+		parent()->removeAttribute(this);
+	}
+	
+	if(_input){
+		disconnectInput();
+	}
+	
+	std::vector<Attribute*> oldAffect = _affect;
+	for(std::vector<Attribute*>::iterator itAffect = oldAffect.begin(); itAffect != oldAffect.end(); ++itAffect){
+		removeAffect(*itAffect);
+	}
+	
+	std::vector<Attribute*> oldAffectFrom = _affectedBy;
+	for(std::vector<Attribute*>::iterator itAffect = oldAffectFrom.begin(); itAffect != oldAffectFrom.end(); ++itAffect){
+		(*itAffect)->removeAffect(this);
+	}
+	
+	std::vector<Attribute*> oldOutputs = _outputs;
+	for(std::vector<Attribute*>::iterator itOutput = oldOutputs.begin(); itOutput != oldOutputs.end(); ++itOutput){
+		disconnectOutput(*itOutput);
+	}
+	
+	std::vector<SpecializationLink*> oldSpecializationLinks = _specializationLinks;
+	for(std::vector<SpecializationLink*>::iterator itSpecializationLink = oldSpecializationLinks.begin(); itSpecializationLink != oldSpecializationLinks.end(); ++itSpecializationLink){
+		removeSpecializationLink(*itSpecializationLink);
+	}
+	
+	if(_value){
+		_value->removeReference();
+		_value = 0;
+	}
+	
+	setIsDeleted(true);
+}
+```
+
+
 * making a connection
+
+```c++
+// coral/src/Attribute.cpp lines 456-480:
+bool Attribute::connectTo(Attribute *attribute, ErrorObject *errorObject){
+	_outputs.push_back(attribute);
+	attribute->setInput(this);
+	
+	cacheEvaluationChain();
+	
+	bool resetBranchSpecialization = false;
+	bool success = updateBranchSpecializations(resetBranchSpecialization);
+	
+	if(parent()){
+		parent()->_attributeConnectionChanged(this);
+	}
+	
+	if(attribute->parent()){
+		attribute->parent()->_attributeConnectionChanged(attribute);
+	}
+	
+	if(_connectToCallback && !isDeleted())
+		_connectToCallback(this, attribute);
+	
+	bool forceDirty = true;
+	attribute->dirty(forceDirty);
+	
+	return success;
+}
+```
+
+```python
+# coralUi/py/coralUi/nodeEditor/attributeUi.py lines 128-141:
+    def connectTo(self, attributeUi):
+        startHook = self._outputHook
+        endHook = attributeUi.inputHook()
+        
+        if endHook is None:
+            proxy = attributeUi.proxy()
+            if proxy:
+                endHook = proxy.inputHook()
+        
+        if startHook is None:
+            if self._proxy:
+                startHook = self._proxy().outputHook()
+        
+        Connection(startHook, endHook)
+```
+
+```c++
+// coral/builtinNodes/MathNodes.cpp lines 538-577:
+void TrigonometricFunctions::updateSlice(Attribute *attribute, unsigned int slice){
+	std::vector<float> inValues = _inNumber->value()->floatValuesSlice(slice);
+	int inFunction = _function->value()->currentIndex();
+	std::vector<float> outValues(inValues.size());
+
+	for(int i = 0; i < inValues.size(); ++i){
+		switch(inFunction)
+		{
+		case 0:
+			outValues[i] = cos(inValues[i]);
+			break;
+		case 1:
+			outValues[i] = sin(inValues[i]);
+			break;
+		case 2:
+			outValues[i] = tan(inValues[i]);
+			break;
+		case 3:
+			outValues[i] = acos(inValues[i]);
+			break;
+		case 4:
+			outValues[i] = asin(inValues[i]);
+			break;
+		case 5:
+			outValues[i] = atan(inValues[i]);
+			break;
+		case 6:
+			outValues[i] = cosh(inValues[i]);
+			break;
+		case 7:
+			outValues[i] = sinh(inValues[i]);
+			break;
+		case 8:
+			outValues[i] = tanh(inValues[i]);
+			break;
+		}
+	}
+
+	_outNumber->outValue()->setFloatValuesSlice(slice, outValues);
+}
+```
+
 * removing a connection
+
+
 * changing a value in the inspector
+
+```python
+# coralUi/py/coralUi/nodeInspector/fields.py lines 86-96:
+    def widgetValueChanged(self):
+        value = self.getWidgetValue(self.valueWidget())
+        somethingChanged = False
+        for sourceAttr in self._sourceAttributes:
+            attr = sourceAttr()
+            if self.getAttributeValue(attr) != value:
+                self.setAttributeValue(attr, value)
+                somethingChanged = True
+        
+        if somethingChanged:
+            self.coralObject().forceDirty()
+```
+
 
 ### Within or outside of the application
 > For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
