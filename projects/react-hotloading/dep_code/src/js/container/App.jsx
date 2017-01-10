@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
 
-import TopBar from './topBar'
 import ContentLayout from './ContentLayout'
 
 require('../../styles/main.styl')
@@ -18,8 +17,7 @@ export const UnconnectedApp = React.createClass({
   render() {
     return (
       <main className="main">
-        <TopBar/>
-        <ContentLayout/>
+        <ContentLayout></ContentLayout>
       </main>
     )
   },
