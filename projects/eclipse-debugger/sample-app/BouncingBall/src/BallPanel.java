@@ -5,24 +5,20 @@ import java.awt.Point;
 import javax.swing.JPanel;
 
 public class BallPanel extends JPanel {
-	private static final long serialVersionUID = 1L;
-	public final int FRAMEWIDTH = 600;
-    public final int FRAMEHEIGHT = 400;
     private Ball ball;
     
     public BallPanel() {
-    	setPreferredSize(new Dimension(FRAMEWIDTH, FRAMEHEIGHT));
-    	ball = new Ball(new Point(50,50));
-    	ball.setMotion(8, -6);
+    	setPreferredSize(new Dimension(600, 400));
+    	ball = new Ball(new Point(50,50), 8, 2);
     	
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while(true) {
+				while (true) {
 					if (BallPanel.this.getParent().isVisible()) {
-						BallPanel.this.stepTheBall();						
+						BallPanel.this.stepTheBall();
 					}
-					
+
 					try {
 						Thread.sleep(20);
 					} catch (InterruptedException e) {
@@ -33,24 +29,24 @@ public class BallPanel extends JPanel {
 		}).start();
 	}
     
+	public void stepTheBall() {
+		ball.move();
+		
+		Point position = ball.getLocation();
+
+		if (position.x + ball.getRadius() > getWidth() || position.x - ball.getRadius() < 0) {
+			ball.recflectVertical();
+		}
+
+		if (position.y + ball.getRadius() > getHeight() || position.y - ball.getRadius() < 0) {
+			ball.recflectHorizontal();
+		}
+		repaint();
+	}
+    
     @Override
     public void paint(Graphics g){
         super.paint(g);
         ball.paint(g);
     }
-    
-	public void stepTheBall() {
-		ball.move();
-
-		Point position = ball.getLocation();
-
-		if (position.x > getWidth() - ball.getRadius()*2 || position.x < 0) {
-			ball.recflectVertical();
-		}
-
-		if (position.y > getHeight() - ball.getRadius()*2 || position.y < 0) {
-			ball.recflectHorizontal();
-		}
-		repaint();
-	}
 }

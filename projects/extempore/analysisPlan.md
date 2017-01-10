@@ -42,6 +42,39 @@ Summary of workflow observations
 ### Example Workflow
 Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
 
+A typical example is adding an instrument which repeatedly plays a note to the environment.
+
+1. We start the extempore server
+```
+$ extempore
+```
+2. We establish a connection with extempore, through which all further code will be send
+```
+$ telnet localhost 7099
+```
+3. We load some common libraries that simplify interfacing with the sound system
+```
+(sys:load "libs/core/instruments.xtm")
+```
+4. We create the instrument and add it to the Sound Output of Extempore
+```
+;; define a synth using the provided components
+;; synth_note_c and synth_fx
+(bind-instrument synth synth_note_c synth_fx)
+;; add the instrument to the DSP output sink closure
+(bind-func dsp:DSP
+	(lambda (in time chan dat)
+    (synth in time chan dat)))
+(dsp:set! dsp)
+```
+5. We create a function that outputs the desired sound and schedules itself in the future (temporal recursion)
+```
+(define melody
+	(lambda (time)
+    	play-note (time)))
+```
+6. We call the function, causing the instrument to play a periodical note
+
 ### Which activities are made live by which mechanisms?
 Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
 - Actual interactions
