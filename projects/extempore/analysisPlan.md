@@ -31,6 +31,8 @@ However it is often necessary to write libraries of auxilliary code to facilitat
   - ...
 
 ### Design Goals of the System
+Speed - enough for direct manipulation of sound
+Multi User - enable collaboration
 What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
 
 ### Type of System
@@ -76,13 +78,26 @@ $ telnet localhost 7099
 6. We call the function, causing the instrument to play a periodical note
 
 ### Which activities are made live by which mechanisms?
-Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
-- Actual interactions
-- Feedback mechanism
-- If applicable: How is the emergence phase shortened?
-- Granularity: For example: Elm can only rerun the complete application
+All activities are live. This means that code commited to the system is possibly compiled and run in the context of the correlating envrionment. The Feedback depends on the code in question.
+
+In a life performane there are typically two groups of people who notice the Feedback from the changes. The first group are the the developers (there is often only one developer) who notices all feedback related to the technical compilation and execution from the code. The second group is the audience, who notice feedback on different channels, mostly sound and music. The feedback the audience recieves are the artifacts the developer wants to produce and often the developer also notices those effects so as to fine tune then and make use of the live nature of extempore.
+
+Feedback can occur over pretty much all channels but there are some standard ways: The extempore console of the running process shows when clients connect/drop out, code is commited, compiled or run as well as the results of the evaluated code. The result of the evaluated code is also send back over the connection to the client so as to notify him of success or failure of his commited code. Since functions can call out to external code (mostly C-Libraries), there can be additional feedback effects. Since extempore is mostly used for live performances involving sound and graphics most feedback for the audience (and the programmer as well) is often acoustic and visual. Depending on the IDE of the Developer, there may be additional feedback based on the returned values from the code execution.
+
+There are three categories in which changes can fall. Those categories are fluid and depend on the state of the environment at the time of execution.
+* If the code changes state or functions used in a running temporal recursion, then those changes will be noticeable by the audience as soon as the concerning state or function is evaluated again. The extent and kind of feedback to the audience depends on the involved recursions and symbols. Some changes may be small, such as changing the pitch of a note, while other changes can be big, such as changing the complete instrumentation of a piece or starving the audio buffer due to heavy processing, which results in white noise.
+* If the code simply introduces new state into the system, then the change will not be visible to the audience but the developer will be notified via the evaluation result as well as the extempore console (if he has access to it).
+* If the code calls a function, possibly starting a new temporal recursion, then the results will be noticeable by the audience
+
+The emergence phase is shortened by the use of compiled for xtlang. This enables functions written in xtlang to be fast enough to be polled for audio (44khz). This can have a drawback: bigger changes to the environment and code can lengthen the adaption time considerably if the compilation of the code in question is complicated. However this problem does not usually occur, since most changes to the code are small and the language contains little compile time computations (TODO: Beleg), so that adaption times are usually short (TODO, benchmark).
+
+Extempore is capable of very granular change, since every definition in the environment can be changed on its own. At the same time an arbitrary number of definitions can be changed at once, possibly even changing the environment to something completely different.
 
 ### Integration of live activities into overall system
+The System has little interaction surface, only a way to input code and some ways to recieve feedback. These are all "live" in the sense, that they are either necessary (input of commands) or show the current state (evaluation results).
+
+The non-live parts of the system are hidden and basically contained to the framework facilitating the live environment. This environment can not be changed and as such it is not possible to change the language within itself. It is also not possible to change code that is not written in xtlang or scheme, so that most mechanisms to provide feedback (sound, graphics), have a clearly defined API that cannot be changed. The API can however be wrapped in xtlang code and this wrapper can expose new interactions by composing them out of the vocabulary of the external API.
+
 Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
 
 How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.

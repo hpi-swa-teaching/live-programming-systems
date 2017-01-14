@@ -1,0 +1,14 @@
+Andrew showing a basic workflow and narrating over it
+
+https://www.youtube.com/watch?v=yY1FSsUV-8c
+
+- mainly sample workflow
+
+http://digego.github.io/extempore/audio-signal-processing.html
+
+- describes the audio feature
+- "can be redefined as long as the signature stays the same"
+    -> elsewhy it just breaks
+-"performant enough to do sample-level manipulation in the same language and environment."
+    -> different (sub)systems have different performance requirements. To make such a system "live" the environment has to be fast enough to handle its execution.
+- closure returning/higher order functions are made extensive use of -> functional for a reason
