@@ -1,7 +1,11 @@
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
+import { evaluate } from './../actions'
 
-import Timer from './timer'
+import Display from './display'
+import Keypad from './keypad'
+import Operator from './operator'
+import BottomRow from './bottomRow'
 
 const ContentLayout = React.createClass({
   propTypes: {
@@ -11,14 +15,15 @@ const ContentLayout = React.createClass({
   componentWillMount() {
   },
 
+
   render() {
     return (
       <div className="content">
-        {this.props.timer.map( (timer, index) => (
-          <Timer 
-            key={index}
-            index={index}/>
-        ))}
+        <Display></Display>
+        <div className="operands">
+          <Keypad></Keypad>
+          <Operator></Operator>
+        </div>
       </div>
     )
   },
@@ -29,6 +34,9 @@ const mapStateToProps = (state, _ownProps) => ({
 })
 
 const mapDispatchToProps = (dispatch, _ownProps) => ({
+  evaluteEquation: () => {
+    dispatch(evaluate())
+  }
 })
 
 export default connect(

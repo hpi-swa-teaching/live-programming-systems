@@ -22,6 +22,9 @@ Actually, there are at least three different time-traveling debuggers for Elm. I
 In the following we shortly describe the properties of the three debuggers.
 
 #### core/Debug
+
+![Screenshot of core/Debug](ressources/screenshot_core_debug.png)
+
 This is the first time-traveling Elm debugger which was published first with Elm 0.12 and the Elm `core` package in version 1.0.0. Later, the time-traveling features were removed from the `core/Debug` package in version 4.0.0 (compare [http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Debug](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Debug) and [http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Debug](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Debug)).
 In the GitHub issue [https://github.com/elm-lang/elm-reactor/issues/186](https://github.com/elm-lang/elm-reactor/issues/186) Evan Czaplicki, the designer of Elm, said that the features were removed because "[it] was not possible to fit all the upgrades into Elm 0.17" whereas upgrades refers to, among others, the time-traveling features of the debugger.
 Due to dependency issues and fast changes in the Elm language itself as well as in its packages, it is now hard to create an Elm setup that is capable of running this time-traveling Debugger.
@@ -37,10 +40,17 @@ The tool is structured as follows:
 
 
 #### jinjor/elm-time-travel
+
+![Screenshot of jinjor/elm-time-travel](ressources/screenshot_jinjor_elm-time-travel.png)
+
 After the time-traveling features were removed from `core/Debug`, there was no time-traveling Debugger in Elm anymore. Therefore Yosuke Torii (jinjor) created the package `jinjor/elm-time-travel` which is based on Elm 0.17 and aims for being a replacement for `core/Debug`. Examples using this package are deployed at [http://jinjor.github.io/elm-time-travel/](http://jinjor.github.io/elm-time-travel/). Comparing this site with [http://debug.elm-lang.org/](http://debug.elm-lang.org/) shows, that both have a similar structure despite there are differences.
 In contrast to `core/Debug`, this package does not show source code. There is only a two-part view which shows the generated web page on the left and a tool bar on the right. The tool bar does, other than `core/Debug`, not show variables or its content, but only message send (which are corresponding to input). By selecting a very message send, the user can jump to the point in execution where the message send happened. The debugger then pauses the execution and shows the Elm applications complete model before and after the message send happened. Like in `core/Debug`, the message/input history is immutable. Generating more input does not change the history at the point currently inspected but rather appends messages to the history.
 
 #### Runtime Debugger
+
+![Screenshot of Runtime Debugger](ressources/screenshot_runtime_debugger_2.png)
+![Screenshot of Runtime Debugger window](ressources/screenshot_runtime_debugger_3.png)
+
 The Elm version 0.18 introduced a debugger that is not a package that can be invoked in the source code but rather part of the runtime environment (see [http://elm-lang.org/blog/the-perfect-bug-report](http://elm-lang.org/blog/the-perfect-bug-report)). The debugger is invoked when the Elm application is built using the Elm Reactor (`elm-reactor`) or Elm Make with debug flag set (`elm-make Application.elm --debug`). The debugger then appears as a box in the bottom right corner of the application under observation. This box has three parts:
  1. The top part is captioned "Explore History" and shows the number of message sends in brackets behind the caption. Clicking on it opens the window described below.
  2. An "Import" button that opens a file dialog where the user can select a history file which is then replayed.
@@ -230,6 +240,8 @@ There are two conditions that confine the Elm debuggers liveness: Large amounts 
 Large amounts of input are a soft limitation. The liveness does not break apart at a specific amount of input but rather decreases continuously due to the message replay getting slower. According to @Johnson2010DMM there are two relevant thresholds that are crucial to the users experience of waiting time and slowdown: 100ms and 1s. When trying to find a specific number of messages where the liveness breaks apart, we have to find out how many messages are at least required to exceed these thresholds. Doing this, we have to keep in mind that this value depends on the Elm application observed, the messages send (more specific: what the Elm application does if the message is received) and the executing machine.
 
 Whenever there is an error in the observed Elm application, liveness stops immediately and an error message is displayed. Liveness resumes as soon as the error is fixed. This is a hard limitation to the debuggers liveness.
+
+![Error causes liveness to interrupt](ressources/screenshot_error.png)
 
 >Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
 
