@@ -254,7 +254,14 @@ The liveness is implemented in the Coral C++ library (it is the runtime environm
 
 **TODO:**
 
-* adding a node
+#### Adding a Node
+
+**Concrete:**
+
+A node can be added at anytime to the node network and is instantly visible and working.
+
+Adding a node is done by double-clicking on it in the 'Node Box'.
+As the node box is implemented in Python, the first code that is executed is this Python function:
 
 ```python
 # coralUi/py/coralUi/nodeBox.py lines 152-155:
@@ -263,6 +270,8 @@ newNodeName = coralApp.executeCommand("CreateNode",
                                                 name = className,
                                                 parentNode = parentNode)
 ```
+
+'coralApp.execute()' is used to achieve loose coupling between the UI components and the application logic. The new node is then instatiated by the Python function '_instantiateNode()':
 
 ```python
 # coral/py/coral/coralApp.py lines 370-400:
@@ -274,13 +283,6 @@ def _instantiateNode(className, name, parent):
         coralNode = coralNodeClass.createUnwrapped(name, parent)
     else:
         coralNode = coralNodeClass(name, parent)
-    
-    # [...]
-    
-    slicer = coralNode.slicer()
-    if not coralNode.sliceable() and slicer:
-        logError("This node can't be nested under a slicer node like " + slicer.className() + ", sorry : (")
-        return None
 
     # [...]
 
@@ -295,6 +297,13 @@ def _instantiateNode(className, name, parent):
     
     return coralNode
 ```
+
+The function 'findNodeClass()' in the first line ensures that new node types can be added at runtime (i.e. as a plugin). It returns the name of the corresponding class (that could be implemented in Python or C++ with an automatic Python wrapper) and that is then instatiated.
+
+At the end of the method an initialization function is called. This is one of the parts where the 'liveness' comes from because the node could run actions exactly at the moment when it is created and doesn't require the user to click on 'start' button in the user interface.
+After that the node is added to its parent node (the nodes are organized hierarchically to be able to collapse and expand them).
+
+To get a better idea what happens when a node class is instantiated and how the live 'type conversion' works, here is a  typical class declaration and the implementation of the constructor of a C++ Node:
 
 ```c++
 // coral/builtinNodes/MathNodes.h lines 131-140:
@@ -351,6 +360,9 @@ TrigonometricFunctions::TrigonometricFunctions(const std::string &name, Node *pa
 }
 ```
 
+The line 'setAttributeAllowedSpecializations(...)' shows that the allowed value types of the node are declared at runtime and that no single type is hardcoded at compiletime. This enables the application to present the user a list of possible value types in the UI and makes it possible to change the value types 'live' by selecting them in the Node Inspector.
+
+The last code part shows how the UI of the node is created live at runtime by iterating over the attributes and adding corresponding UI elements:
 
 ```python
 # coralUi/py/coralUi/nodeEditor/nodeUi.py lines 143-170:
@@ -373,19 +385,23 @@ TrigonometricFunctions::TrigonometricFunctions(const std::string &name, Node *pa
             
             attrs.append(attributeUi)
         
-        if self._attributesProxyEnabled:
-            offset = 0
-            for attr in attrs:
-                proxy = attr.proxy()
-                proxy.setPos(0, offset)
-                
-                offset += proxy.size().height() * 2
+        # [...]
                 
         self.updateLayout()
 
 ```
 
-* removing a node
+**Abstract:**
+
+A Node is added live to the exisiting node network by creating an object of the corresponding class, calling its initialization function, adding it to the parent node and dynmically creating a UI for it.
+
+#### Removing a Node
+
+**Concrete:**
+
+Deleting a node can be done by selecting it and then pressing 'delete'. The live aspect when deleting a node is, that the connections to other nodes are removed, the node network reevaluated without them and the new result is immediately visible.
+
+The deletion starts in the Python method 'deleteIt()' that is called on the node itself. This method calls the delete functions of all child nodes and removes itself from the parent node. The interesting part is the call of the delete function of the attributes of the node.
 
 ```python
 # coralUi/py/coralUi/nodeEditor/nodeUi.py lines 385-405:
@@ -411,6 +427,8 @@ TrigonometricFunctions::TrigonometricFunctions(const std::string &name, Node *pa
         if nodeEditor.NodeEditor._nodeUis.has_key(self._coralNodeId):
             del nodeEditor.NodeEditor._nodeUis[self._coralNodeId]
 ```
+
+The following code snippet shows the delete function of an attribute. Attributes are an important part of the architecture of Coral because all adjustable values of a node are represented as objects of a class inheriting from Attribute and the connections between nodes are modeled as connections between those attributes. So when a node is deleted the connections are removed in the delete functions of the attributes. This is where the 'liveness' is implemented because the call of 'disconnectInput()' / 'disconnectOutput()' results in a reevaluation of the connected nodes.
 
 ```c++
 // coral/src/Attribute.cpp lines 494-533:
@@ -456,8 +474,14 @@ void Attribute::deleteIt(){
 }
 ```
 
+**Abstract:**
 
-* making a connection
+Nodes are removed by disconnecting all attributes from other nodes and removing it from its parent. Only the nodes that were connected are reevaluated.
+
+
+#### Connecting Nodes
+
+**Concrete:**
 
 ```c++
 // coral/src/Attribute.cpp lines 456-480:
@@ -550,10 +574,22 @@ void TrigonometricFunctions::updateSlice(Attribute *attribute, unsigned int slic
 }
 ```
 
-* removing a connection
+**Abstract:**
 
 
-* changing a value in the inspector
+#### Removing Conncetions
+
+**Concrete:**
+
+
+
+**Abstract:**
+
+
+
+#### Changing a Value in the Node Inspector
+
+**Concrete:**
 
 ```python
 # coralUi/py/coralUi/nodeInspector/fields.py lines 86-96:
@@ -569,6 +605,8 @@ void TrigonometricFunctions::updateSlice(Attribute *attribute, unsigned int slic
         if somethingChanged:
             self.coralObject().forceDirty()
 ```
+
+**Abstract:**
 
 
 ### Within or outside of the application
