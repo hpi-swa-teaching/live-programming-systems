@@ -623,10 +623,17 @@ The Maya Plugin adds liveness to Maya from the outside.
 3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
   * The typicall changes to the system are very small due to the fact that every changes is immediately applied.
 4. **Reproducible setup of system and benchmark**
-1. Description of installation on Ubuntu 16.04.1 LTS
-  * **TODO**
-2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. At the same time the emergence phase ends when the rendering has finished and the result is perceivable. The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
-  * **TODO**
+  1. Description of installation on Ubuntu 16.04.1 LTS
+    * **TODO**
+    * sudo apt-get install git scons libopenimageio-dev libboost-dev libboost-python-dev libopenexr-dev libglew-dev libtbb-dev qt4-dev-tools python-qt4-gl
+    * git clone https://T64@bitbucket.org/T64/coral_extended.git
+    * cd coral_extended
+    * scons -f buildStandalone.py
+    * ./start.sh
+  2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. At the same time the emergence phase ends when the rendering has finished and the result is perceivable. The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
+    * **TODO**
+    * Adding a DrawLine Node: the measurement starts in the _instatiateNode() method that is called when the user doubleclicks on a node in the node box and ends when it is instatiated, initialized and added to the existing node network
+    * Changing line width: the measurement starts in the method widgetValueChanged() that is called when the value in the spinbox in the node inspector was changed by the user, it ends when the new attribute in the node was changed and the uploading of the data to the GPU starts
 5. **Results for adaptation and emergence phase**
 
 **Adaptation Phase**
@@ -640,7 +647,7 @@ The only spike in the benchmark is the first iteration of connecting a float nod
    
 **Emergence Phase**
 
-The emergence phase in Coral starts when the node network was modified and ends when the changes a visible in the viewport. As this is done using pure OpenGL, the emergence phase is typically one frame (20 ms at 50 Hz) long.
+The emergence phase in Coral starts when the node network was modified and ends when the changes are visible in the viewport. As this is done using pure OpenGL, the emergence phase is typically one frame (20 ms at 50 Hz).
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
