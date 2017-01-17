@@ -28,7 +28,7 @@ Only the very basic built-in nodes are considered as the other nodes don't add a
 For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.
 - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
 
-Coral is used for different tasks in a  3D / CGI studio, for example the deformation of 3D models, replication of models in specific patterns ("Crowd Instancing") and the creation of animations. Another totally different usecase is the creation of so called pipeline tools, that are used for example to transfer artefacts from one production step to another.
+Coral is used for rapid prototyping of CGI algorithms and workflows, for example the deformation of 3D models, replication of models in specific patterns ("Crowd Instancing") and the creation of animations. Another totally different usecase is the creation of so called pipeline tools, that are used for example to transfer artefacts from one production step to another.
 
 Coral is used only by professional 3D artists and pipeline technical directors (TD). They know the terminology and typical CGI workflow which means the program doens't have to focus on being easy to understand.
 
@@ -483,6 +483,12 @@ Nodes are removed by disconnecting all attributes from other nodes and removing 
 
 **Concrete:**
 
+To be exact, a connection between Nodes is always a connections between an input attribute of one node and an output attribute of another. It cvan be done by clicking and holding on the circle next to an output attribute in the GUI and dragging the line to the circle next to an input attribute of another Node.
+
+The following code shows the connectTo() function of an attribute. Each output attribute can be connected to multiple input attributes, but each input can only be conencted to one output. Because of that the outputs are stored in an array and the only input can be set with the function setInput().
+
+After that the nodes containing the attributes are notified about the change. The live mechanism of instantly updating the calculations is triggered by setting the attributes in a 'dirty' state at the end of the function.
+
 ```c++
 // coral/src/Attribute.cpp lines 456-480:
 bool Attribute::connectTo(Attribute *attribute, ErrorObject *errorObject){
@@ -512,23 +518,7 @@ bool Attribute::connectTo(Attribute *attribute, ErrorObject *errorObject){
 }
 ```
 
-```python
-# coralUi/py/coralUi/nodeEditor/attributeUi.py lines 128-141:
-    def connectTo(self, attributeUi):
-        startHook = self._outputHook
-        endHook = attributeUi.inputHook()
-        
-        if endHook is None:
-            proxy = attributeUi.proxy()
-            if proxy:
-                endHook = proxy.inputHook()
-        
-        if startHook is None:
-            if self._proxy:
-                startHook = self._proxy().outputHook()
-        
-        Connection(startHook, endHook)
-```
+If an attribute of a node is in 'dirty' state, the updateSlice() method is called. This is where the real calculations are done, in this example calculating a trigonometric function with the input values. The result is then send to the output attribute and could triggere further actions in connected nodes.
 
 ```c++
 // coral/builtinNodes/MathNodes.cpp lines 538-577:
@@ -576,20 +566,26 @@ void TrigonometricFunctions::updateSlice(Attribute *attribute, unsigned int slic
 
 **Abstract:**
 
+Connecting nodes is a live activity because the connection is done by setting the in- and outputs of the node objects at runtime and marking the attributes as 'dirty', which triggers the recalculating of the results of the node instantly.
 
 #### Removing Conncetions
 
 **Concrete:**
 
-
+Removing a connections works exactly as making a connection, except that the in- and outputs are set to a null pointer. The attributes are set to the 'dirty' state, updateSlice() is called on the node object and the result is updated.
 
 **Abstract:**
 
+Removing a connection is made live by the same mechanism as making a connection.
 
 
 #### Changing a Value in the Node Inspector
 
 **Concrete:**
+
+The Node Inspector is a window that shows all attributes of the currently selected node. It shows spinboxes for numeric values, text field for strings and drop down menus for enumeration attributes. It can be used to change the values and settings of a node at any time.
+
+This is maybe the most typical form of 'live programming' and direct manipulation in Coral, but is achived with a very simple mechanism. Each UI element has a Python method 'widgetValueChanged()' that sets the attribute to the new value and marks it as dirty. This triggers the call of the updateSlice() functions tha updates the result of the nodes as described above.
 
 ```python
 # coralUi/py/coralUi/nodeInspector/fields.py lines 86-96:
@@ -608,6 +604,8 @@ void TrigonometricFunctions::updateSlice(Attribute *attribute, unsigned int slic
 
 **Abstract:**
 
+Changing a value in the Node Inspector is a live action, as the attribute is set to the new value and marked as 'dirty' in the moment the use changes the value in the UI.
+
 
 ### Within or outside of the application
 > For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
@@ -619,12 +617,30 @@ The Maya Plugin adds liveness to Maya from the outside.
 
 ## Benchmark
 1. **Unit of change:** Determine relevant units of change from the user perspective. Use the most common ones.
+  * The units of change are the values of a node and the state of the node network.
 2. **Relevant operations:** Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
+  * The most common actions are adding a node to the network, changing a value of a node in the inspector, connecting another node, disconnecting it and deleting a previous connected node.
 3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
+  * The typicall changes to the system are very small due to the fact that every changes is immediately applied.
 4. **Reproducible setup of system and benchmark**
 1. Description of installation on Ubuntu 16.04.1 LTS
+  * **TODO**
 2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. At the same time the emergence phase ends when the rendering has finished and the result is perceivable. The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
+  * **TODO**
 5. **Results for adaptation and emergence phase**
+
+**Adaptation Phase**
+
+The adaptation phase duration in this setup always stays below 20ms. This means that it can be done in one frame and is instantly visible to the user.
+The adaptation phase of changing a value in the inspector, (dis-)connecting a node and deleting a connected node is even lower at around 3ms. This means that there wouldn't even be a delay if multiple of these actions were done in one frame (i.e. when expanding a node).
+
+The only spike in the benchmark is the first iteration of connecting a float node. The benchmark was repeated several times and it shows that it takes longer to connect a node for the first time than the next times. This is probably due to the value type specialization mechanism that determines the value type to use on the first attempt to connect a node.
+
+![Ball moving forward](./images/benchmark_results.png)
+   
+**Emergence Phase**
+
+The emergence phase in Coral starts when the node network was modified and ends when the changes a visible in the viewport. As this is done using pure OpenGL, the emergence phase is typically one frame (20 ms at 50 Hz) long.
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
