@@ -80,22 +80,23 @@ For enabling live history replay, we did the following:
  4. Add a window `beforeunload` listener that triggers a `click` event on the "Store" button when the page about to be left.
  5. Add a "Clear" button that clears the session storage and than reloads the page preventing the `beforeunload` listener to store the history.
 
-The indirection of triggering click events on the "Load" and "Store" buttons is necessary, because calling the functions for loading and storing right away would require creating `load` and `beforeunload` listeners in the Elm source code. Unfortunately we were not able to find any good way of doing this.
-All changes took place in `elm-lang/virtual-dom` in version 2.0.2, the most recent version at the time of writing this (2016-12-04). The modified version of the package can be found at [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom) which is a fork of [https://github.com/elm-lang/virtual-dom](https://github.com/elm-lang/virtual-dom).
+The indirection of triggering click events on the "Load" and "Store" buttons is necessary, because calling the functions for loading and storing right away would require creating `load` and `beforeunload` listeners in the Elm source code. Unfortunately we were not able to find any native way of doing this.
+All changes took place in `elm-lang/virtual-dom` in version 2.0.2, the most recent version at the time of writing (2016-12-04). The modified version of the package can be found at [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom) which is a fork of [https://github.com/elm-lang/virtual-dom](https://github.com/elm-lang/virtual-dom).
 
-The following sections describes how the modified debugger can be used.
+The following sections describe how the modified debugger can be used.
 
 #### Runtime Debugger Setup
-To achieve an impression of liveness inside the Elm runtime debugger, two steps need to be performed:
+To achieve an impression of liveness inside the Elm runtime debugger, three steps need to be performed:
  1. Exchange the original `elm-lang/virtual-dom` package with the modified one described above.
- 2. Apply automatic reloading on the Elm application.
+ 2. Install and start a live reload server watching the Elm project under development.
+ 3. Install and enable a live reload plug-in for the browser in use.
 
 Exchanging the `elm-lang/virtual-dom` is done as follows: After installing the Elm packages required for your project (these are at least `elm-lang/core`, `elm-lang/html`, and `elm-lang/virtual-dom`), replace the contents of the folder where your copy of `elm-lang/virtual-dom` lies in with the contents of [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom). An `elm-lang/virtual-dom` package in version 2.0.2 should be located in  `elm-stuff/packages/elm-lang/virtual-dom/2.0.2`. The modifications made are based on 2.0.2. Other versions starting with 2 may work as well since there are only minor changes between the versions.
 Now automatically replaying history when refreshing the page should work when using the Elm Reactor. Also, the buttons "Load", "Store", and "Clear" should be visible below the "Import" and "Export" buttons.
 The next step describes how to automatically reload the page when a change has happened.
 
 We need to setup a *livereload* server that watches the files under development and issues a page reload if any file was changed. Also, we need either a script or a browser plug-in, that reloads the page, whenever the *livereload* server fires.
-There are many ways to achieve such a setup. We only describe one possible way.
+Although there are many ways to achieve such a setup, we only describe the used one.
  1. Install a Node.js based *livereload* server with `npm install -g livereload` (for more informations see [https://github.com/napcs/node-livereload](https://github.com/napcs/node-livereload))
  2. Install a browser plug-in that listens on the *livereload* server. We used [http://livereload.com/extensions/](http://livereload.com/extensions/) and installed it on a Chromium Browser from the Google Web Store.
  3. Start the Elm Reactor in your project directory with `elm-reactor`.
@@ -122,8 +123,18 @@ Furthermore we study the features we added, namely:
  - live (in terms of automatically) replaying the existing history on page reload
  - live (in terms of automatically) reloading the page if a file has been changed
 
-We do not cover the Elm language itself or any parts related to the execution environment. Operating systems, browsers, and all parts of the Elm execution environment not related to the stated debugging features are not covered.
+We do not cover the Elm language itself or any parts related to the execution environment. Operating systems, browsers, and all parts of the Elm execution environment not related to the stated debugging features are not analyzed.
 The focus lies on how the user interacts with the debugger.
+
+Even though we only analyze the modified Elm debugger setup described above, the system boundaries include more components. This is because the debugger can only be used together with other tools. The system contains:
+ - an Elm runtime environment (e.g. the Elm Reactor) serving the Elm application
+ - a browser showing the applications output
+ - a live reload server watching the applications files
+ - a live reload plug-in listening to the live reload server
+ - a text editor for modifying source code
+ - the source code itself
+
+![System Boundaries](ressources/system_boundaries.png) 
 
 ### Context
 >  - In which context is the system used?
@@ -131,8 +142,8 @@ The focus lies on how the user interacts with the debugger.
 >  - Description of user context
     (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
 
- The context of the system is Application development in general and debugging of Elm applications in special.
- Furthermore the Elm debugger can also be used for understanding the behavior of an application, without any bug involved. Therefore code exploration is also considerable use case.
+ The context of the system is application development in general and debugging of Elm applications in special.
+ Furthermore, the Elm debugger can also be used for understanding the behavior of an application, without any bug involved. Therefore code exploration is also considerable use case.
 
  The Elm programming language is relatively new and therefore it does not have a large user base. Hence it is not clear how the debugger will be used. Concluding from other programming language and debuggers, the Elm debugger will probably be used for professional and/or amateur software development. We assume an amateur user context is more likely because the user interface is simple and the setup overhead is small while the tool itself is not very feature rich. For a professional context the features of the debugger would be part of a larger development environment.
 
