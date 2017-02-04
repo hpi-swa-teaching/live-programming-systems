@@ -130,20 +130,47 @@ Summary of workflow observations
 ### Example Workflow
 Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
 
-work setup
-- need multiple screens for live feedback
-- otherwise change screen (not that live)
+#### Setup IDE / editor
+There are two possible setups in which karma can be used.
+The first one is to use the IDE integration e.g. with intelliJ.
+The other is to have karma running in its own terminal window and use any editor to write the code.
 
-- setup karma ?
+When using the first one the setup can be done in the IDE.
+The karma IDE plugin has to be installed first.
+Then a karma configuration file has to be created. 
+If this file is available it can be executed.
+The IDE will then automatically open a test window on the bottom.
+This window contains some buttons to run, stop and configure Karma and will also display test results.
 
-- start karma runner
-- write test
-- add code
-- test switches to green
-- change test
-- test switches to red
+If karma is run in a separate terminal window the setup is slightly different.
+The package has to be installed via npm as shown in the gif below. 
+Afterwards the creation of a config file can be started with 'karma config' ?.
+After executing this command a few questions about the usage preferences of karma have to be answered.
+At the end this will create a karma configuration file.
+When this is done additional changes to the config can be made.
+Then karma can be run with 'karma start path/to/config.js'.
 
-- add screencast
+In order to use karma coverage reports for either setup an additional package/plugin has to be installed.
+
+![Karma-Webstorm Integration](resources/karmaTerminalSetup.gif)
+
+*Setting up and running karma in terminal*
+
+
+#### Standard workflow
+
+When the system has been set up as described in the previous section karma can be used very easily.
+Once karma is started it immediately begins to run the tests for your code as specified in the configuration.
+Every time changes are applied to your code base the test are rerun.
+Karma will display the results for your test then.
+
+The standard workflow would be to save changes on the code.
+Right afterwards looking at the test results to find out whether the changes broke any test.
+If that is the case the changes (or test) have to adjusted so the all test pass again.
+Then new changes can be applied and the workflow starts over.
+This workflow is display in the screencast - as shown below? - .
+
+- ToDo: add sreencast here?
 
 ### Which activities are made live by which mechanisms?
 Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
@@ -213,7 +240,7 @@ Thus, karma gives the impression of a mutable past.
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
 ### Tanimoto's Level of Live Programming
-To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
+<!-- To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
 
 - level 1: informative
    * e.g. flowchart as ancilly description)
@@ -241,7 +268,28 @@ To which level of liveness do single activities belong, based on the definitions
    * only level 4 when response time is acceptable?
    * could have tests run continuously
    * cannot predict anything, so not level 5...
+-->
 
+According to Tanimoto a program has to be informative, significant and responsive to be classified as level 3 liveness.
+This includes for example edit triggered updates, where the programmer does not have to trigger the updates manually.
+In orde to be classified as level 4 the responses have to be delivered more or less instantly (live).
+
+Depending on the setup and environment karma can be classified as either of those levels.
+Karma show results everytime changes on the code are saved, without the programmer having to trigger karma manually again.
+Thus, it can be classified as level 3.
+
+However, when using the IDE setup in combination with automatic saving of changes the results are delivered live.
+This also depends on the execution time of the tests.
+Execution time for one test cycle highly depends on a number of factors:
+
+* number of tests
+* complexity of tests
+* lines of code
+* coverage reporting
+* general configuration of karma (e.g. which reporter is used)
+
+With the right setup test results can be given really fast (less than a second), so seamingly instant for humans.
+In this scenario karma can be classified as liveness level 4 since it gives live updates.
 
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
 
