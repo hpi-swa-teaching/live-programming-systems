@@ -21,19 +21,19 @@ What have you looked at exactly? Mention the boundaries of the system and state 
 > Browser based using react and neccesarily webpack for providing filewatching
 
 ### Context
-  - In which context is the system used?
+- In which context is the system used?
     For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.
-  - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
+- Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
 
 > Development Kontext -> HotReloading
 > How does Reloading work? -> Functions have proxies to other functions that are being replaced
 > Redux states for UI
 
 ### General Application Domain
-  - What is typically created in or through this system?
-  - What are users trying to accomplish with it?
-  - What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
-  - ...
+- What is typically created in or through this system?
+- What are users trying to accomplish with it?
+    - What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
+    - ...
 
 ### Design Goals of the System
 What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
@@ -54,8 +54,10 @@ Description of the major workflow which illustrates all relevant "live programmi
 > Developer wants to make changes to the code i.e. adding a new function that gets called. Therefore application needs to be reloaded.
 > to have a smoother dev-process the state of the session before should be automatically reapplied
 
+A calculator Application, that 
 
 ### Which activities are made live by which mechanisms?
+
 Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
 - Actual interactions
 - Feedback mechanism
@@ -112,7 +114,19 @@ How do the activities affect the different distances: temporal, spatial, semanti
 ### Extend of liveness in technical artifacts
 What parts of the system implements the liveness? (Execution environment, library, tool...)
 
+---
+
 > React through hotloading
+>
+> Discussion of Vanilla HMR API and using other strategies [Blog-entry | Externalize the state](https://medium.com/@dan_abramov/hot-reloading-in-react-1140438583bf#.460nwnv2i) 
+
+Just exchanging the old components with the new ones does not preserve the state. It works like evaluating a new script tag. The old App will be discarded after this. But as react deals with stateful components these states are not transfered after the reevaluation. One solution for this problem could be the externalization of the state. Then the old as well as the new components have the same state.  React transform uses another approach to overcome this issue. It creates proxys for each of the react components to keep their state. This allows the logic to get changed easily.
+
+Using React Hot Loading or React Transform?
+
+Hot Loading looks at all the exports of a file and updates them whereas react transform tries to detect all existing react classes ( Those created by extending from React.component or React.createClass() or the functional declaration of react components… ) and writes proxies for them. 
+
+Explanation why i chose one over the other? Using a general State as done with redux I would not be dependent of the internal components states. So i could easily drop the old components and replace them with the new ones.
 
 ### Implementations of single activities
 Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
@@ -122,7 +136,110 @@ The mouse event in the editor is captured and if the underlying AST element allo
 
 Abstract form: Scrubbing is enabled through incremental compilation which enables quick recompilation of parts of an application...
 
+---
+
+1. State Externalization
+
+   Vanilla Hot-Reloading (No State Preservation)
+
+   ```javascript
+   var App = require('./App')
+   var React = require('react')
+   var ReactDOM = require('react-dom')
+
+   // Render the root component normally
+   var rootEl = document.getElementById('root')
+   ReactDOM.render(<App />, rootEl)
+
+   // Are we in development mode?
+   if (module.hot) {
+     // Whenever a new version of App.js is available
+     module.hot.accept('./App', function () {
+       // Require the new version and render it instead
+       var NextApp = require('./App')
+       ReactDOM.render(<NextApp />, rootEl)
+     })
+   }
+   ```
+
+2. Component Proxies
+
+3. Overwriting React.createElement function to easily proxy existing react components ( Based on idea that everything that is a react component will be passed to React.createElement )
+
+   ```javascript
+   import createProxy from 'react-proxy'
+
+   let proxies = {}
+   const UNIQUE_ID_KEY = '__uniqueId'
+
+   export function register(uniqueId, type) {
+     Object.defineProperty(type, UNIQUE_ID_KEY, {
+       value: uniqueId,
+       enumerable: false,
+       configurable: false
+     })
+     
+     let proxy = proxies[uniqueId]
+     if (proxy) {
+       proxy.update(type)
+     } else {
+       proxy = proxies[id] = createProxy(type)
+     }
+   }
+
+   // Resolve when elements are created, not during type definition!
+   const realCreateElement = React.createElement
+   React.createElement = function createElement(type, ...args)  {
+     if (type[UNIQUE_ID_KEY]) {
+       type = proxies[type[UNIQUE_ID_KEY]].get()
+     }
+     
+     return realCreateElement(type, ...args)
+   }
+   ```
+
+   Components will then look like this:
+
+   ```javascript
+   class Counter extends Component {
+     constructor(props) {
+       super(props)
+       this.state = { counter: 0 }
+       this.handleClick = this.handleClick.bind(this)
+     }
+     handleClick() {
+       this.setState({
+         counter: this.state.counter + 1
+       })
+     }
+     render() {
+       return (
+         <div className={this.props.sheet.container} onClick={this.handleClick}>
+           {this.state.counter}
+         </div>
+       )
+     }
+   }
+
+   const styles = {
+     container: { 
+       backgroundColor: 'yellow'
+     }
+   }
+
+   const __exports_default = useSheet(styles)(Counter)
+   export default __exports_default
+
+   // generated:
+   // register anything that *remotely* looks like a React component
+   register('Counter.js#Counter', Counter)
+   register('Counter.js#exports#default', __exports_default) // every export too
+   ```
+
+   A Babel plugin creates the register calls to get every potential react component ( Here the Counter Component as well as the existing exports too.)
+
 ### Within or outside of the application
+
 For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
 
 ---
@@ -132,11 +249,13 @@ For each activity: Does the activity happen from within the running application 
 2. **Relevant operations:** Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
 3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
 4. **Reproducible setup of system and benchmark**
-  1. Description of installation on Ubuntu 16.04.1 LTS
-  2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. At the same time the emergence phase ends when the rendering has finished and the result is perceivable. The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
-5. **Results for adaptation and emergence phase**
+5. Description of installation on Ubuntu 16.04.1 LTS
+6. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. At the same time the emergence phase ends when the rendering has finished and the result is perceivable. The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
+7. **Results for adaptation and emergence phase**
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
+
+---
 
 > Adaptation Phase duration (save bis änderung zum Browser Propagiert (bis proxies umgemappt wurden))
 > Emergence Phase (Änderung im Browser angekommen (Proxies umgemappt) & reapplying changes im browser)

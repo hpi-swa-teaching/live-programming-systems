@@ -18,7 +18,8 @@ Generally try to drill down on reasons behind properties of the system. Make use
 Karma is a tool for automatic test execution on JavaScript code. 
 It was build by the developers of AngularJS.
 They did not find a test execution framework which satisfied their needs, so they decided to build on themselves.
-They believe that "...quick feedback is what makes you productive and creative." (- from karma website)
+They believe that "...quick feedback is what makes you productive and creative." @RefKey[GitHubKarma]
+
 
 Karma is a based on nodejs and used to test javascript modules.
 Its main objective is giving live feedback on test results.
@@ -44,6 +45,7 @@ However, karma can be used with any IDE which has a terminal.
 Any other editor can be used as well in combination with an external terminal window.
 
 ![Karma-Webstorm Integration](resources/karma-webstorm.png)
+
 *Screenshot of Webstorm IDE with karma integration, source: https://confluence.jetbrains.com/download/attachments/51966353/karma-testresults.png*
 
 I am using visual code for development.
@@ -52,12 +54,18 @@ Karma also runs a headless ?chromium? browser to execute the tests in.
 
 
 ### Context
+<!--  
   - In which context is the system used?
     For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.
   - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
+-->
 
-    * Application development, coding and continuous Integration
-    * Users are professional developers
+Karma is used for application development. 
+To be more specific, for realtime testing while developing the application.
+Since continous testing is central in agile development karma will mostly be found in agile projects.
+It supports many points of the agile manifesto like test-driven development (TDD) and continous integration and can therefore be a very useful tool.
+Thus, the users of Karma are mostly professional developers.
+
 
 ### General Application Domain
 <!-- What is typically created in or through this system? -->
@@ -84,20 +92,35 @@ Therefore, karma is mainly used for web applications and applications with clien
 
 
 ### Design Goals of the System
+<!--
 What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
- - live feedback
- - easy to configure
- - "just develop without having to worry about the setup"
- - develop with confidence
- - because quick feedback makes you more productive and creative
- - continuous Integration
-"The main purpose of Karma is to make your test-driven development easy, fast, and fun." - from karma github page
+ -->
+
+Auto-Testing tools in general are designed to improve the developers workflow for TDD.
+Therefore, one design goal of Karma is to provide test results as fast as posssible.
+This gives the developers more confidence while they are writing code, since they will know immediately whether their changes break current implementations.
+On the GitHub page of karma they summarize the purpose of karma as follows:
+"The main purpose of Karma is to make your test-driven development easy, fast, and fun." 
+@RefKey[GitHubKarma]
+
+In general the main design rational of karma is to give the developers less to worry about.
+To achieve this, simple configuration is important for karma.
+The users should not get additional overhead when using it.
+In the end all of this is supposed to make the developer more productive and efficient, while also increasing code quality.
+
+<!-- - continuous Integration -->
 
 
 ### Type of System
+<!--
 What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
- - testing tool
- - runs tests automatically and shows results & coverage
+it is important that it is a tool
+no runtime, no language
+-->
+
+As mentioned earlier karma is an automatic testing tool.
+Therefore, it is not part of any language or execution environment.
+It can execute tests automatically and calculate coverage reports and can be used additionally to your development setup in order to get faster feedback from tests.
 
 ---
 
@@ -155,15 +178,21 @@ Further, what are conceptual limitations. For example, in a bi-directional mappi
 - can complex tests break liveness?
 - multiple reports to break liveness?
 - how das coverage in general affect liveness?
+- when tests are still running and changes are made, restart is delayed
+- verbose output after first failure causes longer execution time for standard reporter (in case of angular + 2min)
+- --> needs extra adjustment
+- cannot alter code during test execution
 
 ### What happens when the live parts of the system fail/break?
 1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
-- failes test is no problem
+- failed test is no problem
+- logical errors are handled
+- syntax errors causes tool breakdown (restart necessary)
 - missing object / file breaks execution
   * restart necessary after that?
 2. How can the system itself break? What happens when there is a failure in the system/tool itself?
-- falsy configuration?
--
+- falsy configuration
+- depending on the falt immediate or deferred breakdown
 
 ### Left out features
 Which features of the system were not described and why were they left out?
@@ -174,12 +203,12 @@ Which features of the system were not described and why were they left out?
 ## Models
 
 ### Mutable or immutable past
-To which category does the system or parts of it belong and why?
-
-- past is mutable
-- restart "programm" on every save --> mutable?
-- would it make sense to have the past mutable?
-- can be replayed by using git?
+<!-- To which category does the system or parts of it belong and why? -->
+The Karma test runner belongs to the category of mutable past.
+For every test run that is triggered by Karma it replays all tests.
+Therefore, the recent changes are applied to all tests.
+This gives the impression, that this changes had been applied in the past.
+Thus, karma gives the impression of a mutable past.
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
@@ -217,12 +246,46 @@ To which level of liveness do single activities belong, based on the definitions
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
 
 ### Steady Frame
-Which activities are designed as steady frames based on the formal definition and how?
+<!-- Which activities are designed as steady frames based on the formal definition and how? -->
+
+If karma is run in the terminal it does not provide any steady frames.
+It simply prints new lines in the terminal for every test run.
+
+However, if the IDE integration is used (e.g. in intelliJ) windows for test results and coverage report are constantly displayed (as shown in the picutre in section System Boundaries).
+The coverage window is a steady frame which updates the percentages numbers of covered files and lines on every test run.
+The test window is somewhat steady as well.
+However, the displayed content may change depending on success and failure of tests.
+
+* What about the browser (if headfull?)
+
 
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
 
 ### Impact on distances
 How do the activities affect the different distances: temporal, spatial, semantic?
+
+- which activities?
+
+- temporal
+  * is very important
+  * fast feedback on test results
+  * so the developer knows which exact change caused the break
+
+- spatial
+  * distance on screen
+  * when using Webstorm distance is smaller
+  * when using second screen distance is high (but ok)
+  * popup over code would be much nicer
+  * depends on setup of the user
+  * show tests as pop-up on code
+
+- semantic
+  * not high
+  * in good setup, no clicks required to see effect
+
+  --> how many context changes?
+  --> nothing to do
+
 
 *D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
 
@@ -232,23 +295,33 @@ How do the activities affect the different distances: temporal, spatial, semanti
 
 ### Extend of liveness in technical artifacts
 What parts of the system implements the liveness? (Execution environment, library, tool...)
+- the tool !?
 
 ### Implementations of single activities
 Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
+<!--
 #### Example: Scrubbing
 The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
 
 Abstract form: Scrubbing is enabled through incremental compilation which enables quick recompilation of parts of an application...
+-->
+#### Streaming
+When the test execution is triggered partial results are shown immediately.
+The console (or IDE plugin) displays the number of tests which have been executed successfully already.
+Furthermore, the total number of tests which are to be run is shown.
+If any tests have failed the signature of those is displayed as well.
 
-- streaming:
-  - show partial results
-  - show already executed test results (15/70 - 14 / 1 / 0)
+![Karma-Webstorm Integration](resources/karmaStreaming.gif)
 
-- update on save
-  - reexecute tests on save
+*Streaming of partial test results and progress in Karma*
 
-- evalutaion on multiple examples
+
+#### Update on save
+Karma uses a filewatcher to capture changes on all files specified in the configuration.
+Every time a change event is recognized, all the tests are reexecuted.
+
+#### Evalutaion on multiple examples
   - test = examples
 
 ### Within or outside of the application
@@ -261,7 +334,6 @@ For each activity: Does the activity happen from within the running application 
 - successful / failed / erronous tests
 - number of executed tests
 - execution system (cross browser testing)
-- 
 - execution time?
 
 2. **Relevant operations:** Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
@@ -327,6 +399,8 @@ Benchmark System properties
 
 ## Personal observations
 Everything that is particular about the environment and does not fit into the pre-defined categories mentioned so far.
+- I would like to have the spatial distance decreased in the IDE
+- get a popup next to the test instead of having the test window open all the time
 
 ## Style Template
 - Denote headings with #
@@ -336,3 +410,19 @@ Everything that is particular about the environment and does not fit into the pr
 - Insert videos or web resources as markdown links
 - Insert references as: `@RefKey` and supply a bib file
 - No HTML tags please
+
+
+## My Questions
+- Image Sources?
+--> url und timestamp after picture
+- @RefKey ?
+-> dont worry
+- steady frame?
+--> page 58
+--> folien
+- temporal, spatial, semantic distance?
+
+new
+- can i leave out "extend of liveness in technical artifacts (cause its obvious) ?
+- is this enough for update on save, streaming, etc. ?
+- steady frame with headfull browser?
