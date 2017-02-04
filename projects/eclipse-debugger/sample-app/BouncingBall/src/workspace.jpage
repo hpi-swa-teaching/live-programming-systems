@@ -1,0 +1,5 @@
+2+2
+	(int) 4
+
+Ball.class.getResourceAsStream("Ball.png");
+	(java.io.BufferedInputStream) java.io.BufferedInputStream@6dbb137d
