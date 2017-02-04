@@ -152,7 +152,7 @@ Then karma can be run with 'karma start path/to/config.js'.
 
 In order to use karma coverage reports for either setup an additional package/plugin has to be installed.
 
-![Karma-Webstorm Integration](resources/karmaTerminalSetup.gif)
+![Karma Setup in Terminal](resources/karmaTerminalSetup.gif)
 
 *Setting up and running karma in terminal*
 
@@ -288,8 +288,8 @@ Execution time for one test cycle highly depends on a number of factors:
 * coverage reporting
 * general configuration of karma (e.g. which reporter is used)
 
-With the right setup test results can be given really fast (less than a second), so seamingly instant for humans.
-In this scenario karma can be classified as liveness level 4 since it gives live updates.
+With the right setup, test results can be given really fast (less than a second), so seamingly instant for humans.
+In this scenario karma can be classified as liveness level 4 in regard to Tanimoto, since it gives live updates.
 
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
 
@@ -312,28 +312,28 @@ However, the displayed content may change depending on success and failure of te
 ### Impact on distances
 How do the activities affect the different distances: temporal, spatial, semantic?
 
-- which activities?
+- ToDo: which activities?
 
-- temporal
-  * is very important
-  * fast feedback on test results
-  * so the developer knows which exact change caused the break
+<!-- temporal -->
+Keeping the temporal distance low is very important for Karma.
+In order to work properly with it, the test results have to be delivered fast.
+This is important because the developer needs to know which exact change breaks a test.
 
-- spatial
-  * distance on screen
-  * when using Webstorm distance is smaller
-  * when using second screen distance is high (but ok)
-  * popup over code would be much nicer
-  * depends on setup of the user
-  * show tests as pop-up on code
 
-- semantic
-  * not high
-  * in good setup, no clicks required to see effect
+<!-- spatial -->
+The spatial distance between changes that are made and the results shown by karma depends on the actual setup.
+When karma is used with IDE integration (such as intelliJ) the spatial distance is low.
+The result window is located right below the editor and allways visible.
+However, this could this be improved as described in section Personal Observations.
 
-  --> how many context changes?
-  --> nothing to do
+When karma is used in a separate terminal window the distance is slightly bigger.
+Howeer, this depends on how it us used.
+The terminal window can be put right next to the editor window on the screen and will therefore still be visible all the time.
 
+<!-- semantic -->
+Semantic depends the effort or necessary actions to take in order to get to the results.
+If karma is in auto run mode no additional action by the programmer are necessary to get the results, since tests are triggered automatically.
+Thus, semantic distance is really low in Karma.
 
 *D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
 
@@ -360,7 +360,7 @@ The console (or IDE plugin) displays the number of tests which have been execute
 Furthermore, the total number of tests which are to be run is shown.
 If any tests have failed the signature of those is displayed as well.
 
-![Karma-Webstorm Integration](resources/karmaStreaming.gif)
+![Streaming in Karma](resources/karmaStreaming.gif)
 
 *Streaming of partial test results and progress in Karma*
 
@@ -369,7 +369,7 @@ If any tests have failed the signature of those is displayed as well.
 Karma uses a filewatcher to capture changes on all files specified in the configuration.
 Every time a change event is recognized, all the tests are reexecuted.
 
-#### Evalutaion on multiple examples
+#### Evaluation of multiple examples
   - test = examples
 
 ### Within or outside of the application
