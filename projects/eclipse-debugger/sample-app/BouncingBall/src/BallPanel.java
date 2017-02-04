@@ -34,11 +34,11 @@ public class BallPanel extends JPanel {
 		
 		Point position = ball.getLocation();
 
-		if (position.x + ball.getRadius()*2 > getWidth() || position.x < 0) {
+		if (position.x + ball.getRadius() > getWidth() || position.x - ball.getRadius() < 0) {
 			ball.recflectVertical();
 		}
 
-		if (position.y + ball.getRadius()*2 > getHeight() || position.y < 0) {
+		if (position.y + ball.getRadius() > getHeight() || position.y - ball.getRadius() < 0) {
 			ball.recflectHorizontal();
 		}
 		repaint();

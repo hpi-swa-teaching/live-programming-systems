@@ -51,13 +51,7 @@ public class Ball {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		testMethod();
 	}
-	
-	public void testMethod() {
-		System.out.println(test);
-	}
-
 	public void recflectVertical() {
         dx = -dx;
     }
