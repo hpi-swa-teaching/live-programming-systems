@@ -134,7 +134,7 @@ Even though we only analyze the modified Elm debugger setup described above, the
  - a text editor for modifying source code
  - the source code itself
 
-![System Boundaries](ressources/system_boundaries.png) 
+![System Boundaries](ressources/system_boundaries.png)
 
 ### Context
 >  - In which context is the system used?
@@ -153,26 +153,29 @@ Even though we only analyze the modified Elm debugger setup described above, the
 >  - What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
 >  - ...
 
-Typical output of the system is a bug-free Elm source code file. The features for exporting and importing message history are used for creating meaningful bug reports. With an explicit message history, bugs are easily reproducible which helps finding a bug.  
-
-The user either tries to find a bug in a piece of Elm source code or tries to understand how the source code works. Like in other debuggers too, the goal is understanding why and how an application works.
-
+We have to distinguish two general application domains (GADs) here: the GAD of the original runtime debugger and the GAD of the modified one.  
+The original GAD was exporting and importing the message history for creating meaningful bug reports. With an explicit message history, bugs are easily reproducible which helps finding a bug.  
+The modified GAD is finding bugs in Elm source code or understanding how and why a piece of source code works.  
+Typical output of the modified system is a bug-free Elm source code file. The features for exporting and importing message history are used for creating meaningful bug reports.  
 Subject to the Elm debugger are websites built with Elm. Elm is a functional programming language on top of Node.js. Main use case of Elm is the construction of web user interfaces using a model-view-update ([https://guide.elm-lang.org/architecture/](https://guide.elm-lang.org/architecture/)) pattern.
 
 ### Design Goals of the System
 >What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
 
+In this sections we present the design goals of `core/Debug`. By modifying the runtime debugger, we tried to reproduce the features of `core/Debug`. Therefore, the design goal of the runtime debugger are not relevant here.
 The time-traveling Elm debugger helps understanding, how a specific change in the applications source code affects the applications output in context of the input given by the user.
 Although the tool is called a debugger, its main purpose is improving the developers understanding of an application rather than finding bugs.
 The time-traveling features help getting a meaningful impression of the connection between change in source code and its effect by providing access to all input that already happened rather than only the current input. Replaying the input helps finding out not only what the change in source code does to the current state, but also what it would have done to every state before.
 
+TODO: I could also write that they want to achieve Bret Victor style liveness. Is this too bold?
+
 ### Type of System
 >What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
 
-The system is an interactive tool because it is interactive and it is a tool.  
-The system is interactive since the user can interact with it. The content shown is not static but changes when the user for example goes back in time by selecting different points in the message history.
+The system is an interactive tool.  
+The system is interactive since the user can interact with it. The content shown is not static but changes when the user interacts with the system. For example, when the user goes back in time by selecting different points in the message history, the system updates the state of the observed application accordingly.
 The system is a tool because it helps developing Elm applications but is not necessarily required.
-Please note, the system under analysis is not the Elm runtime environment. We only analyze the debugging features.
+Since the system under analysis is not the Elm runtime environment but the debugger, we only analyze the debugging features. The debugger is a tool, since it is not necessary for using an application, development, or debugging. Nevertheless, the debugging tool is the component of the overall system which creates the liveness. Without the debugger, the Elm runtime environment does not provide liveness. 
 
 ---
 
