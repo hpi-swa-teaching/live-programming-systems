@@ -175,7 +175,7 @@ TODO: I could also write that they want to achieve Bret Victor style liveness. I
 The system is an interactive tool.  
 The system is interactive since the user can interact with it. The content shown is not static but changes when the user interacts with the system. For example, when the user goes back in time by selecting different points in the message history, the system updates the state of the observed application accordingly.
 The system is a tool because it helps developing Elm applications but is not necessarily required.
-Since the system under analysis is not the Elm runtime environment but the debugger, we only analyze the debugging features. The debugger is a tool, since it is not necessary for using an application, development, or debugging. Nevertheless, the debugging tool is the component of the overall system which creates the liveness. Without the debugger, the Elm runtime environment does not provide liveness. 
+Since the system under analysis is not the Elm runtime environment but the debugger, we only analyze the debugging features. The debugger is a tool, since it is not necessary for using an application, development, or debugging. Nevertheless, the debugging tool is the component of the overall system which creates the liveness. Without the debugger, the Elm runtime environment does not provide liveness.
 
 ---
 
@@ -184,16 +184,6 @@ Since the system under analysis is not the Elm runtime environment but the debug
 
 ### Example Workflow
 >Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
-
-The setup for using the Elm debugger consists of three components.
- 1. A text editor for changing the source code of the observed Elm application.
- 2. A *livereload* server for automatically adapting changes in source code.
- 3. An Elm setup with modified debugging features.
- 4. A browser satisfying the following conditions:
-   1. The browser provides a *livereload* plug-in that listens to the *livereload* server and reloads the page if the *livereload* server notices a change in the observed files.
-   2. The browser shows the output of the Elm Reactor running the observed Elm application. This is usually served on `http://localhost:8000`.
-
-The browser then shows the Elm application with some additional UI elements for interacting with the debugger. This was already described in the section "About the System itself / Runtime Debugger".
 
 A usual interaction with the system is as follows:
  1. Edit source code using the text editor.
@@ -205,6 +195,13 @@ A usual interaction with the system is as follows:
 
 After this cycle the Elm application is in the same situation as before (in terms of input) but with changed source code and therefore potentially changed behavior. Therefore also the state of the application may be different.
 Although a change in source code is immediately adapted, it may take some time until changed behavior emerges (see @Rein2016HLL on Adaptation and Emergence). Replaying in connection with the users ability to roll back parts of the input helps finding a sequence of user interaction that makes the change emerge. The area in the debugger window showing the applications model helps understanding why a certain behavior occurs.
+In this cycle the main objective is shorting the emergence phase. The user gets feedback quickly without having to perform interaction steps themself over and over again.
+
+While the steps describes above are the main cycle in developing and debugging an Elm application using the analyzed debugger, there are more tasks that can be performed. The debugger also provides time-traveling. The user can select an entry in the message history. This makes the application go back in time to the point where the selected input message happened.  
+Also, the user can interact with the application to create more input messages at the end of the message history. This helps, when the input that already happened does not make a change emerge. More input may expose situations in which emergence happens.  
+The debugger also provides means of inspecting the applications state. This works at every point in time and may show effects of changes that do not become observable through the applications normal user interface.
+
+TODO: Screencast: Edit, observe, state inspection, time-travel, more input.
 
 ### Which activities are made live by which mechanisms?
 >Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
@@ -213,37 +210,46 @@ Although a change in source code is immediately adapted, it may take some time u
 - If applicable: How is the emergence phase shortened?
 - Granularity: For example: Elm can only rerun the complete application
 
-In the cycle of changing code and observing changes behavior can be split in three phases:
+From the cycle of changing code and observing changed behavior described in the section above, we can extract the following interactions and feedback mechanisms. They are described in the same order as they take place in the cycle:
 
-#### Editing, recompiling and reloading code
-When code is changed and saved, the Elm debugger setup automatically recompiles the code and reloads the application. This happens immediately without the user triggering these actions explicitly. This corresponds to liveness level 4 (see @Tanimoto2013PEL). The adaptation time is usually fast (less than 1 second) and the process may only slow down due to the emergence phase which includes replaying input and potentially further user interaction.
+#### Interaction: Editing source code
+While the observed application is running, the user can change the applications source code using a text editor of his choice. To find out which effects the changes made have, the source code has to be saved. This initiates the next phase.
 
-#### Replaying input
-After recompiling and reloading, the Elm debugger tries to bring the application back to the state it had before. This is tried to achieve by replaying all relevant input. By doing this, the user has the experience as if the change made was always there (past input is processed again by the changed algorithm). This principle is called "mutable past".
+#### Feedback mechanism: Recompiling and reloading code and replaying input
+When the changed code is saved, the Elm debugger setup automatically recompiles the code and reloads the application. This happens immediately without the user triggering these actions explicitly. This corresponds to liveness level 4 (see @Tanimoto2013PEL). The adaptation time is usually fast (less than 1 second) and the process may only slow down due to the emergence phase which includes replaying input and potentially further user interaction.  
+After recompiling and reloading, the Elm debugger tries to bring the application back to the state it had before. This is achieved by replaying all relevant input. By doing this, the user has the experience as if the change made was always there (past input is processed again by the changed algorithm). Therefore the system has a *mutable past*.
 The advantage of replaying input rather than restoring the applications state in terms of values bound to variables is avoidance of inconsistencies. We can not assume that the changed application can deal with the same state the application before did. Therefore, the new version of the application has to start off with a blank state and process input made in order to achieve the situation present before the change in source code.
-The principle behind this step is "continuous feedback". The user does not have to restore the state themself since the debugger does it for them. This makes programming a continuous process with permanent feedback and permanent correction (cf. @Hancock2003RTP).
+The user does not have to restore the state themself since the debugger does it for them. This makes programming a continuous process with permanent feedback and permanent correction (cf. @Hancock2003RTP), which leads to the next phase.
 
-#### Observing Emergence
+#### Interaction: Observing emergence
 Observing emergence is hard because the time a change needs to emerge depends on the change itself. Although adaptation is done quickly, it can take a long time until the application reaches a state where the change emerges. It is also possible that a change does not emerge at all. This happens, for example, when the piece of source code where the change was done is unreachable.
-However, the time-traveling features of the Elm debugger make it easier to observe emergence of a change by not only showing the current state but also making all previous states of the application easily accessible. This implies that a change is observable as soon as it effects the application in any state the application was already in. Therefore, the programmer can easily find out if a change made is meaningful for the input that already happened. If there is no evidence for the emergence of the change in context of the previous input, the programmer has to generate further input to provoke emergence.
 
-There may be changes that do not affect the user interface of an application but only change internal, not so easily observable, behavior. The debuggers ability to show the applications state at a given point in the message history helps finding these cases of emergence.
+#### Interaction: Time-traveling
+The time-traveling features of the Elm debugger make it easier to observe emergence of a change by not only showing the current state but also making all previous states of the application easily accessible. This implies that a change is observable as soon as it effects the application in any state the application was already in. Therefore, the programmer can easily find out if a change made is meaningful for the input that already happened.
+
+#### Interaction: Generating more input
+If there is no evidence for the emergence of the change in context of the previous input, the programmer has to generate further input to provoke emergence. This is done by interacting with the observed application. Internally, this corresponds to appending more input messages to the message history. Since messages influence the application state, this may expose effects of a source code change.
+
+#### Interaction: Inspecting state
+There may be changes that do not affect the user interface of an application but only change internal state which is not so easily accessible. The debuggers ability to make *internal* state accessible at a given point in the message history helps finding these cases of emergence. Even if there is no evidence for an altered behavior through the user interface, the applications state may reveal the changes effect.
 
 #### Granularity
-The smallest granularity of change is the whole application together with all previous input. Whenever the source code of the application is changed, the debugger has to recompile and restart that application together with replaying all input. This may take a long time if the granularity of input is small (e.g. millisecond-wise timer events) and therefore much input happened. This leads to low performance for some kinds of applications.
+From the systems perspective, the smallest granularity of change is the whole application together with all previous input. Whenever the source code of the application is changed, the debugger has to recompile and restart the whole application together with replaying all input.
+From the users perspective, the smallest granularity of change is a single file. This is because the systems feedback mechanisms are triggered whenever the user saves a changed file. The user gets feedback every time they changes a file. Therefore, a file level granularity in experienced.
 
 ### Integration of live activities into overall system
 >Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
 
-The major limitation to the systems liveness is the concept, that every change has to happen through the source code editor. It is neither possible to change the data model from the debugger window nor can the message history be altered, although appending to the message history is of course possible. Also, the applications user interfaces can not be altered from the browser window. Another limitation to the debuggers liveness is the slowdown that happens when there are large amounts of input. If this is the case then input replay requires more time, therefore emergence takes longer and liveness degrades. If the applications source code is syntactically incorrect, liveness interrupts until the code is correct again.  
-In summary, it can be stated, that there is only one path that is automated and therefore made live. Namely, editing the source in a manner that it is syntactically correct afterwards, then recompiling and reloading the page, and then doing exactly the same interaction with the application again. Everything else that the debugger does is not live since it only offers different ways of looking at the application running.
+The major limitation to the systems liveness is the concept, that every change has to happen through the source code editor. It is neither possible to change the data model from the debugger window nor can the message history be altered, besides appending to the message history. Also, the applications user interfaces can not be altered from the browser window through direct manipulation. If the applications source code is syntactically incorrect, liveness interrupts until the code is correct again. The user can not inspect or fix the bug through the browser window.  
+In summary, it can be stated, that there is only one path that is automated and therefore made live. Namely, editing the source in a manner that it is syntactically correct afterwards, then recompiling and reloading the page, and then doing exactly the same interaction with the application again. Everything else that the debugger does is not live since it only offers different ways of looking at the application running.  
+The systems goal is emergence shortening by replaying previous input messages.
 
 >How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
 
 ![Browser encapsulates Debugger and Debugger encapsulates Application](ressources/browser_debugger_app.png)  
 Browser encapsulates Debugger and Debugger encapsulates Application
 
-There are two borders to the live debugger: the Elm application and the browser. The Elm application, live or not, runs inside the debugger and is not influenced in its behavior. The application behaves just as if the debugger was not present. All the debugger does is logging the message sends and the corresponding state, and all effect the debugger has to the application is the ability to restart it and feed it with parts of the logged input. On the other side, the influence of the (live) browser on the debugger is much stronger. The debugger relies on the session storage which is managed by the browser. Therefore the user can easily influence for example the message history by editing the session storage through the browser. Moreover, most browser provide the ability to change appearance and behavior of the shown website by giving the user access to the source files the page is generated from.  
+There are two borders to the live debugger: the Elm application and the browser. The Elm application, live or not, runs inside the debugger and is not influenced in its behavior. The application behaves just as if the debugger was not present. All the debugger does is logging the message sends and the corresponding state, and the only way of the debugger influencing the application is to restart it and feed it with parts of the logged input. On the other side, the influence of the (live) browser on the debugger is much stronger. The debugger relies on the session storage which is managed by the browser. Therefore the user can easily influence for example the message history by editing the session storage through the browser. Moreover, most browser provide the ability to change appearance and behavior of the shown website by giving the user access to the source files the page is generated from.  
 All in all it can be stated that while the browser has a potentially strong influence on the debugger, the debugger has only a weak influence on the Elm application running inside. The only mean of influencing the debugger has is restarting and replaying input. Model or source code manipulation is not provided.
 
 
@@ -259,8 +265,9 @@ Whenever there is an error in the observed Elm application, liveness stops immed
 
 >Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
 
-The major conceptual limitation is that there is no possibility to restore the applications situation by restoring the state. The model is always restored by replaying message sends. This is because the idea behind the debugger is that the user input is the relevant and unchangeable part of a running application. The structure of the model may be changed when the source code is changed and therefore the old state of the application does not work with the new source code. The debugger assumes that, while the model may change, the application will always be able to process the input that already happened in a correct manner. This is why the situation is restored by replaying user input and not by restoring state.  
-Another not necessarily conceptual limitation is the absence of direct manipulation. There is no way to influence values in the source code through sliders (only by changing the values in an editor or IDE), the model is not editable, and message send can not be altered. Not even the payload of messages that carry values can be manipulated. The scope of the debugger is clearly only on restoring an applications situation by replaying all logged input.
+The major conceptual limitation is that there is no possibility to restore the applications situation by restoring the state. The model is always restored by replaying message sends. This is because the original idea behind the debugger is that the user input is the relevant and unchangeable part of a running application. The structure of the model may be changed when the source code is changed and therefore the old state of the application does not work with the new source code. The debugger assumes that, while the model may change, the application will always be able to process the input that already happened in a correct manner. This is why the situation is restored by replaying user input and not by restoring state.  
+If the messages in the message history to not match the messages the application expects, the message history is cleared and the application starts with an empty message history.  
+Another, not necessarily conceptual, limitation is the absence of ways to manipulate runtime state. There is no way to influence values in the source code through sliders (only by changing the values in an editor or IDE), the model is not editable, and message sends can not be altered. Not even the payload of messages that carry values can be manipulated. The scope of the debugger is clearly only on restoring an applications situation by replaying all logged input.
 
 
 ### What happens when the live parts of the system fail/break?
@@ -274,7 +281,7 @@ If there is an error and the liveness interrupts, there is still the browsers de
 ### Left out features
 >Which features of the system were not described and why were they left out?
 
-There are no features that are part of the debugger but left out. However we did not cover the Elm runtime environment, browsers or made any assumption about the observed Elm applications. The scope of this work only contains the Elm debugger and nothing in scope was left out.
+The scope of this work only contains the Elm debugger and nothing in scope was left out. However we did not cover the Elm runtime environment, browsers or made any assumption about the observed Elm applications.
 
 ---
 
