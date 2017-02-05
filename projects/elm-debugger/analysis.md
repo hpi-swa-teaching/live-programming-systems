@@ -333,37 +333,27 @@ Another activity increasing semantic distance is inspecting the message history 
 >What parts of the system implements the liveness? (Execution environment, library, tool...)
 
 The system contains two parts that enable liveness: Automatically reloading and automatically replaying history.  
-Automatically reloading is enabled by a external tools that are not related to Elm and only used _together with_ Elm. The tools in use are a *livereload* server that watches the Elm files of the observed application and a *livereload* browser plug-in that reloads the page whenever the *livereload* server recognized a change.  
-Automatically replaying the history is enabled by the `elm-lang/virtual-dom` package. Although this package is treated as every other Elm package, it is actually an integral part of the Elm runtime environment (like `elm-lang/core` and `elm-lang/html`).  
-Please note that is only applies to the modified version of `elm-lang/virtual-dom` which can be found at [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom). The original `elm-lang/virtual-dom` package was not able to replay history automatically on page reload.
+Automatically reloading is enabled by external tools that are not related to Elm and only used _together with_ Elm. The tools in use are a *livereload* server that watches the Elm files of the observed application and a *livereload* browser plug-in that reloads the page whenever the *livereload* server recognized a change.  
+Automatically replaying the history is enabled by the `elm-lang/virtual-dom` package. Although this package is treated like every other Elm package, it is actually an integral part of the Elm runtime environment (like `elm-lang/core` and `elm-lang/html`).  
+Please note that this only applies to the modified version of `elm-lang/virtual-dom` which can be found at [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom). The original `elm-lang/virtual-dom` package was not able to replay history automatically on page reload.
 
 ### Implementations of single activities
 >Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
-#### Automatically reloading
-Automatically reloading is implemented through utilization of a *livereload* server and a *livereload* plug-in. The *livereload* server can be installed with:
-```
-npm install -g livereload
-```
-This requires an existing Node.js installation.
-After installation, the *livereload* server has to be started. Doing this, we have to tell the server firstly, which path has to be watched, and secondly, to watch Elm files as well (this is not enabled by default). The following command does this:
-```
-livereload /path/to/project -e 'elm'
-```
-Now the *livereload* server is up and running. Now we need to install the *livereload* plug-in, which receives a notification from the *livereload* server whenever a file to be watched changes. Subsequently, the plug-in reloads the page. Using the Chromium web browser, install the plug-in "LiveReload" (we used version 2.1.0). Then visit the web page showing the Elm application (usually `http://localhost:8000`) and enable the plug-in by clicking on the button next to the address bar.
-Now automatically reloading is enabled.
+#### Automatic reloading
+Automatic reloading is implemented through utilization of a *livereload* server and a *livereload* plug-in.
+The *livereload* server has to watch all files belonging to the observed Elm application.
+When a watched file has been changed the *livereload* plug-in receives a notification from the *livereload* server. Subsequently, the plug-in tells the browser to reload the page.
 
-![LiveReload plug-in installation page](ressources/live_reload_plug-in_page.png)  
-LiveReload plug-in installation page
+The concept behind this is *live reloading*. This means adapting changes in source code immediately by reloading the page whenever any of the source files has changed. This is an event-driven concept.
 
-![LiveReload button next to the address bar](ressources/live_reload_plug-in_button.png)  
-LiveReload button next to the address bar
+#### Automatic replaying
+The concept behind replaying the history is the following. The debugger keeps track of everything that the user does to the application in a history. This makes use of Elms message passing concept: Every user interaction corresponds to a message. When the application is reloaded (see "automatically reloading", the previous section), the history is stored in a way that it persists the reloading. After reloading, the application is in a blank state. To bring the application back to the situation it was in before reloading, every element of the history has to be applied in order. We purposely use the term "situation" because the state can be different to the state before reloading. This happens, when the changes made to the application affect the model or the way the model is updated.
 
-The concept behind this is *livereloading*. This means adapting changes in source code immediately by reloading the page whenever any of the source files has changed. This is an event-driven concept.
+TODO: Figure
 
-#### Automatically replaying
-Implementing automatically replaying requires implementing a store and a load phase. When the page is reloaded, the store function is called before the page is unloaded and the load function is called when the page is loaded again.
-The store function saves the message history to the session storage as JSON. The load function gets the message history from the session storage and then send each message contained to simulate the user interaction that happened before.
+Implementing automatic replaying requires implementing a store and a load phase. When the page is reloaded, the store function is called before the page is unloaded and the load function is called when the page is loaded again.
+The store function saves the message history to the session storage as JSON. The load function gets the message history from the session storage and then sends each message contained to simulate the user interaction that happened before.
 The concrete implementation of storing and loading is quite complex since it requires heavy interoperability between Elm and JavaScript.  
 Storing works as follows:
 ##### 1. Event when unloading page
@@ -401,7 +391,7 @@ overlayConfig =
   , wrap = OverlayMsg
   }
 ```
-Therefore a click on the "Store" button sends the message `Store`.
+Therefore, a click on the "Store" button sends the message `Store`.
 ##### 3. What happens when the `Store` message is send
 The `Store` message is then processed by the function `wrapUpdate` which is also defined in `src/VirtualDom/Debug.elm`. The relevant part is that a function `store` is called and provided metadata and (even more important) the message history.
 ```elm
@@ -450,7 +440,7 @@ Relevant part in `src/Native/VirtualDom.js`:
 window.addEventListener("load", function(event) {
 	setTimeout(function(){
 		document.getElementById("load").click();
-	},200);
+	}, 200);
 });
 ```
 The delay of 200ms makes sure that the "Load" button has its click event listener readily registered.
@@ -520,10 +510,6 @@ Upload jsonString ->
 ```
 The argument `jsonString` contains the message history. The message history is unpacked using the function `assessImport` defined in `src/VirtualDom/Overlay.elm`. `assessImport` either successfully unpacks the history and provides the `rawHistory` in a native Elm data format, or it fails and returns an error message. On success, the history is replayed by the function `loadNewHistory`.
 
-
-The concept behind replaying the history is the following. The debugger keeps track of everything that the user does to the application in a history. When the application is reloaded (see "automatically reloading", the previous section), the history is stored in a way that it persists the reloading. After reloading, the application is in a blank state. To bring the application back to the situation it was in before reloading, every element of the history has to be applied in order. We purposely use the term "situation" because the state can be different to the state before reloading. This happens, when the changes made to the application affect the model or the way the model is updated.
-
-
 #### Example: Scrubbing
 >The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
 
@@ -533,7 +519,7 @@ The concept behind replaying the history is the following. The debugger keeps tr
 >For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
 
 #### Automatically reloading
-When the system is the Elm debugger, automatically reloading happens from outside the system. There is an extra service that watches the files under development that is completely separated from the debugger itself. The browser plug-in that reloads the page when the service notifies it is also not part of the debugger. Both are components that are build _around_ the analyzed system itself. They are crucial for the system to work as intended, though. This is equivalent to the presence of browsers and operating systems being prerequisites for the Elm debugger.
+Since the system boundaries do not only include the Elm debugger, but also *livereload* server and *livereload* plug-in, automatic reloading happens from within the system. There is a component that watches the files under development that is separated from the runtime debugger but part of the system. The browser plug-in that reloads the page when the service notifies it is also not part of the debugger, but part of the analyzed system. Both are components that are build _around_ the debugger, but the systems boundaries are chosen in a way that includes the components required for automatic reloading since they are crucial for the system to work as intended.
 
 #### Automatically replaying
 Automatically replaying is part of the debugger itself. As described above, it is implemented in the `elm-lang/virtual-dom` package, which also provides all other parts of the debugger.
@@ -671,6 +657,12 @@ On a freshly set up Ubuntu 16.04.1 LTS the following steps have to be performed 
  3. Install the *livereload* server via NPM: `sudo npm install -g livereload`
  4. Install the Chromium browser via APT: `sudo apt install chromium-browser`
  5. Install the *livereload* plug-in via the Chrome Web Store: Visit [https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei) with the Chromium browser and click the "ADD TO CHROME" button.
+
+ ![LiveReload plug-in installation page](ressources/live_reload_plug-in_page.png)  
+ LiveReload plug-in installation page
+
+ ![LiveReload button next to the address bar](ressources/live_reload_plug-in_button.png)  
+ LiveReload button next to the address bar
 
 #### 2. Set up Project
 For using the Elm debugger, you need an Elm project that is to be debugged. There are three options:
