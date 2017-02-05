@@ -537,11 +537,11 @@ Automatically replaying is part of the debugger itself. As described above, it i
 
 ### Unit of change
 There are two relevant units of change: the message history and source code files.
-The message history can only be altered by appending new elements to it. This is made by normally interacting with the application. There is no behavioral difference to executing the application without the debugger. The distinctiveness lies in the debugger keeping track of input happening to the application. This is only relevant in context of replaying the history for the purpose of bringing the application to a specific situation it was in before.
-Changing source code files is the way of the programmer influencing the behavior of the application. When a file belonging to the application has been changed, the module the file belongs to is recompiled. Unlike Smalltalk, there is no way of partially recompiling only the changed part (like a single method). Elm clearly operates on a file level as smallest level of granularity.
+The message history can only be altered by appending new elements to it. This is achieved by normally interacting with the application. There is no behavioral difference to executing the application without the debugger. The distinctiveness lies in the debugger keeping track of input happening to the application. This is only relevant in context of replaying the history for the purpose of bringing the application to a specific situation it was in before.  
+Changing source code files is the unit of change influencing the behavior of the application. When a file belonging to the application has been changed, the module the file belongs to is recompiled. Unlike Smalltalk, there is no way of partially recompiling only the changed part (like a single method). Elm operates on a file level as smallest level of granularity.
 
 ### Relevant operations
-On the message history only appending and clearing is possible. Appending is done by interacting with the application or (for some applications) by waiting for a timer to fire. Clearing is performed through a clear button that simply empties the message history. It is also possible to import a message history from file or to save the currently loaded message history to file. This feature is intended to make bug more reproducible for it makes clear which sequence of events has lead to the bug emerging.  
+On the message history only appending and clearing is possible. Appending is done by interacting with the application or (for some applications) by waiting for a timer to fire. Clearing is performed through a clear button that simply empties the message history.  
 On source code files every operations that can be performed on files are relevant, i.e. adding, deleting, modifying, as well as combinations of the aforementioned. When adding features to the application or building an previously non-existent application from scratch, adding (characters, lines, functions, ...) is the predominant operation. When refactoring or searching for bugs, all operations are relevant.
 
 ### Example data
@@ -645,7 +645,7 @@ The application creates a simple counter with three elements, an area that shows
 ![Simple counter application with debugger box in the bottom right corner](ressources/counter_raw.png)  
 Simple counter application with debugger box in the bottom right corner
 
-The first two lines are for importing elements we want to use in the application. The statement `main = Html.beginnerProgram { ... }` assembles a simple web page out of the components model, view, and update we define below. Our model is a simple integer number that stores the counters value. Initially the value is 0. The update part has a type `Msg` that allows two messages for updating the model: `Increment` and `Decrement`. After defining this type, the function `update` defines what the effects of receiving these messages are. I.e., receiving `Increment` increments the model and receiving `Decrement` decrements the model. The view part defines the graphical representation and the way the user interacts with the application. It creates a text area that shows the model and two buttons, one with a "+" on it that sends the `Increment` message when clicked and one with a "-" on it that sends the `Decrement` message when clicked.
+The first two lines are for importing elements we want to use in the application. The statement `main = Html.beginnerProgram { ... }` assembles a simple web page out of the components model, view, and update we define below. Our model is a simple integer number that stores the counters value. Initially the value is 0. The update part has a type `Msg` that allows two messages for updating the model: `Increment` and `Decrement`. After defining this type, the function `update` defines what the effects of receiving these messages are. Receiving `Increment` increments the model and receiving `Decrement` decrements the model. The view part defines the graphical representation and the way the user interacts with the application. It creates a text area that shows the model and two buttons, one with a "+" on it that sends the `Increment` message when clicked and one with a "-" on it that sends the `Decrement` message when clicked.
 The messages `Increment` and `Decrement` are the same messages that appear in the message history. The type that defines these messages, `Msg` or more specifically `Main.Msg`, also appears there.
 
 ### Setup of the System
@@ -654,7 +654,7 @@ On a freshly set up Ubuntu 16.04.1 LTS the following steps have to be performed 
 #### 1. Install Technology Stack
  1. Install Node.js together with the Node Package Manager (NPM) via APT: `sudo apt install nodejs npm`
  2. Install the Elm platform at version 0.18 via NPM: `sudo npm install -g elm@0.18`
- 3. Install the *livereload* server via NPM: `sudo npm install -g livereload`
+ 3. Install the *livereload* server via NPM: `sudo npm install -g livereload@0.6.0`
  4. Install the Chromium browser via APT: `sudo apt install chromium-browser`
  5. Install the *livereload* plug-in via the Chrome Web Store: Visit [https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei) with the Chromium browser and click the "ADD TO CHROME" button.
 
@@ -665,14 +665,12 @@ On a freshly set up Ubuntu 16.04.1 LTS the following steps have to be performed 
  LiveReload button next to the address bar
 
 #### 2. Set up Project
-For using the Elm debugger, you need an Elm project that is to be debugged. There are three options:
- 1. You already have an existing project on which you want to try the debugger.
- 2. You do not have a project at hand, but you know Elm and can easily create a project.
- 3. You do not have a project and do not know Elm.
+For using the Elm debugger, you need an Elm project that is to be debugged.  
+We provide an example Elm project which already includes a modified version of the Elm runtime debugger.
+Change to the folder your experiments may take place in and execute `git clone https://github.com/jchromik/lps16-elm-examples.git`. Afterwards execute `elm-package install`.
+When using the example project you can skip step 3, since `elm-lang/virtual-dom` is already replaced with the modified one.
 
-If you already have a project change to the project folder. Have a look at the `elm-package.json` and make sure `elm-lang/virtual-dom` is part of the dependency specification and fixed on version 2.0.2. If you changed something, rerun `elm-package install`.  
-If you do not have a project at hand but know Elm, change to a folder where you want to create your project in. Create at least one Elm file where your code goes in. Afterwards run `elm-package install` to install dependencies and `elm-reactor` to start your Elm application once for making sure your Elm setup works. Now have a look at the `elm-package.json` and add `"elm-lang/virtual-dom": "2.0.2 <= v < 2.0.3"` to the `dependencies` object. If `"elm-lang/virtual-dom"` is already key to the `dependencies` object, alter the value to match the aforementioned key-value pair.  
-If you do not know Elm, you can check out an example project from GitHub. Change to the folder your experiments may take place in and execute `git clone https://github.com/jchromik/lps16-elm-examples.git`. Afterwards execute `elm-package install`. You do not have to alter the `elm-package.json`, it is already configured to use the correct version of `elm-lang/virtual-dom`.
+Creating a new Elm project with modified debugger can be achieved as follows. Change to a folder where you want to create your project in. Create at least one Elm file where your code goes in. Afterwards run `elm-package install` to install dependencies and `elm-reactor` to start your Elm application once for making sure your Elm setup works. Now have a look at the `elm-package.json` and add `"elm-lang/virtual-dom": "2.0.2 <= v < 2.0.3"` to the `dependencies` object. If `"elm-lang/virtual-dom"` is already key to the `dependencies` object, alter the value to match the aforementioned key-value pair.  
 
 #### 3. Replace `elm-lang/virtual-dom`
 From your Elm project folder, change to the folder the `elm-lang/virtual-dom` package is located in: `cd elm-stuff/packages/elm-lang/virtual-dom`. Then delete the folder 2.0.2: `rm -rf 2.0.2`. Now clone a modified version of `elm-lang/virtual-dom` in the folder just deleted: `git clone https://github.com/jchromik/virtual-dom.git 2.0.2`. You have now successfully replaced the original package with a modified fork.
@@ -694,7 +692,7 @@ Hint: The example project contains scripts for starting and stopping Elm Reactor
 ### Setup of the Benchmark
 We are benchmarking the runtime of a single development cycle. The cycle includes everything that happens between the programmer saving changed source code and the end of the replaying phase, which is recompiling, reloading, and replaying. For benchmarking this we log the time the Elm application starts reloading (through a `beforeunload` listener) and log the time again when the history is completely replayed. Our start time is the time the page starts reloading, because the debugger itself has no influence on everything that happens prior to this. If the *livereload* server, the *livereload* plug-in, or the browser itself need much time for propagating the event saying that a source file has been changed, this is not a performance issue of the Elm debugger and therefore not to be benchmarked.  
 The benchmark was performed by a shell script which touched the source code file under observation 100 times with a waiting period of three seconds between the file operations. The waiting period is three seconds long because we found out, that one cycle usually takes less than one second. Choosing a three second waiting period ensured that the file is certainly not touched while the adaptation and emergence process is still running.
-Using this setup we get a log file with pairs of timestamps: start and end of the cycle. By calculating the difference between these timestamps we get the runtime of the Elm debugger for one cycle. This calculation as well as parsing the log is done by a small python script. Chart generation is done with R.
+Using this setup, we get a log file with pairs of timestamps: start and end of the cycle. By calculating the difference between these timestamps, we get the runtime of the Elm debugger for one cycle. This calculation as well as parsing the log is done by a small python script. Chart generation is done with R.
 Log files, benchmarking shell script, and analyzation scripts can be found at [https://github.com/jchromik/lps16-elm-examples](https://github.com/jchromik/lps16-elm-examples). The `elm-lang/virtual-dom` modifications for logging benchmark result can be found on branch `benchmark` in [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom).
 
 Benchmarks we performed:
@@ -705,6 +703,13 @@ Benchmarks we performed:
    1. Predictable input, keep all: Repeated input of a single digit character. For example: '1'. Denoted as: "*onlynumbers predictable keep*"
    2. Predictable input, reject all: Repeated input of a single non-digit character. For example: 'a'. Denoted as: "*onlynumbers predictable reject*"
    3. Unpredictable input: Randomly chosen sequence of various characters. Denoted as: "*onlynumbers unpredictable*"
+
+For all combinations between application type (`counter` and `onlynumber`), input type (`predictable`, `unpredictable`, ...) and amount of input (0 messages, 10 messages, ..., 10000 messages) we take 100 observations. Therefore each box (including whiskers and outliers) represents 100 data points.
+
+All tests are performed on a system with the following specifications:
+ - Intel Core i5 CPU M 560 @ 2.67GHz, 4 logical cores
+ - 7,6 GiB main memory
+ - Ubuntu 16.04 LTS operating system
 
 In the following we show how we programmatically generated input for the benchmarks.  
 1.1. counter predictable:
@@ -758,16 +763,10 @@ Furthermore not all vertical axes are equally scaled.**
 ![onlynumbers predictable reject](ressources/onlynumbers_predictable_reject.png)
 ![onlynumbers unpredictable](ressources/onlynumbers_unpredictable.png)
 
+When there are no messages to be replayed, only adaptation time (recompiling and reloading) is measured. This is around 690ms. Benchmarks with messages to be replayed take more time. The runtime difference between the benchmark with 0 messages and benchmarks with more than 0 messages is the time the replaying system needs to perform the message sends, which is part of the emergence time and also the value we benchmark here. 
 The charts show that replaying a history with 10000 messages takes less than 100 millisecond for all combinations of application type, input type, and amount of input we considered. Furthermore, all combinations show a adaptation and replaying time of less than 1 second, which is below the threshold @Johnson2010DMM describes to be the "maximum duration of silent gap between turns in person-to-person
 conversation" which also should not be exceeded by an application processing input without any feedback mechanism showing the progress.
 From these two facts we can conclude that the Elm debugger is fast enough to enable live programming. Nevertheless, liveness can break apart if the application under observation need relatively much time to process input. In this case, replaying history takes much longer and the experience of immediacy will vanish.
-
-For all combinations between application type (`counter` and `onlynumber`), input type (`predictable`, `unpredictable`, ...) and amount of input (0 messages, 10 messages, ..., 10000 messages) we took 100 observations. Therefore each box (including whiskers and outliers) represents 100 data points.
-
-All tests were performed on a system with the following specifications:
- - Intel Core i5 CPU M 560 @ 2.67GHz, 4 logical cores
- - 7,6 GiB main memory
- - Ubuntu 16.04 LTS operating system
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
