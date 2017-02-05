@@ -350,7 +350,7 @@ The concept behind this is *live reloading*. This means adapting changes in sour
 #### Automatic replaying
 The concept behind replaying the history is the following. The debugger keeps track of everything that the user does to the application in a history. This makes use of Elms message passing concept: Every user interaction corresponds to a message. When the application is reloaded (see "automatically reloading", the previous section), the history is stored in a way that it persists the reloading. After reloading, the application is in a blank state. To bring the application back to the situation it was in before reloading, every element of the history has to be applied in order. We purposely use the term "situation" because the state can be different to the state before reloading. This happens, when the changes made to the application affect the model or the way the model is updated.
 
-TODO: Figure
+![Message replay system.](ressources/message_replay.png)
 
 Implementing automatic replaying requires implementing a store and a load phase. When the page is reloaded, the store function is called before the page is unloaded and the load function is called when the page is loaded again.
 The store function saves the message history to the session storage as JSON. The load function gets the message history from the session storage and then sends each message contained to simulate the user interaction that happened before.
@@ -763,7 +763,10 @@ Furthermore not all vertical axes are equally scaled.**
 ![onlynumbers predictable reject](ressources/onlynumbers_predictable_reject.png)
 ![onlynumbers unpredictable](ressources/onlynumbers_unpredictable.png)
 
-When there are no messages to be replayed, only adaptation time (recompiling and reloading) is measured. This is around 690ms. Benchmarks with messages to be replayed take more time. The runtime difference between the benchmark with 0 messages and benchmarks with more than 0 messages is the time the replaying system needs to perform the message sends, which is part of the emergence time and also the value we benchmark here. 
+When there are no messages to be replayed, only adaptation time (recompiling and reloading) is measured. This is around 700ms. Benchmarks with messages to be replayed take more time. The runtime difference between the benchmark with 0 messages and benchmarks with more than 0 messages is the time the replaying system needs to perform the message sends, which is part of the emergence time and also the value we benchmark here.
+
+![Adaptation and Emergence](ressources/adaptation_emergence.png)
+
 The charts show that replaying a history with 10000 messages takes less than 100 millisecond for all combinations of application type, input type, and amount of input we considered. Furthermore, all combinations show a adaptation and replaying time of less than 1 second, which is below the threshold @Johnson2010DMM describes to be the "maximum duration of silent gap between turns in person-to-person
 conversation" which also should not be exceeded by an application processing input without any feedback mechanism showing the progress.
 From these two facts we can conclude that the Elm debugger is fast enough to enable live programming. Nevertheless, liveness can break apart if the application under observation need relatively much time to process input. In this case, replaying history takes much longer and the experience of immediacy will vanish.
