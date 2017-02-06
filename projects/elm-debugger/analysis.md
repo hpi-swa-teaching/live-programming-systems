@@ -91,7 +91,7 @@ To achieve an impression of liveness inside the Elm runtime debugger, three step
  2. Install and start a live reload server watching the Elm project under development.
  3. Install and enable a live reload plug-in for the browser in use.
 
-Exchanging the `elm-lang/virtual-dom` is done as follows: After installing the Elm packages required for your project (these are at least `elm-lang/core`, `elm-lang/html`, and `elm-lang/virtual-dom`), replace the contents of the folder where your copy of `elm-lang/virtual-dom` lies in with the contents of [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom). An `elm-lang/virtual-dom` package in version 2.0.2 should be located in  `elm-stuff/packages/elm-lang/virtual-dom/2.0.2`. The modifications made are based on 2.0.2. Other versions starting with 2 may work as well since there are only minor changes between the versions.
+Exchanging the `elm-lang/virtual-dom` is done as follows: After installing the Elm packages required for your project (these are at least `elm-lang/core`, `elm-lang/html`, and `elm-lang/virtual-dom`), replace the contents of the folder where your copy of `elm-lang/virtual-dom` lies in with the contents of [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom). An `elm-lang/virtual-dom` package in version 2.0.4 should be located in  `elm-stuff/packages/elm-lang/virtual-dom/2.0.4`. The modifications made are based on 2.0.4. Other versions starting with 2 may work as well since there are only minor changes between the versions.
 Now automatically replaying history when refreshing the page should work when using the Elm Reactor. Also, the buttons "Load", "Store", and "Clear" should be visible below the "Import" and "Export" buttons.
 The next step describes how to automatically reload the page when a change has happened.
 
@@ -156,7 +156,7 @@ Even though we only analyze the modified Elm debugger setup described above, the
 We have to distinguish two general application domains (GADs) here: the GAD of the original runtime debugger and the GAD of the modified one.  
 The original GAD was exporting and importing the message history for creating meaningful bug reports. With an explicit message history, bugs are easily reproducible which helps finding a bug.  
 The modified GAD is finding bugs in Elm source code or understanding how and why a piece of source code works.  
-Typical output of the modified system is a bug-free Elm source code file. The features for exporting and importing message history are used for creating meaningful bug reports.  
+Typical output of the modified system is a bug-free Elm source code file.  
 Subject to the Elm debugger are websites built with Elm. Elm is a functional programming language on top of Node.js. Main use case of Elm is the construction of web user interfaces using a model-view-update ([https://guide.elm-lang.org/architecture/](https://guide.elm-lang.org/architecture/)) pattern.
 
 ### Design Goals of the System
@@ -175,7 +175,7 @@ TODO: I could also write that they want to achieve Bret Victor style liveness. I
 The system is an interactive tool.  
 The system is interactive since the user can interact with it. The content shown is not static but changes when the user interacts with the system. For example, when the user goes back in time by selecting different points in the message history, the system updates the state of the observed application accordingly.
 The system is a tool because it helps developing Elm applications but is not necessarily required.
-Since the system under analysis is not the Elm runtime environment but the debugger, we only analyze the debugging features. The debugger is a tool, since it is not necessary for using an application, development, or debugging. Nevertheless, the debugging tool is the component of the overall system which creates the liveness. Without the debugger, the Elm runtime environment does not provide liveness.
+Since the system under analysis is not the Elm runtime environment but the debugger, we only analyze the debugging features. The debugger is a tool, since it is not necessary for using an application, development, or debugging. Nevertheless, the debugging tool is the component of the overall system which creates the liveness. Without the debugger, the Elm runtime environment does not provide the same level of immediacy.
 
 ---
 
