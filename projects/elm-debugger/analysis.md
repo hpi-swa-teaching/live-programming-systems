@@ -201,7 +201,7 @@ While the steps describes above are the main cycle in developing and debugging a
 Also, the user can interact with the application to create more input messages at the end of the message history. This helps, when the input that already happened does not make a change emerge. More input may expose situations in which emergence happens.  
 The debugger also provides means of inspecting the applications state. This works at every point in time and may show effects of changes that do not become observable through the applications normal user interface.
 
-TODO: Screencast: Edit, observe, state inspection, time-travel, more input.
+![Screencast of debugging cycle](ressources/todomvc.ogv)
 
 ### Which activities are made live by which mechanisms?
 >Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
