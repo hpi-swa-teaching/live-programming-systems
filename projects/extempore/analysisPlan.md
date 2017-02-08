@@ -110,19 +110,32 @@ Further, what are conceptual limitations. For example, in a bi-directional mappi
 1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
 2. How can the system itself break? What happens when there is a failure in the system/tool itself?
 
+* The execution stops (when temporal recursion only the single execution stops -> temporal recursion breaks
+* The system itself has no checks/balances since it is really low level
+
 ### Left out features
 Which features of the system were not described and why were they left out?
+
+* FFI is not described in-depth
+* Standard Lib not described in-depth
 
 ---
 
 ## Models
 
 ### Mutable or immutable past
+* Immutable past
+* No explicit concept of the past
+* Only functions that mutate state/evaluate to something
+
 To which category does the system or parts of it belong and why?
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
 ### Tanimoto's Level of Live Programming
+* Tanimoto Level 4
+* Changes to the system are instant (sans a very short adaptation and emergence phase)
+
 To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
 
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
@@ -130,9 +143,18 @@ To which level of liveness do single activities belong, based on the definitions
 ### Steady Frame
 Which activities are designed as steady frames based on the formal definition and how?
 
+* Constantly meaningfull because of hot swapping
+* Possible to change running processes/recursions
+
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
 
 ### Impact on distances
+* Small semantic distance
+* Small temporal distance
+    * typically small changes
+    * fast compilation
+    * optimized inner loop
+* Not-applicable visual distance
 How do the activities affect the different distances: temporal, spatial, semantic?
 
 *D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
@@ -141,21 +163,22 @@ How do the activities affect the different distances: temporal, spatial, semanti
 
 ## Implementing Liveness
 
-### Extend of liveness in technical artifacts
+### Extent of liveness in technical artifacts
+* Is execution environment => whole system is there to implement liveness
 What parts of the system implements the liveness? (Execution environment, library, tool...)
 
-### Implementations of single activities
-Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
-
-#### Example: Scrubbing
-The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
-
-Abstract form: Scrubbing is enabled through incremental compilation which enables quick recompilation of parts of an application...
-
-### Within or outside of the application
-For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
+### Mechanisms of Liveness
+* REPL
+* JIT+Hotswapping
+* Temporal Recursion
+    * Scheduling
+    * End Times
+* Compilation in seperate process
+* Interaction in seperate process
 
 ---
+* Benchmark adaptation and emergence for Scheme and Extempore
+* Plots with seaborn
 
 ## Benchmark
 1. **Unit of change:** Determine relevant units of change from the user perspective. Use the most common ones.
