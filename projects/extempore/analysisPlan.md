@@ -120,63 +120,41 @@ The standard library is left out as well, since it is not required to work with 
 ## Models
 
 ### Mutable or immutable past
-* Immutable past
-* No explicit concept of the past
-* Only functions that mutate state/evaluate to something
-
-To which category does the system or parts of it belong and why?
-
-*P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
+Extempore has no special concept of past evaluations or any other model of the past. The only way in which the past manifests is the current state of the environment. Because of this, it is cearly an *immutable past* system as proposed by @Rein.
 
 ### Tanimoto's Level of Live Programming
-* Tanimoto Level 4
-* Changes to the system are instant (sans a very short adaptation and emergence phase)
-
-To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
-
-*S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
+Extempore classifies as a *Tanimoto level 4* live system, since it "permits a programmer to edit a program while it is running, and furthermore the system continues the execution immediately and without noticeable interruption according to the updated version of the program." @Tanimoto This is achieved through very short adaptation and emergence times as well as the seperation of adaptation and execution into different threads.
 
 ### Steady Frame
-Which activities are designed as steady frames based on the formal definition and how?
-
-* Constantly meaningfull because of hot swapping
-* Possible to change running processes/recursions
-
-*C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
+Extempore provides a constantly meaninful environment through the use of atomic updates. This is to be considered steady as described by @Hancock page 58. However the system itself holds no explicit or readable representation of the state upon which decisions can be made. While this state is often contained in the text editor of the user, this is not a part of the system itself but more of the workflow associated with it.
+Extempore is therefore *steady* in and of itself and becomes *steady frame* in the usual single-user live workflow that is described above.
 
 ### Impact on distances
-* Small semantic distance
-* Small temporal distance
-    * typically small changes
-    * fast compilation
-    * optimized inner loop
-* Not-applicable visual distance
-How do the activities affect the different distances: temporal, spatial, semantic?
-
-*D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
+@Ungar proposes three distances/immediacies for live systems. While extempore has two short distances, it does not encompass a visual system. Therefore the third distance is inapplicable:
+* Extempore has a very small *temporal distance* due to small adaptation and emergence times. This is further helped by the usual workflow, which is mostly comprised of small, contained changes.
+* Extempore also has a very small *semantic distance*. The user has to only issue one action to change the state of the system.
+* Extempore has no visual component, therefore the term of *visual distance* loses it's meaning in regard to the system itself. There is however a rough representation of the current system state in the text-editor of the user. This representation has the same visual distance as most conventional, non-live systems.
 
 ---
 
 ## Implementing Liveness
 
 ### Extent of liveness in technical artifacts
-* Is execution environment => whole system is there to implement liveness
-What parts of the system implements the liveness? (Execution environment, library, tool...)
+Extempore is an execution environment. The liveness therefore extends to all code running within it. The liveness stops at the threshold of the execution environment itself: the state of the environment may be changed but the rules governing the execution of the code itself are not live and can only be change through a conventional edit-compile-run cycle.
+Furthermore the responsiveness of the system may degrade if the host machine is so overloaded, that it is incapable of servicing the changes requested by the user. This is averted in most cases due to the core-loop of the system being highly optimized and the seperation of the adaptation from the exectution into different threads.
 
 ### Mechanisms of Liveness
-* REPL
-* JIT+Hotswapping
-* Temporal Recursion
-    * Scheduling
-    * End Times
-* Compilation in seperate process
-* Interaction in seperate process
+Extempore implements several mechanisms to facilitate liveness. The first and most common one is the the REPL nature of it's languages. This is achieved by an interpreter for the Scheme language and hotswapping for xtlang.
+Extempore further introduces the concept of *temporal recursion*, that is, function calls scheduled into the future and with a maximum run-time. This brings many advantages as discussed in @tempRecursion. It can be used to have multiple threads of execution inside a single environment, like coroutines. It can also be used to explicitly time the occurence of an event within the program, such as the playing of a note.
+Extempore further seperates the adaptation from the execution, ensuring that the system responds in a continuous fashion to changes.
 
 ---
 * Benchmark adaptation and emergence for Scheme and Extempore
 * Plots with seaborn
 
 ## Benchmark
+The typical unit of change in extempore is a single redefinition.
+
 1. **Unit of change:** Determine relevant units of change from the user perspective. Use the most common ones.
 2. **Relevant operations:** Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
 3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
