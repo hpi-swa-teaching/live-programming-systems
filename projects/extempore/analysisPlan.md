@@ -14,7 +14,7 @@ Generally try to drill down on reasons behind properties of the system. Make use
 Extempore is a plattform for live programming, especially music. It supports two languages, both LISP Dialects, which can be used for the actual programs. During runtime code can be submitted to the system and is evaluated in the context of the current state of the system, as build by previous instructions and code.
 
 ### System boundaries
-Extempore is build around a server/client architecture, where the clients submit code via TCP to the server, running extempore. The clients can be anything that supports TCP, even telnet, as the server reads a raw TCP-Stream and evaluates it. To evaluate the code, the server implements two different dialects of LISP, which operate in a semi-shared environment [TODO: what is shared, what isn't]. One of these is an implementation of R5RS Scheme and the other is a custom dialect called "xtlang" which has explicit memory management to avoid the overhead of garbage collection. Extempore can interact with the world through a Foreign Function Interface.
+Extempore is build around a server/client architecture, where the clients submit code via TCP to the server, running extempore. The clients can be anything that supports TCP, even telnet, as the server reads a raw TCP-Stream and evaluates it. To evaluate the code, the server implements two different dialects of LISP, which operate in a semi-shared environment. While functions of the other environment can be called, state is confined to one environment. One of these is an implementation of R5RS Scheme and the other is a custom dialect called "xtlang" which has explicit memory management to avoid the overhead of garbage collection. Extempore can interact with the world through a Foreign Function Interface.
 Apart from the server application itself, a usual installation of extempore also packages libraries written in xtlang, which can be loaded to create certain capabilities. For example, there are libraries dealing with synthesizing of music or rendering of graphics.
 Since extempore has a focus on musical programming, the core application also includes an interface to the soundcard, which enables samples to be written from user-code. In this way, the user can create sound. Extempore offers libraries for this purpose, which come with the usual installation.
 Extempore does not supply any built-in code editing, the user has to provide his own method of submitting code to the server. Extempore also does not package most C-Libraries it interacts with through FFI, those also have to be provided by the user, if he wishes to peruse them.
@@ -25,21 +25,23 @@ Most of the performative code is discarded after the performance or kept for his
 However it is often necessary to write libraries of auxilliary code to facilitate those performances and these libraries are often developed using a more traditional edit-test cycle. The code of the libraries is also often kept around and built upon for further performances and can be shared and developed with other users of extempore.
 
 ### General Application Domain
-  - What is typically created in or through this system?
-  - What are users trying to accomplish with it?
-  - What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
-  - ...
+Extempore is typically used to create music or (artistic) graphical effects. This often happens in a live context and with little to no prior code specific to the performance. However, most aritsts do have a library of functions to (re)use in their performances.
+Extempore is also used to control and interact with more complex systems, such as physics simulations.
+Extempore is therefore mostly used as a tool for experimental coding, that is a tool which enables the user to quickly validate their ideas by putting them into action.
+
 
 ### Design Goals of the System
-Speed - enough for direct manipulation of sound
-Multi User - enable collaboration
-What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
+The main design goal behind the system is to combine the flexibility of a live environment with the performance of a compiled language. This stems from a desire to have a high level of control even in processes which (soft) real-time guarantees and are therefore performance sensitive.
+
+Extempore is also designed to spawn processes on different machines, so as to better balance workloads. This is however a secondary goal which is rooted equally in both primary design goals. Being able to distribute workloads brings all of the performance gains of classical multiprocessing. It also enables the user to write code that makes explicit use of several computers, such as when controlling a swarm of robots.
 
 ### Type of System
-Extempore is most aptly described as an execution environment. The System itself provides an environment in which to run the code of the user, a means for the user to submit said code to the environment as well as capabilities for the code to interact with external software (libraries) and the sound system of the host machine.
+Extempore is an execution environment. The core is provided by a single binary, which accepts code from external sources and executes it. The code can interact with systems outside of extempore through a foreign function interface. Extempore also implements a way to directly write samples to a sound interface, so that code can produce sound without using the FFI.
+Extempore also packages standard library of functions which provide abstractions over commonly used functionalities, so that users do not have to write their own abstractions.
 
 ## Workflows
-Summary of workflow observations
+It is usual to change running iterations/recursions to produce different effects. Often this is done with some timing to it, so as to create "sections" in a performance.
+The history of entered commands is often visible to the developer in his text editor/ workspace. However there is no explicit representation of the state of the execution environment. It is therefore difficult to build or control complex systems without deeper understanding of their inner workings.
 
 ### Example Workflow
 Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
@@ -98,26 +100,20 @@ The System has little interaction surface, only a way to input code and some way
 
 The non-live parts of the system are hidden and basically contained to the framework facilitating the live environment. This environment can not be changed and as such it is not possible to change the language within itself. It is also not possible to change code that is not written in xtlang or scheme, so that most mechanisms to provide feedback (sound, graphics), have a clearly defined API that cannot be changed. The API can however be wrapped in xtlang code and this wrapper can expose new interactions by composing them out of the vocabulary of the external API.
 
-Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
-
-How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
-
 ### Limitations
-To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
-Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
+While extempore can behave in an unwanted fashion if it is overloaded and can not meet the soft-real-time criteria, it is still responsive, as the interaction and control of the system is done in a different thread from the execution environment itself. Because of this, the system remains responsive and live even if it is under heavy calculation load. The only exception to this rule would be an endless non-temporal recursion, which would block the execution environment. While new changes could be made, they would not be visible since the main execution thread would be busy with the endless recursion. This problem is mitigated by the fact that all evaluations have a maximum time. So while the unresponsive state may persist for a while it will eventually be resolved by the system. It is also unusual not to use temporal recursion for longer computations, so that the problem does usually not occur.
+
+Extempore has very little limitations in regard to its languages, since they are both derived from LISP and are therefor highly flexible and capable of building all the desired abstractions. There are however only some basic abstractions provided out of the box, so that further affordances for working with liveness have to be built by the user.
 
 ### What happens when the live parts of the system fail/break?
-1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
-2. How can the system itself break? What happens when there is a failure in the system/tool itself?
+When an evaluation causes an exception, the evaluation is stopped and a stacktrace is printed on the system console. Because only the evaluation causing the exception is stopped, other (scheduled) evaluations remain untouched. This means that most of the user application is still running, since there are normally multiple temporal recursions with contained state.
 
-* The execution stops (when temporal recursion only the single execution stops -> temporal recursion breaks
-* The system itself has no checks/balances since it is really low level
+A failure in the tool itself, e.g. due to corrupted memory from FFI, will cause the whole environment to crash. This is due to the low-level nature of the execution environment.
 
 ### Left out features
-Which features of the system were not described and why were they left out?
+This document mainly describes the extempore execution environment. It does not describe the foreign function interface, because it contributes nothing to the liveness of the system.
+The standard library is left out as well, since it is not required to work with extempore and mainly builds upon the basic liveness mechanisms.
 
-* FFI is not described in-depth
-* Standard Lib not described in-depth
 
 ---
 
