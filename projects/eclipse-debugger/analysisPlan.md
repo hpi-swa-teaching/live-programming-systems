@@ -8,22 +8,23 @@ bibliography: refs.bib
 - Your Name: Daniel Stolpe
 - Your Topic: Eclipse Java debugger
 
-*Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.*
+>Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
 
 ## About the System itself
-*Summary of system properties*
+>Summary of system properties
+
 Eclipse provides IDEs and platforms for many languages and architectures. Eclipse is famous for their Java IDE, C/C++, JavaScript and PHP IDEs built on extensible platforms for creating desktop, Web and cloud IDEs. The Eclipse IDEs are open-source. @RefKey[EclipseOrg]
 Eclipse was inspired by the Smalltalk-based VisualAge family of IDEs. @RefKey[EclipseFAQWhereFrom]
 The Eclipse Project was originally created by IBM in November 2001 and supported by a consortium of software vendors. The Eclipse Foundation was created in January 2004 as an independent not-for-profit corporation to act as the steward of the Eclipse community. @RefKey[EclipseOrgOrg]
 
 ### System boundaries
-*What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.*
+>What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
+
 We are focusing on the Java Debugger of the Eclipse Java IDE. The Java Debugger is part of the "Java Development Tools (JDT) Debug" project. It is implemented on top of the language independent "debug model" provided by the platform debugger which provides language independent facilities for launching programs, source code lookup, breakpoints and debugging UI. @RefKey[EclipseDebug]
 We use Java 1.8.0 update 112 as Virtual Machine for running Eclipse itself and the sample application we develop.
 
 ### Context
   - In which context is the system used?
-    *For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.*
     The Eclipse Java debugger is used for debugging Java applications during development within Eclipse or debugging arbitrary Java applications remotely.
      
   - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
@@ -33,7 +34,8 @@ We use Java 1.8.0 update 112 as Virtual Machine for running Eclipse itself and t
 There are different Eclipse IDEs for different programming languages and different purposes. Mainly, these IDEs are used to build desktop, Web and Cloud applications. The Eclipse Java Debugger is used to support the creation of these applications by providing a graphical debugger.
 
 ### Design Goals of the System
-*What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.*
+>What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
+
 Eclipse is a community for individuals and organizations who wish to collaborate on commercially-friendly open source software. Its projects are focused on building an open development platform comprised of extensible frameworks, tools and runtimes for building, deploying and managing software across the lifecycle. An important aspect of Eclipse is the focus on enabling the use of open source technology in commercial software products and services. @RefKey[EclipseOrgOrg]
 
 ### Type of System
@@ -52,7 +54,7 @@ The Eclipse Java Debugger is an interactive debugger which provides the followin
 Writing code in Eclipse is supported by syntax highlighting, code completion and lots of other feedback mechanisms to detect syntactical errors. The views and tools are pluggable so that you can adjust the IDE to your needs. When debugging, the Eclipse Debugger provides some liveness features to replace code of methods and lots of different ways to inspect runtime state. These features are mainly used to find bugs faster, but not to develop applications at runtime. In following exemplary workflow, we try to develop the application as live as possible, keeping the application running as long as possible while writing the source code.
 
 ### Example Workflow
-*Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.*
+>Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
 
 A good example to demonstrate live programming features and its limitations is creating a bouncing ball simulation with Java 2D drawing features.
 
@@ -327,11 +329,11 @@ Now we remove the breakpoint, save our changes and press "F8" to resume executio
 ![Scrapbook Page](./res/pics/scrapbook_page.png)
 
 ### Which activities are made live by which mechanisms?
-*Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
+>Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
 - Actual interactions
 - Feedback mechanism
 - If applicable: How is the emergence phase shortened?
-- Granularity: For example: Elm can only rerun the complete application*
+- Granularity: For example: Elm can only rerun the complete application
 
 Step 11 of the example workflow shows the first liveness activity. The program is running in Debug-mode and we change code in the body of the `paint(...)` method. Saving these changes via the Eclipse Debugger triggers Hot Code Replace (HCR). The method body of the `paint(...)` is replaced without restarting the application. But the change is only visible when the `paint`-method is triggered e.g. by resizing the window.
 
@@ -343,7 +345,7 @@ HCR has been specifically added as a standard technique to Java to facilitate ex
 The following schema shows what happens in step 11, when saving the changes.
 ![HCR schema](./res/pics/HCR_schema.PNG)
 
-**@Stefan/Patrick: Ist das Bild + HCR Erklärung schon Implementation detail und gehört weiter unten in den Abschnitt?**
+**@Stefan/Patrick: Ist das Bild + HCR Erklärung schon Implementation detail und gehört deshalb weiter unten in den Abschnitt?**
 
 In step 15, HCR is triggered again by saving a Java file. This change is immediately visible, due to stepping implemented via a separate Thread which enforces a repaint every 20ms, which provides immediate visual feedback for the programmer.
 
@@ -357,9 +359,9 @@ In step 18 we evaluated code snippets in a "Scrapbook Page". The first time we e
 ![Scrapbook Page process](./res/pics/scrapbook_page2.png)
 
 ### Integration of live activities into overall system
-*Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?*
+>Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
 
-*How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.*
+>How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
 
 The Eclipse Debugger is seamlessly integrated into the Eclipse IDE. Eclipse provides a "Debugger Perspective" consisting of an source code editor in the center, surrounded by different views to inspect VM-threads, variables and console output.
 ![Eclipse Debugger Perspective with default configuration](./res/pics/debugger_perspective_default.png)
@@ -368,40 +370,31 @@ If no context is provide by halting at a Breakpoint, the features to inspect sta
 
 
 ### Limitations
-*To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?*
-*Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.*
+>To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
+Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
 
-A conceptional limitation to live programming with Eclipse (or Java in general) is the differentiation between running an application in Default- or Debug-mode. When running in Default-mode, no debugging features are available, i.e. no Hot Code Replace or state inspection via Breakpoints is possible.
+A conceptional limitation to live programming with Eclipse (or Java in general) is the differentiation between running an application in Default- or Debug-mode. When running in Default-mode, no debugging features are available, i.e. Hot Code Replace or state inspection/modification via Breakpoints is not possible.
 
-When running in Debug-mode, there are still some limitations which we describe in the following regarding the example workflow.
+When running in Debug-mode, there are still some limitations which we describe in the following, regarding the example workflow.
 
 In step 10 and 12 Hot Code Replace is not applicable, because adding methods is not implemented in the JVM of Java 8 and earlier. @RefKey[EclipseFAQHCR]
 In step 13 and 14 HCR is again not possible for the same reasons, but we chose to restart the application with one click instead of terminating it.
 
 The default JVM implementations (e.g. HotSpot and OpenJDK) of Java 8, which are optimized for speed and consistency, do not implement the full feature-set described in the JVM HotSwap specification (@RefKey[HotSwapSpec]).
-The supported feature set can be shown in Eclipse by opening the properties of a running VM:
+The supported features can be inspected in Eclipse by opening the properties of a running VM:
 ![VM capabilities](./res/pics/vm_capabilities.PNG)
 In the image we see that Hot Code Replace is supported, but method addition or arbitrary class redefinition is not supported by that Java HotSpot VM implementation.
+In general HCR is also not possible when altering code of the last method on the stack (e.g. the main-method), because this stack frame cannot be popped to reenter the modified method afterwards.
 
-TODO
-Code evaluation, variable inspection and state modification is only possible when halting at a Breakpoint.
-Finding the relevant context where to put the Breakpoint can be difficult.
-If found, program execution still needs to reach the Breakpoint.
+Another limitation is also based on the fact, that execution needs to halt at a Breakpoint, to inspect/modify state. Finding the relevant context to put the Breakpoint can be difficult. E.g. if we want to change the speed of the bouncing ball, we have to find the relevant lines of code which provides access to a reference of the ball. When found, execution still has to reach this Breakpoint. This might be no problem in a small application, but the more complex a system becomes, the more difficult it will be to find the right lines of code.
 
 
 ### What happens when the live parts of the system fail/break?
 1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
 
-    If there is compiler error, e.g. a variable name cannot be resolved because we forgot to declare it, the Eclipse debugger halts execution and opens the "Debugger"-perspective allowing the user to fix the error.
-    ![Undefined variable](./res/pics/variable_undefined.PNG)
-    This is only triggered, when the execution reaches this line of invalid code.
-
-2. How can the system itself break? What happens when there is a failure in the system/tool itself?
-
-- **JAVA Hot Code Replace (HCR)**
-    If HCR fails due to running into the limitations described before, e.g. changing the source code of the main method and saving the changes, the Eclipse debugger handles this exception by letting the developer choose from three options: Continue, Terminate and Restart.
-    TODO: image path local
-    ![Obsolete method on stack](./res/pics/obsolete_stack.png)
+    Java has a built-in exception handling, allowing the Eclipse Debugger to halt execution when an unhandled exception is thrown in Debug-mode (e.g. an ArithmeticException caused by "division by zero"). If the the error can be fixed by modifying state via the "Variables View" or behavior via HCR, execution can be resumed.
+    If HCR fails due to running into the limitations described before, e.g. adding a method, the Eclipse debugger handles this exception by letting the developer choose from three options: Continue, Terminate and Restart.
+    ![Add method not implemented](./res/pics/hcr_failed_add_method_not_implemented.png)
     
       + Continue
       The developer can continue the execution, but there are no valid debug information for the changed stack frames available. You can continue stepping into and over method calls or resume normal code execution, but the changes made to the main method, will not take place, until restarting the debugging session.
@@ -412,7 +405,8 @@ If found, program execution still needs to reach the Breakpoint.
       + Restart
       Restarts the debugging session, so that all changes will be included in the new session.
 
-    In some cases, when saving invalid Java code (like invalid method signatures), the Eclipse debugger is unable to handle these exceptions, but still catches them without crashing.
+2. How can the system itself break? What happens when there is a failure in the system/tool itself?
+    In some cases, when saving invalid Java code (like invalid method signatures), the Eclipse debugger is unable to properly handle these exceptions and can only notify the user via the Eclipse Debugger that something went wrong.
     ![Exception unable to process](./res/pics/liveness_fails.PNG)
     In such a case, the application freezes and you can only terminate the running application via the Eclipse debugger.
 
@@ -420,24 +414,24 @@ If found, program execution still needs to reach the Breakpoint.
 ### Left out features
 Which features of the system were not described and why were they left out?
 
-- Remote debugging https://books.google.de/books?id=6Ob1ANNVcXcC&pg=PA136&lpg=PA136&dq=limitations+of+hot+code+replace+jvm&source=bl&ots=jnItbQNmwx&sig=Pi-HDEAMdMjEy_zCPXPomtRvv60&hl=de&sa=X&redir_esc=y#v=onepage&q=limitations%20of%20hot%20code%20replace%20jvm&f=false
+- Remote Debugging
+  The JVM allows us to debug programs remotely, e.g. a Java application running in an application server. The underlying concepts for debugging such an application remotely with the Eclipse Debugger are the same for debugging an application running from inside the Eclipse IDE. Therefore we left this feature out.
 
 ---
 
 ## Models
 
 ### Mutable or immutable past
-*To which category does the system or parts of it belong and why?*
+>To which category does the system or parts of it belong and why?
 
 The Eclipse debugger is an immutable past tool. HCR only allows to replace behavior (class methods) that will be executed from now on. If you replace code of a method currently executed, the stack frame will be reset. Side-effects of already executed code cannot be reverted automatically.
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
 ### Tanimoto's Level of Live Programming
-*To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?*
+>To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
 
 In general, the Eclipse debugger provides Tanimoto's liveness level 4 as long as HCR can be applied.
-//TODO question: Otherwise no liveness, because restart is needed? Refer to limitations again or is it enough in section "Limitations"?
 
 - Behavior manipulation allowing HCR
 
@@ -445,81 +439,70 @@ In general, the Eclipse debugger provides Tanimoto's liveness level 4 as long as
 
 - Code evaluation
 
-  //TODO question: is only possible when pausing the system (e.g. halting at a breakpoint). Is this still live? The current thread is paused, the other threads keep running. level 2? (Ask for response and wait for computer's response?)
-  Ctrl+Shift+D
-  Display View
-
-- State manipulation allowing HCR
-
-  Liveness level 4: Actually, changing state is changing class variables which is a code manipulation. See above.
+  //TODO question: is only possible when pausing the system (e.g. halting at a breakpoint). Is this still live? The current thread is paused, the other threads keep running.
 
 - Runtime state manipulation
 
-  //TODO question: Only when halting at a breakpoint? Is it live at all?
+  //TODO question: Same as above
 
 
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
 
 ### Steady Frame
-*Which activities are designed as steady frames based on the formal definition and how?*
+>Which activities are designed as steady frames based on the formal definition and how?
 
-TODO: steps durchgehen und nach steady frame suchen
-
-- Behavior manipulation allowing HCR
-
-  A steady frame regarding the state of the running application. An application's opened window for example keeps his position on the screen.
-
-- Runtime state manipulation
-
-  A steady frame for runtime state is provided only in combination with the "Variables" view, which is only active after pausing the current execution via a breakpoint button.
-  //TODO sind aber alle Variablen, nicht objektbezogen
+//TODO Variables View + Debug view when halting at a Breakpoint
 
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
 
 ### Impact on distances
 How do the activities affect the different distances: temporal, spatial, semantic?
 
-TODO: alle steps durchgehen und nach distances suchen
-
 - Temporal
-    In steps 10, 12, 13 and 14 saving changes leads to a restart or termination of the application, because of the HCR limitations. This is a temporal distance, because the user needs to wait until the application is restarted to see the changes.
+    In steps 10, 12, 13 and 14 saving changes leads to a restart or termination of the application, because of the HCR limitations. This is a huge temporal distance, because the user needs to wait until the application is restarted to see the changes.
 
     In step 15, the saved changes are immediately visible. There is no temporal distance for the user.
+
+    //TODO immediacy for changing state via Variables view
 
 - Spatial
     In step 16, when halting at a breakpoint, hovering over variables spawns a pop-up window displaying the variable's value. If the value is an object, it is displayed via its `toString()` method. Furthermore the object's instance variables are displayed in a foldable tree structure, but without the ability to change them. The spatial distance is reduced by spawning these pop-up windows, you still need to hover over a variable with the mouse cursor and only one window can be displayed at a time.
 
     The "Variables"-view allows to change the values of available variables at runtime, but with spatial distance, because the user needs to focus a different view and find the corresponding tree list entry.
 
-    Display view + *Ctrl+Shift+D*
+    //TODO Some distance between different views (depends on arrangement)
+    //TODO Some distance between running (graphical) application and IDE
 
-    Debugger halts at erroneous code, but not on exceptions (see step xx)
 
 - Semantic (aka how many mouse clicks)
+    //TODO Distance depends on arrangement of pluggable views and tools
+    //TODO Large distance in Variables view when trying to navigate through large trees of different variables (can open only one Variables view)
 
 *D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
 
 ---
 
 ## Implementing Liveness
+//TODO Eclipse code Refs
 
 ### Extend of liveness in technical artifacts
-What parts of the system implements the liveness? (Execution environment, library, tool...)
+>What parts of the system implements the liveness? (Execution environment, library, tool...)
 
 ### Implementations of single activities
-Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
+>Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
 #### Example: Scrubbing
-The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
+>The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
 
-Abstract form: Scrubbing is enabled through incremental compilation which enables quick recompilation of parts of an application...
+>Abstract form: Scrubbing is enabled through incremental compilation which enables quick recompilation of parts of an application...
 
 ### Within or outside of the application
-For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
+>For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
 
 ---
 
 ## Benchmark
+//TODO
 1. **Unit of change:** Determine relevant units of change from the user perspective. Use the most common ones.
 2. **Relevant operations:** Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
 3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
@@ -533,13 +516,17 @@ For each activity: Does the activity happen from within the running application 
 ---
 
 ## Personal observations
-*Everything that is particular about the environment and does not fit into the pre-defined categories mentioned so far.*
+>Everything that is particular about the environment and does not fit into the pre-defined categories mentioned so far.
+
+**@Stefan/Patrick: Ist hier die richtige Stelle, um Projekte wie DCEVM zu erwähnen, die die JVM erweitern, um Hot Code Replace auch für das Hinzufügen von Methoden usw. zu ermöglichen?**
 
 Eclipse is highly depending on the implemented liveness-features of the underlying VM.
 
 The programmer has to explicitly start the application in Debug mode to enable the described liveness features. From my own experience having used Eclipse some years to develop server-side Java code in a company, many developers do not run the application in Debug mode by default. Only if there is a bug and you try to find it with the help of the Eclipse Debugger, you run the application in Debug mode. You find the bug, terminate the execution, fix the source code and restart the application.
 
-During presentation: Immutable past was surprising (adding field with value = 1 was printed 0)
+To sum it up Live Programming in the Eclipse Debugger is mainly used for faster debugging, but not for application development. The result of Live Programming is an iteration of the source code, not the artifact created with Live Programming.
+
+
 
 ## Style Template
 - Denote headings with #
