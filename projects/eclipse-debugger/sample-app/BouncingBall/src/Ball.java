@@ -11,7 +11,7 @@ public class Ball {
     private int dx, dy;
 	private Color color;
 	private BufferedImage ballImage;
-	private int test = 1;
+	private int test = 1000;
 
     public Ball(Point l, int directionX, int directionY){
         location = l;
