@@ -104,9 +104,10 @@ while(true) {
 	``` return Color.BLUE;```
 and accept the changes. As a result, a notification is shown which indicates, that the "Ball" class was modified. The ball in the application changes it's color to blue.
 
-- We also can access the color of the ball, while the program is running via the newContentPane instance. Here we can get the color RGB value by typing:
- ``` newContentPane.getBall().getColor().toString()```
- The result should be "[r=0,g=0,b=255]". JShell also provides an auto-completion functionality using the Tab-key. All accessible methods (the members which are declared as "public") and variables are shown if you use it. If you access private members, JShell will throw an error.
+- We also can access the color of the ball, while the program is running via the newContentPane instance. Here we can get the color RGB value by typing:  ``` newContentPane.getBall().getColor().toString()```
+
+
+The result should be "[r=0,g=0,b=255]". JShell also provides an auto-completion functionality using the Tab-key. All accessible methods (the members which are declared as "public") and variables are shown if you use it. If you access private members, JShell will throw an error.
 
 Now we want to extend our program. For our game, we need a racquet which can actively collide with the ball and steers it as a result in another direction.  
 
@@ -162,34 +163,32 @@ Now we want to extend our program. For our game, we need a racquet which can act
 
 There are two mayor liveness mechanisms within the workflow:
 
-1. The execution of statements and commands (for example the adding of classes) results in immediate feedback and validation done by the JShell.  
+1. The evaluation of statements and commands (for example the adding of classes) results in immediate feedback from the JShell.  
 -  The Read-Eval-Print Loop iterates over the user input and interprets it "as soon as" statements/commands are entered. The evaluation thread gives feedback based on messages or exceptions that are printed onto the command line. 
 		
-2.  Changing the ```getColor()``` method during run-time of the "Ball" class results in a color-change.
- - Hot Swapping allows JShell to update methods at run-time (static ones too) by replacing their Java byte-code.  It allows for incremental and therefore quick changes to the executable form and preserves the current context of a change (@Rein2016HLL). If a method was updated successfully or if errors occur using Hot Swapping, JShell again prints out messages and appropriate exceptions.
+2.  Direct manipulations of the runtime state (source code replacement) by changing the ```getColor()``` method of the "Ball" class. ????
+ - Hot Swapping allows JShell to update methods at run-time by replacing their Java byte-code.  It allows for incremental and therefore quick changes to the executable form and preserves the current context of a change (@Rein2016HLL). As a result, we are able to manipulate the runtime state of an application by a redefinition of method bodies. If a method was updated successfully or if errors occur using Hot Swapping, JShell again prints out messages and appropriate exceptions.
  
 > - If applicable: How is the emergence phase shortened?
 
-In general, the emergence phase for simple statements as well as for the Hot Swapping mechanism is very short based on heavily optimized Just-In-Time compilers in the JVM. Nevertheless, Due to the fact, that the JVM needs to replace  
+In general, the emergence phase for the evaluation of simple statements as well as for the Hot Swapping mechanism is very short based on heavily optimized Just-In-Time compilers in the JVM. Nevertheless, Due to the fact, that the JVM needs to replace  
 Nevertheless compiling and evaluating complex programs is non-immediate whereas the  Hot Swapping always 
 // add benchmarking here
 
 > - Granularity: For example: Elm can only rerun the complete application
 
-JShell is able to perform changes on all levels of granularity. On the one hand, fine-grained updates of running applications can be realized using Hot-Swapping while on the other hand it is also able to open complex programs or to rerun them using specific commands. 
+JShell is able to perform changes on all levels of granularity. On the one hand, fine-grained manipulations of application state can be realized using Hot-Swapping while on the other hand it is also able to open complex programs or to rerun them using specific commands. 
 
 ### Integration of live activities into overall system
 > Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
 > How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
 
-When used correctly, there are no parts of JShell that are not live. However, the live activities highly depend on the code entered by the user or the executed programs. Within my workflow, I intentionally used threads for the described game in order to show all possible live mechanisms of JShell. I was able to alter the program behavior using for example Hot-Swapping because I created several parallel execution contexts based on these threads. However, if the JShell main-thread  is blocked unintentionally by a program (due to for example endless loops like the one used in the execution code of the game), the developer is unable to enter any statements into the JShell due to the blocked evaluation thread. As a result, the liveness mechanisms based on statements, commands and Hot Swapping cannot be used anymore . 
+When used correctly, there are no parts of JShell that are not live. However, the live activities highly depend on the code entered by the user or the executed programs. Within my workflow, I intentionally used threads for the described game in order to show all possible live mechanisms of JShell. I was able to alter the program behavior using for example Hot-Swapping because I created several parallel execution contexts based on these threads as well as implemented my application in a way, that causes behavior updates if specific method bodies are changed on runtime. However, if the JShell main-thread  is blocked unintentionally by a program (due to for example endless loops like the one used in the execution code of the game), the developer is unable to enter any statements into the JShell due to the blocked evaluation thread. As a result, the liveness mechanisms based on statements, commands and Hot Swapping cannot be used anymore . 
 
 ###  Limitations  <a name="limitations"></a> 
 > To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
 
-The JShell-REPL itself evaluates single statements and commands immediately without any loss of output emergency. Nevertheless, if you open complex statement files of java code, the JShell needs time to enter and evaluate each of the statements individually. The propagation of values become non-immediate. 
-
-Hot Swapping represents a stable feature of liveness in the JShell. It always operates immediately regardless of the method length. See  [benchmark section](#benchmark) for more information. 
+The JShell-REPL itself evaluates single statements, expressions and commands immediately without any loss of output emergency. Nevertheless, if you open complex statement files of java code, the JShell needs time to enter and evaluate each of the statements individually. The propagation of values become non-immediate. #
 
 
 	
@@ -205,7 +204,7 @@ As a result, Hot Swapping is limited to method bodies in order to optimize the o
 > What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
 How can the system itself break? What happens when there is a failure in the system/tool itself?
 
-In case of an error or rising exceptions due to the input of invalid java code into the JShell command line, it propagates this error onto the command-line itself. Here the thread for input-evaluation catches the error, prints an appropriate message or a specific exception and **continues evaluation** of the remaining commands and statements. If this thread is terminated through user code, it is restarted again immediately by the JVM. In this process it looses its former state and all inputs made by the user are gone but can be restored through specific commands. (see section [Left out Features](#features) for more informations)
+In case of an error or rising exceptions due to the input of invalid java code into the JShell command line, it propagates this error onto the command-line itself. Here the thread for input-evaluation catches the error, prints an appropriate message or a specific exception and **continues evaluation** of the remaining commands and statements. If this thread is terminated through user code, it is restarted again immediately by the JVM. In this process it looses its former state and all inputs made by the user are gone but can be restored through specific commands that re-execute statements that were saved within the JShell internal "Replay History". (see section [Left out Features](#features) for more informations)
 
 In case of an error within the process of editing classes or methods via the editor provided by the "/edit some_class" command (for example some invalid Java-Code is entered into the editor), no update is applied to the method or class in change and a specific exception is thrown. Furthermore no hot swapping is done if the users intention was to change methods at run-time . The exception handling here is the same as in case before. 
 
@@ -213,56 +212,55 @@ In case of an error within the process of editing classes or methods via the edi
 
 > Which features of the system were not described and why were they left out?
 
-JShell provides several commands that can be used to investigate declared types and object instances, to open files or save inserted input etc. Some of these commands were already used within the workflow but there are several more. (Type \help in the JShell to get an overview). They were left out due to the fact that they do not make contribution to the liveness aspect of the overall system.
+JShell provides several commands that can be used to investigate declared types and object instances, to open files or save inserted input etc. Some of these commands were already used within the workflow but there are several more.
+
+An interesting one is the Replay History that enables ...
+
+Tab-completion implemented using the javac Compiler API
+
+ (Type \help in the JShell to get an overview). 
+They were left out due to the fact that they do not make contribution to the liveness aspect of the overall system.
 
 ---
 
 ## Models
 
 ### Mutable or immutable past
-To which category does the system or parts of it belong and why?
+> To which category does the system or parts of it belong and why?
 
-Hot Swapping The technique of hot-swapping in general allows for
-incremental and therefore quick changes to the executable form and
-preserves the current context of a change. As
-a result, the application can continue the execution from the state
-at which the change was applied with changed behavior.
-
-==> immutable past 
+The live mechanisms wihthin the JShell belong to the immutable past model. The code evaluation as well as hot-swapping preserves the current context of a change. As
+a result, the application can continue the execution from the state at which the change was applied with changed behavior.
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
 ### Tanimoto's Level of Live Programming
-To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
+> To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
 
-Level 4 liveness is supported
-when the changes to the program are applied as soon as the changes
-where made, without the user explicitly initiating the application
-of the change, and while the application is running or potentially
-so [23]. So the application would not wait until a user finishes a
-modification to run the application but the application constantly
-remains running.
+The liveness mechanisms used in the JShell cannot be assigned to exactly one level described by Tanimoto.  The fact that the code evaluation is explicitly triggered by the user using the enter key on its keyboard or the accept button in the JShell editor indicates an edit-driven update for  the JShell state. Therefore the definition of Tanimotos level 3 fits to the code evaluation. Nevertheless, the JShell remains constantly running during modifications. This fact satisfies level 4 characteristics specified by Tanimoto. Therefore it is difficult using the given definitions to assign a fix level to the liveness mechanisms of the JShell.  
 
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
 
 ### Steady Frame
-Which activities are designed as steady frames based on the formal definition and how?
+> Which activities are designed as steady frames based on the formal definition and how?
 
-A steady frame is a way to provide live and continuous
-feedback which preserves the context of an activity. The goal
-is to make programming a continuous activity such as aiming with
-a water hose, instead of an activity with discrete independent steps
-such as aiming through shotting single arrows. An activity with a
-steady frame is organized such that "(i) relevant variables can be
-seen and/or manipulated at specific locations within the scene (the
-framing part), and (ii) these variables are defined and presented so
-as to be constantly present and constantly meaningful (the steady
-part)." ==> no steady frame
+The JShell itself does not provide a steady frame.  The fact that we are able to inspect its state with commands like "/vars" or "/types" and have to enter these commands explicitly does not for example satisfy the need to have a certain "frame", that shows relevant variables at specific locations within the scene. Furthermore, the propagated values based on these commands are  not "constantly meaningful": The information provided for object instances are for example limited to memory addresses and therefore insignificant for the user. Nevertheless, developers are able to implement a steady frame for the application on their own. 
 
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
 
 ### Impact on distances
-How do the activities affect the different distances: temporal, spatial, semantic?
+> How do the activities affect the different distances: temporal, spatial, semantic?
+
+ Following distances evolves in the context of the JShell.
+ 
+ 1. Small Temporal Distance:
+ As already mentioned, the evaluation of single statements and expressions as well as the replacement of code during run-time are activities that are perceived as live by users. These mechanisms causes immediate feed due to their short execution times therefore providing a small temporal distance.
+ 
+ 2. Any Spatial Distance:
+ The spatial distance depends on how developers using the JShell for their needs. If users for example interact with the JShell based on the provided command line, a small spatial distance arise. However, if IDEs or editors are used in order to develop applications that are afterwards executed using the JShell, the spatial distance is arbitrary and therefore individually for each user.  
+ 
+ 3. Small Semantic Distance:
+ The Jshell represents an execution environment for applications written in Java. Therefore users intentionally interact with the JShell in order to write code for their applications or to execute it. As a result, their fully aware of the behavior and the results arising from the entered code.  The semantic distance is therefore small.
+
 
 *D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
 
@@ -270,32 +268,284 @@ How do the activities affect the different distances: temporal, spatial, semanti
 
 ## Implementing Liveness
 
+(Die evaluierung von Statements bisschen in die Tiefe erklären, es ist interessant dass accept dasselbe macht wie eval of statements)
+
+
+jede expression wird declared allEvents.addAll(declare(snip, snip.syntheticDiags()));
 ### Extend of liveness in technical artifacts
 > What parts of the system implements the liveness? (Execution environment, library, tool...)
 
-Two parts of the system enable the liveness characteristics: the REPL iself as well as the underlying JVM.  
+As already mentioned, we have two liveness mechanisms: the immediate evaluation of statements, expressions and commands as well as the opportunity to replace code at run-time. Here, the implementation of both mechanisms makes every effort to leverage the accuracy and engineering effort of the existing language support in the JDK: 
+
+1. The immediate evaluation is implemented by the execution environment itself that re-executes the evaluation of user input in a loop using the JDK Compiler API.  
+2. The replacement of code is realized by the underlying JVM using Hot Swapping. 
 
 ### Implementations of single activities
-Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
+> Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
-#### Example: Scrubbing
-The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
+#### Code and Input Evaluation
 
-Abstract form: Scrubbing is enabled through incremental compilation which enables quick recompilation of parts of an application...
+The input evaluation is done by JShell, using an endless loop, that re-executes the evaluation process of user input. The endless loop implementing this process is part of the JShellTool class and is called right after the start of the tool:
+
+```java
+// the boolean "live" is set to true after the successful 
+// initialization of the JShell instance
+while (live) {
+	//Input is read in here line by line
+	[...]
+	
+	// Trim whitespace off end of string
+	String trimmed = trimEnd(raw);
+	        
+	if (!trimmed.isEmpty()) {
+		String line = incomplete + trimmed;
+		// No commands in the middle of unprocessed source
+	    if (incomplete.isEmpty() && line.startsWith("/") && !line.startsWith("//") && !line.startsWith("/*")) {
+		processCommand(line.trim());
+	} else {
+		// 
+		incomplete = processSourceCatchingReset(line);
+	}
+}
+```
+
+
+
+
+
+The loop distinguishes between commands and java statements/expressions.  If the user finishes his or her input, the distinction is made. The most important method for triggering the process of statement evaluation is called *processCompleteSource*. It is used several times within the JShellTool class and represents the entry for statement evaluation:
+
+```java
+ private boolean processCompleteSource(String source) throws IllegalStateException {
+	boolean failed = false;
+	boolean isActive = false;
+	List<SnippetEvent> events = state.eval(source);
+	for (SnippetEvent e : events) {
+		// Report the event, recording failure
+		failed |= handleEvent(e);
+		// If any main snippet is active, this should be replayable
+        // also ignore var value queries
+        isActive |= e.causeSnippet() == null &&
+        e.status().isActive() &&
+        e.snippet().subKind() != VAR_VALUE_SUBKIND;
+    }
+    // If this is an active snippet and it didn't cause the backend to die,
+    // add it to the replayable history
+    if (isActive && live) {
+	    addToReplayHistory(source);
+    }
+	return failed;
+}
+```
+
+
+```java
+ private List<SnippetEvent> declare(Snippet si, DiagList generatedDiagnostics) {
+        Unit c = new Unit(state, si, null, generatedDiagnostics);
+        Set<Unit> ins = new LinkedHashSet<>();
+        ins.add(c);
+        Set<Unit> outs = compileAndLoad(ins);
+
+        if (!si.status().isDefined()
+                && si.diagnostics().isEmpty()
+                && si.unresolved().isEmpty()) {
+            // did not succeed, but no record of it, extract from others
+            si.setDiagnostics(outs.stream()
+                    .flatMap(u -> u.snippet().diagnostics().stream())
+                    .collect(Collectors.toCollection(DiagList::new)));
+        }
+
+        // If appropriate, execute the snippet
+        String value = null;
+        JShellException exception = null;
+        if (si.status().isDefined()) {
+            if (si.isExecutable()) {
+                try {
+                    value = state.executionControl().invoke(si.classFullName(), DOIT_METHOD_NAME);
+                    value = si.subKind().hasValue()
+                            ? expunge(value)
+                            : "";
+                } catch (ResolutionException ex) {
+                    DeclarationSnippet sn = (DeclarationSnippet) state.maps.getSnippetDeadOrAlive(ex.id());
+                    exception = new UnresolvedReferenceException(sn, translateExceptionStack(ex));
+                } catch (UserException ex) {
+                    exception = new EvalException(translateExceptionMessage(ex),
+                            ex.causeExceptionClass(),
+                            translateExceptionStack(ex));
+                } catch (RunException ex) {
+                    // StopException - no-op
+                } catch (InternalException ex) {
+                    state.debug(ex, "invoke");
+                } catch (EngineTerminationException ex) {
+                    state.closeDown();
+                }
+            } else if (si.subKind() == SubKind.VAR_DECLARATION_SUBKIND) {
+                switch (((VarSnippet) si).typeName()) {
+                    case "byte":
+                    case "short":
+                    case "int":
+                    case "long":
+                        value = "0";
+                        break;
+                    case "float":
+                    case "double":
+                        value = "0.0";
+                        break;
+                    case "boolean":
+                        value = "false";
+                        break;
+                    case "char":
+                        value = "''";
+                        break;
+                    default:
+                        value = "null";
+                        break;
+                }
+            }
+        }
+        return events(c, outs, value, exception);
+    }
+```
+
+
+```java
+ private Set<Unit> compileAndLoad(Set<Unit> ins) {
+	        [...]
+            // compile and load the legit snippets
+            boolean success;
+            while (true) {
+              [...]
+                    // generate class files for those capable
+                    CompileTask ct = state.taskFactory.new CompileTask(outerWrapSet(legit));
+                    if (!ct.compile()) {
+                        // oy! compile failed because of recursive new unresolved
+                        if (legit.stream()
+                                .filter(u -> u.smashingErrorDiagnostics(ct))
+                                .count() > 0) {
+                            // try again, with the erroreous removed
+                            continue;
+                        } else {
+                            state.debug(DBG_GEN, "Should never happen error-less failure - %s\n",
+                                    legit);
+                        }
+                    }
+
+                    // load all new classes
+                    load(legit.stream()
+                            .flatMap(u -> u.classesToLoad(ct.classList(u.snippet().outerWrap())))
+                            .collect(toSet()));
+                            [...]
+                    // loop by replacing all that have been replaced
+                    if (!toReplace.isEmpty()) {
+                        replaced.addAll(toReplace);
+                        replaced.stream().forEach(Unit::markForReplacement);
+                    }
+
+                    success = toReplace.isEmpty();
+                }
+                break;
+    }
+```
+
+
+
+Within this method, first an attempt is being made to convert the input source into so called *snippets* using ```state.eval(source)```. A snippet can be one expression, statement, variable declaration, method declaration, class declaration or import. Within the creation process of a snippet, the input is parsed into an AST using the already existing javac compiler (and evaluated if possible by another thread using the JDI . The result is "merged" into the JShell state and propagated to the command line. After a snippet could be created successfully based on the input, the input itself is added to the JShell internal "Replay History" using ```addToReplayHistory(source)```. This implements the history and reload feature of entered code using JShell commands (described in the [Left out Features](#features) section). 
+
+It needs to be mentioned, that each statement or expression is evaluated individually. Every single one is checked for completeness, is trimmed and converted to a token string, parsed into an AST and finally evaluated in order to create a corresponding snippet at the end. Thus, large code bases challenges the performance of the execution environment. As a result, feedback and liveness mechanisms are not immediate anymore. 
+
+#### The Build-In Editor
+
+As already demonstrated within the workflow, JShell provides a build-in editor that provides the ability to edit for example classes or attributes. Nevertheless, this editor is not implemented within the Jshell itself, it rather comes from JDK internal libraries called ```jdk.internal.editor.spi```. The most interesting part of this editor is the "accept" button, that triggers the evaluation of the edited structure anew. If the user for example updates methods of a class, the complete class is evaluated again. 
+
+The implementation of the accept button is pretty similar to the one used in the main loop. Again the  ``` processCompleteSource``` method is used in order to evaluate the input modified within the editor. Thus, input is always treated the same way within the JShell whether it is directly inserted into the command line or entered via the external editor. So like the evaluation within the command line, using the editor leads to performance issues in combination with large code bases. 
+
+
+```java
+public void accept(String s) {
+	// checks if a re-evaluation is needed
+	[...]
+	
+	while (true) {
+		CompletionInfo an = analysis.analyzeCompletion(s);
+		if (!an.completeness().isComplete()) {
+			break;
+		}
+		String tsrc = trimNewlines(an.source());
+		if (!failed && !currSrcs.contains(tsrc)) {
+			failed = processCompleteSource(tsrc);
+		}
+		nextSrcs.add(tsrc);
+		if (an.remaining().isEmpty()) {
+			break;
+		}
+		s = an.remaining();
+	}
+	// resets JShell state in case of a fatal error
+	[...]
+}
+```
+
+
+
+####Code Replacement
+
+The JShell provides the ability to replace code at run-time using the Hot-Swapping mechanism. This code replacement is done within the evaluation process of statements or expressions described above. Here the Java Debug Interface (JDI) is used,  providing explicit control over a virtual machine's execution. It offers the ability to create suspend, and resume threads, to inspect local variables and the stack backtrace as well as to load classes. As already mentioned, JShell uses this specific JDI API to replace the code. The call to the JDI API is done within the  ```redefine``` method, directly accessing the virtual machine in order to redefine the given class as byte code using the  ```vm().redefineClasses(rmp)```  call.
+** an in-place replacement of the classes (preserving class identity) --
+     * that is, existing references to the class do not need to be recompiled.
+*
+
+```java
+   boolean doRedefines() {
+        if (toRedefine.isEmpty()) {
+            return true;
+        }
+        ClassBytecodes[] cbcs = toRedefine.stream()
+                .map(ClassInfo::toClassBytecodes)
+                .toArray(ClassBytecodes[]::new);
+        try {
+            state.executionControl().redefine(cbcs);
+            state.classTracker.markLoaded(cbcs);
+            return true;
+        } catch (ClassInstallException ex) {
+            state.classTracker.markLoaded(cbcs, ex.installed());
+            return false;
+        } catch (EngineTerminationException ex) {
+            state.closeDown();
+            return false;
+        } catch (NotImplementedException ex) {
+            return false;
+        }
+    }
+
+```
+
+Due to the fact, that the process of statement evaluation via editor and command line is based on the same core implementation, the redefinition of method bodies during run-time can be realized using both input sources. 
+Furthermore, the use of the JDI API offers opportunities for further development to enhance the JShell itself. Possible features could be for example a Debugger or the implementation of liveness elements like a Steady Frame.
+
 
 ### Within or outside of the application
-For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
+> For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
 
----
+The input evaluation happens right within the execution environment, whereas Hot Swapping 
 
 ## Benchmark  <a name="benchmark"></a> 
 
+
+The most common units of change within the JShell are classes. As shown in the work-flow, classes can be "added", "modified" or "replaced". Due to the fact, that code replacement during run-time is limited to method bodies we are only able to "add" new or to "modify" existing classes without loosing the application context (the "replacement" of a class during run-time would reset all instances of this class). I decided to benchmark the most frequently used mechanism here, the modification of a class. The
+
+
+ 
 They thereby implement an immutable past model, which makes the
 emergence time highly variable and almost completely dependent
 on the application at hand. Thus, we focused on the adaptation time
 in the pilot study. ⇒ only adaptation time benchmarking? What if i measure the amount of time needed until a ball is created??
 
-modified  method
+Adaptation Phase:
+the phase the new compiled code was loaded into the memory
+
+modified  method,
+
+Ball getColor verändern und messen
 
 1. **Unit of change:** Determine relevant units of change from the user perspective. Use the most common ones.
 environments have di↵erent units of change (for example functions,

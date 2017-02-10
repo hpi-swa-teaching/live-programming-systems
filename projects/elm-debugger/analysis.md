@@ -91,7 +91,7 @@ To achieve an impression of liveness inside the Elm runtime debugger, three step
  2. Install and start a live reload server watching the Elm project under development.
  3. Install and enable a live reload plug-in for the browser in use.
 
-Exchanging the `elm-lang/virtual-dom` is done as follows: After installing the Elm packages required for your project (these are at least `elm-lang/core`, `elm-lang/html`, and `elm-lang/virtual-dom`), replace the contents of the folder where your copy of `elm-lang/virtual-dom` lies in with the contents of [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom). An `elm-lang/virtual-dom` package in version 2.0.2 should be located in  `elm-stuff/packages/elm-lang/virtual-dom/2.0.2`. The modifications made are based on 2.0.2. Other versions starting with 2 may work as well since there are only minor changes between the versions.
+Exchanging the `elm-lang/virtual-dom` is done as follows: After installing the Elm packages required for your project (these are at least `elm-lang/core`, `elm-lang/html`, and `elm-lang/virtual-dom`), replace the contents of the folder where your copy of `elm-lang/virtual-dom` lies in with the contents of [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom). An `elm-lang/virtual-dom` package in version 2.0.4 should be located in  `elm-stuff/packages/elm-lang/virtual-dom/2.0.4`. The modifications made are based on 2.0.4. Other versions starting with 2 may work as well since there are only minor changes between the versions.
 Now automatically replaying history when refreshing the page should work when using the Elm Reactor. Also, the buttons "Load", "Store", and "Clear" should be visible below the "Import" and "Export" buttons.
 The next step describes how to automatically reload the page when a change has happened.
 
@@ -134,7 +134,7 @@ Even though we only analyze the modified Elm debugger setup described above, the
  - a text editor for modifying source code
  - the source code itself
 
-![System Boundaries](ressources/system_boundaries.png) 
+![System Boundaries](ressources/system_boundaries.png)
 
 ### Context
 >  - In which context is the system used?
@@ -153,26 +153,29 @@ Even though we only analyze the modified Elm debugger setup described above, the
 >  - What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
 >  - ...
 
-Typical output of the system is a bug-free Elm source code file. The features for exporting and importing message history are used for creating meaningful bug reports. With an explicit message history, bugs are easily reproducible which helps finding a bug.  
-
-The user either tries to find a bug in a piece of Elm source code or tries to understand how the source code works. Like in other debuggers too, the goal is understanding why and how an application works.
-
+We have to distinguish two general application domains (GADs) here: the GAD of the original runtime debugger and the GAD of the modified one.  
+The original GAD was exporting and importing the message history for creating meaningful bug reports. With an explicit message history, bugs are easily reproducible which helps finding a bug.  
+The modified GAD is finding bugs in Elm source code or understanding how and why a piece of source code works.  
+Typical output of the modified system is a bug-free Elm source code file.  
 Subject to the Elm debugger are websites built with Elm. Elm is a functional programming language on top of Node.js. Main use case of Elm is the construction of web user interfaces using a model-view-update ([https://guide.elm-lang.org/architecture/](https://guide.elm-lang.org/architecture/)) pattern.
 
 ### Design Goals of the System
 >What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
 
+In this sections we present the design goals of `core/Debug`. By modifying the runtime debugger, we tried to reproduce the features of `core/Debug`. Therefore, the design goal of the runtime debugger are not relevant here.
 The time-traveling Elm debugger helps understanding, how a specific change in the applications source code affects the applications output in context of the input given by the user.
 Although the tool is called a debugger, its main purpose is improving the developers understanding of an application rather than finding bugs.
 The time-traveling features help getting a meaningful impression of the connection between change in source code and its effect by providing access to all input that already happened rather than only the current input. Replaying the input helps finding out not only what the change in source code does to the current state, but also what it would have done to every state before.
 
+TODO: I could also write that they want to achieve Bret Victor style liveness. Is this too bold?
+
 ### Type of System
 >What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
 
-The system is an interactive tool because it is interactive and it is a tool.  
-The system is interactive since the user can interact with it. The content shown is not static but changes when the user for example goes back in time by selecting different points in the message history.
+The system is an interactive tool.  
+The system is interactive since the user can interact with it. The content shown is not static but changes when the user interacts with the system. For example, when the user goes back in time by selecting different points in the message history, the system updates the state of the observed application accordingly.
 The system is a tool because it helps developing Elm applications but is not necessarily required.
-Please note, the system under analysis is not the Elm runtime environment. We only analyze the debugging features.
+Since the system under analysis is not the Elm runtime environment but the debugger, we only analyze the debugging features. The debugger is a tool, since it is not necessary for using an application, development, or debugging. Nevertheless, the debugging tool is the component of the overall system which creates the liveness. Without the debugger, the Elm runtime environment does not provide the same level of immediacy.
 
 ---
 
@@ -181,16 +184,6 @@ Please note, the system under analysis is not the Elm runtime environment. We on
 
 ### Example Workflow
 >Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
-
-The setup for using the Elm debugger consists of three components.
- 1. A text editor for changing the source code of the observed Elm application.
- 2. A *livereload* server for automatically adapting changes in source code.
- 3. An Elm setup with modified debugging features.
- 4. A browser satisfying the following conditions:
-   1. The browser provides a *livereload* plug-in that listens to the *livereload* server and reloads the page if the *livereload* server notices a change in the observed files.
-   2. The browser shows the output of the Elm Reactor running the observed Elm application. This is usually served on `http://localhost:8000`.
-
-The browser then shows the Elm application with some additional UI elements for interacting with the debugger. This was already described in the section "About the System itself / Runtime Debugger".
 
 A usual interaction with the system is as follows:
  1. Edit source code using the text editor.
@@ -202,6 +195,13 @@ A usual interaction with the system is as follows:
 
 After this cycle the Elm application is in the same situation as before (in terms of input) but with changed source code and therefore potentially changed behavior. Therefore also the state of the application may be different.
 Although a change in source code is immediately adapted, it may take some time until changed behavior emerges (see @Rein2016HLL on Adaptation and Emergence). Replaying in connection with the users ability to roll back parts of the input helps finding a sequence of user interaction that makes the change emerge. The area in the debugger window showing the applications model helps understanding why a certain behavior occurs.
+In this cycle the main objective is shorting the emergence phase. The user gets feedback quickly without having to perform interaction steps themself over and over again.
+
+While the steps describes above are the main cycle in developing and debugging an Elm application using the analyzed debugger, there are more tasks that can be performed. The debugger also provides time-traveling. The user can select an entry in the message history. This makes the application go back in time to the point where the selected input message happened.  
+Also, the user can interact with the application to create more input messages at the end of the message history. This helps, when the input that already happened does not make a change emerge. More input may expose situations in which emergence happens.  
+The debugger also provides means of inspecting the applications state. This works at every point in time and may show effects of changes that do not become observable through the applications normal user interface.
+
+![Screencast of debugging cycle](ressources/todomvc.ogv)
 
 ### Which activities are made live by which mechanisms?
 >Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
@@ -210,37 +210,46 @@ Although a change in source code is immediately adapted, it may take some time u
 - If applicable: How is the emergence phase shortened?
 - Granularity: For example: Elm can only rerun the complete application
 
-In the cycle of changing code and observing changes behavior can be split in three phases:
+From the cycle of changing code and observing changed behavior described in the section above, we can extract the following interactions and feedback mechanisms. They are described in the same order as they take place in the cycle:
 
-#### Editing, recompiling and reloading code
-When code is changed and saved, the Elm debugger setup automatically recompiles the code and reloads the application. This happens immediately without the user triggering these actions explicitly. This corresponds to liveness level 4 (see @Tanimoto2013PEL). The adaptation time is usually fast (less than 1 second) and the process may only slow down due to the emergence phase which includes replaying input and potentially further user interaction.
+#### Interaction: Editing source code
+While the observed application is running, the user can change the applications source code using a text editor of his choice. To find out which effects the changes made have, the source code has to be saved. This initiates the next phase.
 
-#### Replaying input
-After recompiling and reloading, the Elm debugger tries to bring the application back to the state it had before. This is tried to achieve by replaying all relevant input. By doing this, the user has the experience as if the change made was always there (past input is processed again by the changed algorithm). This principle is called "mutable past".
+#### Feedback mechanism: Recompiling and reloading code and replaying input
+When the changed code is saved, the Elm debugger setup automatically recompiles the code and reloads the application. This happens immediately without the user triggering these actions explicitly. This corresponds to liveness level 4 (see @Tanimoto2013PEL). The adaptation time is usually fast (less than 1 second) and the process may only slow down due to the emergence phase which includes replaying input and potentially further user interaction.  
+After recompiling and reloading, the Elm debugger tries to bring the application back to the state it had before. This is achieved by replaying all relevant input. By doing this, the user has the experience as if the change made was always there (past input is processed again by the changed algorithm). Therefore the system has a *mutable past*.
 The advantage of replaying input rather than restoring the applications state in terms of values bound to variables is avoidance of inconsistencies. We can not assume that the changed application can deal with the same state the application before did. Therefore, the new version of the application has to start off with a blank state and process input made in order to achieve the situation present before the change in source code.
-The principle behind this step is "continuous feedback". The user does not have to restore the state themself since the debugger does it for them. This makes programming a continuous process with permanent feedback and permanent correction (cf. @Hancock2003RTP).
+The user does not have to restore the state themself since the debugger does it for them. This makes programming a continuous process with permanent feedback and permanent correction due to a shortened emergence phase (cf. @Hancock2003RTP), which leads to the next phase.
 
-#### Observing Emergence
+#### Interaction: Observing emergence
 Observing emergence is hard because the time a change needs to emerge depends on the change itself. Although adaptation is done quickly, it can take a long time until the application reaches a state where the change emerges. It is also possible that a change does not emerge at all. This happens, for example, when the piece of source code where the change was done is unreachable.
-However, the time-traveling features of the Elm debugger make it easier to observe emergence of a change by not only showing the current state but also making all previous states of the application easily accessible. This implies that a change is observable as soon as it effects the application in any state the application was already in. Therefore, the programmer can easily find out if a change made is meaningful for the input that already happened. If there is no evidence for the emergence of the change in context of the previous input, the programmer has to generate further input to provoke emergence.
 
-There may be changes that do not affect the user interface of an application but only change internal, not so easily observable, behavior. The debuggers ability to show the applications state at a given point in the message history helps finding these cases of emergence.
+#### Interaction: Time-traveling
+The time-traveling features of the Elm debugger make it easier to observe emergence of a change by not only showing the current state but also making all previous states of the application easily accessible. This implies that a change is observable as soon as it effects the application in any state the application was already in. Therefore, the programmer can easily find out if a change made is meaningful for the input that already happened.
+
+#### Interaction: Generating more input
+If there is no evidence for the emergence of the change in context of the previous input, the programmer has to generate further input to provoke emergence. This is done by interacting with the observed application. Internally, this corresponds to appending more input messages to the message history. Since messages influence the application state, this may expose effects of a source code change.
+
+#### Interaction: Inspecting state
+There may be changes that do not affect the user interface of an application but only change internal state which is not so easily accessible. The debuggers ability to make *internal* state accessible at a given point in the message history helps finding these cases of emergence. Even if there is no evidence for an altered behavior through the user interface, the applications state may reveal the changes effect.
 
 #### Granularity
-The smallest granularity of change is the whole application together with all previous input. Whenever the source code of the application is changed, the debugger has to recompile and restart that application together with replaying all input. This may take a long time if the granularity of input is small (e.g. millisecond-wise timer events) and therefore much input happened. This leads to low performance for some kinds of applications.
+From the systems perspective, the smallest granularity of change is the whole application together with all previous input. Whenever the source code of the application is changed, the debugger has to recompile and restart the whole application together with replaying all input.
+From the users perspective, the smallest granularity of change is a single file. This is because the systems feedback mechanisms are triggered whenever the user saves a changed file. The user gets feedback every time they changes a file. Therefore, a file level granularity in experienced.
 
 ### Integration of live activities into overall system
 >Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
 
-The major limitation to the systems liveness is the concept, that every change has to happen through the source code editor. It is neither possible to change the data model from the debugger window nor can the message history be altered, although appending to the message history is of course possible. Also, the applications user interfaces can not be altered from the browser window. Another limitation to the debuggers liveness is the slowdown that happens when there are large amounts of input. If this is the case then input replay requires more time, therefore emergence takes longer and liveness degrades. If the applications source code is syntactically incorrect, liveness interrupts until the code is correct again.  
-In summary, it can be stated, that there is only one path that is automated and therefore made live. Namely, editing the source in a manner that it is syntactically correct afterwards, then recompiling and reloading the page, and then doing exactly the same interaction with the application again. Everything else that the debugger does is not live since it only offers different ways of looking at the application running.
+The major limitation to the systems liveness is the concept, that every change has to happen through the source code editor. It is neither possible to change the data model from the debugger window nor can the message history be altered, besides appending to the message history. Also, the applications user interfaces can not be altered from the browser window through direct manipulation. If the applications source code is syntactically incorrect, liveness interrupts until the code is correct again. The user can not inspect or fix the bug through the browser window.  
+In summary, it can be stated, that there is only one path that is automated and therefore made live. Namely, editing the source in a manner that it is syntactically correct afterwards, then recompiling and reloading the page, and then doing exactly the same interaction with the application again. Everything else that the debugger does is not live since it only offers different ways of looking at the application running.  
+The systems goal is emergence shortening by replaying previous input messages.
 
 >How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
 
 ![Browser encapsulates Debugger and Debugger encapsulates Application](ressources/browser_debugger_app.png)  
 Browser encapsulates Debugger and Debugger encapsulates Application
 
-There are two borders to the live debugger: the Elm application and the browser. The Elm application, live or not, runs inside the debugger and is not influenced in its behavior. The application behaves just as if the debugger was not present. All the debugger does is logging the message sends and the corresponding state, and all effect the debugger has to the application is the ability to restart it and feed it with parts of the logged input. On the other side, the influence of the (live) browser on the debugger is much stronger. The debugger relies on the session storage which is managed by the browser. Therefore the user can easily influence for example the message history by editing the session storage through the browser. Moreover, most browser provide the ability to change appearance and behavior of the shown website by giving the user access to the source files the page is generated from.  
+There are two borders to the live debugger: the Elm application and the browser. The Elm application, live or not, runs inside the debugger and is not influenced in its behavior. The application behaves just as if the debugger was not present. All the debugger does is logging the message sends and the corresponding state, and the only way of the debugger influencing the application is to restart it and feed it with parts of the logged input. On the other side, the influence of the (live) browser on the debugger is much stronger. The debugger relies on the session storage which is managed by the browser. Therefore the user can easily influence for example the message history by editing the session storage through the browser. Moreover, most browser provide the ability to change appearance and behavior of the shown website by giving the user access to the source files the page is generated from.  
 All in all it can be stated that while the browser has a potentially strong influence on the debugger, the debugger has only a weak influence on the Elm application running inside. The only mean of influencing the debugger has is restarting and replaying input. Model or source code manipulation is not provided.
 
 
@@ -256,8 +265,9 @@ Whenever there is an error in the observed Elm application, liveness stops immed
 
 >Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
 
-The major conceptual limitation is that there is no possibility to restore the applications situation by restoring the state. The model is always restored by replaying message sends. This is because the idea behind the debugger is that the user input is the relevant and unchangeable part of a running application. The structure of the model may be changed when the source code is changed and therefore the old state of the application does not work with the new source code. The debugger assumes that, while the model may change, the application will always be able to process the input that already happened in a correct manner. This is why the situation is restored by replaying user input and not by restoring state.  
-Another not necessarily conceptual limitation is the absence of direct manipulation. There is no way to influence values in the source code through sliders (only by changing the values in an editor or IDE), the model is not editable, and message send can not be altered. Not even the payload of messages that carry values can be manipulated. The scope of the debugger is clearly only on restoring an applications situation by replaying all logged input.
+The major conceptual limitation is that there is no possibility to restore the applications situation by restoring the state. The model is always restored by replaying message sends. This is because the original idea behind the debugger is that the user input is the relevant and unchangeable part of a running application. The structure of the model may be changed when the source code is changed and therefore the old state of the application does not work with the new source code. The debugger assumes that, while the model may change, the application will always be able to process the input that already happened in a correct manner. This is why the situation is restored by replaying user input and not by restoring state.  
+If the messages in the message history to not match the messages the application expects, the message history is cleared and the application starts with an empty message history.  
+Another, not necessarily conceptual, limitation is the absence of ways to manipulate runtime state. There is no way to influence values in the source code through sliders (only by changing the values in an editor or IDE), the model is not editable, and message sends can not be altered. Not even the payload of messages that carry values can be manipulated. The scope of the debugger is clearly only on restoring an applications situation by replaying all logged input.
 
 
 ### What happens when the live parts of the system fail/break?
@@ -271,7 +281,7 @@ If there is an error and the liveness interrupts, there is still the browsers de
 ### Left out features
 >Which features of the system were not described and why were they left out?
 
-There are no features that are part of the debugger but left out. However we did not cover the Elm runtime environment, browsers or made any assumption about the observed Elm applications. The scope of this work only contains the Elm debugger and nothing in scope was left out.
+The scope of this work only contains the Elm debugger and nothing in scope was left out. However we did not cover the Elm runtime environment, browsers or made any assumption about the observed Elm applications.
 
 ---
 
@@ -294,14 +304,8 @@ The system provides level 4 liveness. According to @Tanimoto2013PEL in level 4 l
 ### Steady Frame
 >Which activities are designed as steady frames based on the formal definition and how?
 
-@Hancock2003RTP defines "steady frame" as follows:
-
-> A steady frame is a way of organizing and representing a system or activity, such that
->  1. relevant variables can be seen and/or manipulated at specific locations within the scene (the framing part), and
->  2. these variables are defined and presented so as to be constantly present and constantly meaningful (the steady part).
-
-The relevant "steady frame" variables in context of the Elm debugger is the message history and the application's state. The message history is stored in the session storage (a specific location within the scene). Also, the message history is constantly present, as the session storage persists between the page reloads, and constantly meaningful, because only valid message histories are stored in the session storage.  
-The application's state is only present while the application is running and vanishes when the page is reloading. Nevertheless it can be treated as steady frame part because whenever the application is running (which is the relevant case) the state is present. Also it is constantly meaningful because every update operation transforms a meaningful state into another meaningful state. The language does not allow breaking the state apart (e.g. in terms of changing the models structure or deallocating the corresponding memory).
+The relevant "steady frame" variables in context of the Elm debugger is the message history and the application's state. The message history is stored in the session storage (a specific location within the scene). Also, the message history is constantly present, as the session storage persists between the page reloads, and constantly meaningful, because only valid message histories are stored in the session storage. It is also constantly visible because the while the application is running, we can always inspect the message history through the debugger window.  
+The application's state is only present while the application is running and vanishes when the page is reloading. Nevertheless it can be treated as steady frame part because while the application is running (which is the relevant case) the state is present. Also it is constantly meaningful because every update operation transforms a meaningful state into another meaningful state. The language does not allow breaking the state apart (e.g. in terms of changing the models structure or deallocating the corresponding memory).
 
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
 
@@ -309,16 +313,15 @@ The application's state is only present while the application is running and van
 >How do the activities affect the different distances: temporal, spatial, semantic?
 
 #### Temporal distances
-Temporal distances emerge whenever the liveness is disturbed. As mentioned before, there are two situations in which the liveness is disturbed: large amounts of input and erroneous code.
-Large amounts of input lead to long replay times which creates a significant temporal distance between change in source code and observable change in the running application (long emergence time).
-Erroneous code stops the debuggers and the applications execution. During this time period, the debugger is not present. Therefore there is a temporal distance that lasts as long as it takes to fix the error.
+Temporal distances emerge whenever the performance of the observed application decreases. For example, large amounts of input lead to long replay times which creates a significant temporal distance between change in source code and observable change in the running application (long emergence time).
 
 #### Spatial distances
-When changing between interacting with the observed application and interacting with the debugger, there may be a spatial difference. This happens when the application is left aligned and mostly occupies the top part of the window. This happens automatically when creating a web page without styling. The spatial difference emerges because the debugger controls are always at the bottom right corner and therefore as far as possible form the applications content away.
+When changing between interacting with the observed application and interacting with the debugger, there may be a spatial difference. This happens when the application is left aligned and mostly occupies the top part of the window. This happens automatically when creating a web page without styling. The spatial difference emerges because the debugger controls are always at the bottom right corner and therefore as far as possible form the applications content away.  
+Furthermore, the applications source code is not attached to the corresponding element in the applications user interface. Keeping the source code separate from the application creates another spatial distance, because application and source code are on different parts of the screen.
 
 #### Semantic distances
 Editing the source code and afterwards observing the effect creates a semantic distance due to the fact that editing happens in an editor while observing the effect happens in a web browser.  
-Another activity creating a significant semantic distance is inspecting the message history and/or the corresponding state. This is achieved by clicking on the "Explore History" button in the debugger control box. This opens a separate window showing the message history. Having the history in a separate window leads to a high semantic distance between application and message history.
+Another activity increasing semantic distance is inspecting the message history and/or the corresponding state. This is achieved by clicking on the "Explore History" button in the debugger control box. This opens a separate window showing the message history. Having the history in a separate window leads to a high semantic distance between application and message history.
 
 *D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
 
@@ -330,37 +333,27 @@ Another activity creating a significant semantic distance is inspecting the mess
 >What parts of the system implements the liveness? (Execution environment, library, tool...)
 
 The system contains two parts that enable liveness: Automatically reloading and automatically replaying history.  
-Automatically reloading is enabled by a external tools that are not related to Elm and only used _together with_ Elm. The tools in use are a *livereload* server that watches the Elm files of the observed application and a *livereload* browser plug-in that reloads the page whenever the *livereload* server recognized a change.  
-Automatically replaying the history is enabled by the `elm-lang/virtual-dom` package. Although this package is treated as every other Elm package, it is actually an integral part of the Elm runtime environment (like `elm-lang/core` and `elm-lang/html`).  
-Please note that is only applies to the modified version of `elm-lang/virtual-dom` which can be found at [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom). The original `elm-lang/virtual-dom` package was not able to replay history automatically on page reload.
+Automatically reloading is enabled by external tools that are not related to Elm and only used _together with_ Elm. The tools in use are a *livereload* server that watches the Elm files of the observed application and a *livereload* browser plug-in that reloads the page whenever the *livereload* server recognized a change.  
+Automatically replaying the history is enabled by the `elm-lang/virtual-dom` package. Although this package is treated like every other Elm package, it is actually an integral part of the Elm runtime environment (like `elm-lang/core` and `elm-lang/html`).  
+Please note that this only applies to the modified version of `elm-lang/virtual-dom` which can be found at [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom). The original `elm-lang/virtual-dom` package was not able to replay history automatically on page reload.
 
 ### Implementations of single activities
 >Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
-#### Automatically reloading
-Automatically reloading is implemented through utilization of a *livereload* server and a *livereload* plug-in. The *livereload* server can be installed with:
-```
-npm install -g livereload
-```
-This requires an existing Node.js installation.
-After installation, the *livereload* server has to be started. Doing this, we have to tell the server firstly, which path has to be watched, and secondly, to watch Elm files as well (this is not enabled by default). The following command does this:
-```
-livereload /path/to/project -e 'elm'
-```
-Now the *livereload* server is up and running. Now we need to install the *livereload* plug-in, which receives a notification from the *livereload* server whenever a file to be watched changes. Subsequently, the plug-in reloads the page. Using the Chromium web browser, install the plug-in "LiveReload" (we used version 2.1.0). Then visit the web page showing the Elm application (usually `http://localhost:8000`) and enable the plug-in by clicking on the button next to the address bar.
-Now automatically reloading is enabled.
+#### Automatic reloading
+Automatic reloading is implemented through utilization of a *livereload* server and a *livereload* plug-in.
+The *livereload* server has to watch all files belonging to the observed Elm application.
+When a watched file has been changed the *livereload* plug-in receives a notification from the *livereload* server. Subsequently, the plug-in tells the browser to reload the page.
 
-![LiveReload plug-in installation page](ressources/live_reload_plug-in_page.png)  
-LiveReload plug-in installation page
+The concept behind this is *live reloading*. This means adapting changes in source code immediately by reloading the page whenever any of the source files has changed. This is an event-driven concept.
 
-![LiveReload button next to the address bar](ressources/live_reload_plug-in_button.png)  
-LiveReload button next to the address bar
+#### Automatic replaying
+The concept behind replaying the history is the following. The debugger keeps track of everything that the user does to the application in a history. This makes use of Elms message passing concept: Every user interaction corresponds to a message. When the application is reloaded (see "automatically reloading", the previous section), the history is stored in a way that it persists the reloading. After reloading, the application is in a blank state. To bring the application back to the situation it was in before reloading, every element of the history has to be applied in order. We purposely use the term "situation" because the state can be different to the state before reloading. This happens, when the changes made to the application affect the model or the way the model is updated.
 
-The concept behind this is *livereloading*. This means adapting changes in source code immediately by reloading the page whenever any of the source files has changed. This is an event-driven concept.
+![Message replay system.](ressources/message_replay.png)
 
-#### Automatically replaying
-Implementing automatically replaying requires implementing a store and a load phase. When the page is reloaded, the store function is called before the page is unloaded and the load function is called when the page is loaded again.
-The store function saves the message history to the session storage as JSON. The load function gets the message history from the session storage and then send each message contained to simulate the user interaction that happened before.
+Implementing automatic replaying requires implementing a store and a load phase. When the page is reloaded, the store function is called before the page is unloaded and the load function is called when the page is loaded again.
+The store function saves the message history to the session storage as JSON. The load function gets the message history from the session storage and then sends each message contained to simulate the user interaction that happened before.
 The concrete implementation of storing and loading is quite complex since it requires heavy interoperability between Elm and JavaScript.  
 Storing works as follows:
 ##### 1. Event when unloading page
@@ -398,7 +391,7 @@ overlayConfig =
   , wrap = OverlayMsg
   }
 ```
-Therefore a click on the "Store" button sends the message `Store`.
+Therefore, a click on the "Store" button sends the message `Store`.
 ##### 3. What happens when the `Store` message is send
 The `Store` message is then processed by the function `wrapUpdate` which is also defined in `src/VirtualDom/Debug.elm`. The relevant part is that a function `store` is called and provided metadata and (even more important) the message history.
 ```elm
@@ -447,7 +440,7 @@ Relevant part in `src/Native/VirtualDom.js`:
 window.addEventListener("load", function(event) {
 	setTimeout(function(){
 		document.getElementById("load").click();
-	},200);
+	}, 200);
 });
 ```
 The delay of 200ms makes sure that the "Load" button has its click event listener readily registered.
@@ -517,10 +510,6 @@ Upload jsonString ->
 ```
 The argument `jsonString` contains the message history. The message history is unpacked using the function `assessImport` defined in `src/VirtualDom/Overlay.elm`. `assessImport` either successfully unpacks the history and provides the `rawHistory` in a native Elm data format, or it fails and returns an error message. On success, the history is replayed by the function `loadNewHistory`.
 
-
-The concept behind replaying the history is the following. The debugger keeps track of everything that the user does to the application in a history. When the application is reloaded (see "automatically reloading", the previous section), the history is stored in a way that it persists the reloading. After reloading, the application is in a blank state. To bring the application back to the situation it was in before reloading, every element of the history has to be applied in order. We purposely use the term "situation" because the state can be different to the state before reloading. This happens, when the changes made to the application affect the model or the way the model is updated.
-
-
 #### Example: Scrubbing
 >The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
 
@@ -530,7 +519,7 @@ The concept behind replaying the history is the following. The debugger keeps tr
 >For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
 
 #### Automatically reloading
-When the system is the Elm debugger, automatically reloading happens from outside the system. There is an extra service that watches the files under development that is completely separated from the debugger itself. The browser plug-in that reloads the page when the service notifies it is also not part of the debugger. Both are components that are build _around_ the analyzed system itself. They are crucial for the system to work as intended, though. This is equivalent to the presence of browsers and operating systems being prerequisites for the Elm debugger.
+Since the system boundaries do not only include the Elm debugger, but also *livereload* server and *livereload* plug-in, automatic reloading happens from within the system. There is a component that watches the files under development that is separated from the runtime debugger but part of the system. The browser plug-in that reloads the page when the service notifies it is also not part of the debugger, but part of the analyzed system. Both are components that are build _around_ the debugger, but the systems boundaries are chosen in a way that includes the components required for automatic reloading since they are crucial for the system to work as intended.
 
 #### Automatically replaying
 Automatically replaying is part of the debugger itself. As described above, it is implemented in the `elm-lang/virtual-dom` package, which also provides all other parts of the debugger.
@@ -548,11 +537,11 @@ Automatically replaying is part of the debugger itself. As described above, it i
 
 ### Unit of change
 There are two relevant units of change: the message history and source code files.
-The message history can only be altered by appending new elements to it. This is made by normally interacting with the application. There is no behavioral difference to executing the application without the debugger. The distinctiveness lies in the debugger keeping track of input happening to the application. This is only relevant in context of replaying the history for the purpose of bringing the application to a specific situation it was in before.
-Changing source code files is the way of the programmer influencing the behavior of the application. When a file belonging to the application has been changed, the module the file belongs to is recompiled. Unlike Smalltalk, there is no way of partially recompiling only the changed part (like a single method). Elm clearly operates on a file level as smallest level of granularity.
+The message history can only be altered by appending new elements to it. This is achieved by normally interacting with the application. There is no behavioral difference to executing the application without the debugger. The distinctiveness lies in the debugger keeping track of input happening to the application. This is only relevant in context of replaying the history for the purpose of bringing the application to a specific situation it was in before.  
+Changing source code files is the unit of change influencing the behavior of the application. When a file belonging to the application has been changed, the module the file belongs to is recompiled. Unlike Smalltalk, there is no way of partially recompiling only the changed part (like a single method). Elm operates on a file level as smallest level of granularity.
 
 ### Relevant operations
-On the message history only appending and clearing is possible. Appending is done by interacting with the application or (for some applications) by waiting for a timer to fire. Clearing is performed through a clear button that simply empties the message history. It is also possible to import a message history from file or to save the currently loaded message history to file. This feature is intended to make bug more reproducible for it makes clear which sequence of events has lead to the bug emerging.  
+On the message history only appending and clearing is possible. Appending is done by interacting with the application or (for some applications) by waiting for a timer to fire. Clearing is performed through a clear button that simply empties the message history.  
 On source code files every operations that can be performed on files are relevant, i.e. adding, deleting, modifying, as well as combinations of the aforementioned. When adding features to the application or building an previously non-existent application from scratch, adding (characters, lines, functions, ...) is the predominant operation. When refactoring or searching for bugs, all operations are relevant.
 
 ### Example data
@@ -656,7 +645,7 @@ The application creates a simple counter with three elements, an area that shows
 ![Simple counter application with debugger box in the bottom right corner](ressources/counter_raw.png)  
 Simple counter application with debugger box in the bottom right corner
 
-The first two lines are for importing elements we want to use in the application. The statement `main = Html.beginnerProgram { ... }` assembles a simple web page out of the components model, view, and update we define below. Our model is a simple integer number that stores the counters value. Initially the value is 0. The update part has a type `Msg` that allows two messages for updating the model: `Increment` and `Decrement`. After defining this type, the function `update` defines what the effects of receiving these messages are. I.e., receiving `Increment` increments the model and receiving `Decrement` decrements the model. The view part defines the graphical representation and the way the user interacts with the application. It creates a text area that shows the model and two buttons, one with a "+" on it that sends the `Increment` message when clicked and one with a "-" on it that sends the `Decrement` message when clicked.
+The first two lines are for importing elements we want to use in the application. The statement `main = Html.beginnerProgram { ... }` assembles a simple web page out of the components model, view, and update we define below. Our model is a simple integer number that stores the counters value. Initially the value is 0. The update part has a type `Msg` that allows two messages for updating the model: `Increment` and `Decrement`. After defining this type, the function `update` defines what the effects of receiving these messages are. Receiving `Increment` increments the model and receiving `Decrement` decrements the model. The view part defines the graphical representation and the way the user interacts with the application. It creates a text area that shows the model and two buttons, one with a "+" on it that sends the `Increment` message when clicked and one with a "-" on it that sends the `Decrement` message when clicked.
 The messages `Increment` and `Decrement` are the same messages that appear in the message history. The type that defines these messages, `Msg` or more specifically `Main.Msg`, also appears there.
 
 ### Setup of the System
@@ -665,19 +654,23 @@ On a freshly set up Ubuntu 16.04.1 LTS the following steps have to be performed 
 #### 1. Install Technology Stack
  1. Install Node.js together with the Node Package Manager (NPM) via APT: `sudo apt install nodejs npm`
  2. Install the Elm platform at version 0.18 via NPM: `sudo npm install -g elm@0.18`
- 3. Install the *livereload* server via NPM: `sudo npm install -g livereload`
+ 3. Install the *livereload* server via NPM: `sudo npm install -g livereload@0.6.0`
  4. Install the Chromium browser via APT: `sudo apt install chromium-browser`
  5. Install the *livereload* plug-in via the Chrome Web Store: Visit [https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei) with the Chromium browser and click the "ADD TO CHROME" button.
 
-#### 2. Set up Project
-For using the Elm debugger, you need an Elm project that is to be debugged. There are three options:
- 1. You already have an existing project on which you want to try the debugger.
- 2. You do not have a project at hand, but you know Elm and can easily create a project.
- 3. You do not have a project and do not know Elm.
+ ![LiveReload plug-in installation page](ressources/live_reload_plug-in_page.png)  
+ LiveReload plug-in installation page
 
-If you already have a project change to the project folder. Have a look at the `elm-package.json` and make sure `elm-lang/virtual-dom` is part of the dependency specification and fixed on version 2.0.2. If you changed something, rerun `elm-package install`.  
-If you do not have a project at hand but know Elm, change to a folder where you want to create your project in. Create at least one Elm file where your code goes in. Afterwards run `elm-package install` to install dependencies and `elm-reactor` to start your Elm application once for making sure your Elm setup works. Now have a look at the `elm-package.json` and add `"elm-lang/virtual-dom": "2.0.2 <= v < 2.0.3"` to the `dependencies` object. If `"elm-lang/virtual-dom"` is already key to the `dependencies` object, alter the value to match the aforementioned key-value pair.  
-If you do not know Elm, you can check out an example project from GitHub. Change to the folder your experiments may take place in and execute `git clone https://github.com/jchromik/lps16-elm-examples.git`. Afterwards execute `elm-package install`. You do not have to alter the `elm-package.json`, it is already configured to use the correct version of `elm-lang/virtual-dom`.
+ ![LiveReload button next to the address bar](ressources/live_reload_plug-in_button.png)  
+ LiveReload button next to the address bar
+
+#### 2. Set up Project
+For using the Elm debugger, you need an Elm project that is to be debugged.  
+We provide an example Elm project which already includes a modified version of the Elm runtime debugger.
+Change to the folder your experiments may take place in and execute `git clone https://github.com/jchromik/lps16-elm-examples.git`. Afterwards execute `elm-package install`.
+When using the example project you can skip step 3, since `elm-lang/virtual-dom` is already replaced with the modified one.
+
+Creating a new Elm project with modified debugger can be achieved as follows. Change to a folder where you want to create your project in. Create at least one Elm file where your code goes in. Afterwards run `elm-package install` to install dependencies and `elm-reactor` to start your Elm application once for making sure your Elm setup works. Now have a look at the `elm-package.json` and add `"elm-lang/virtual-dom": "2.0.2 <= v < 2.0.3"` to the `dependencies` object. If `"elm-lang/virtual-dom"` is already key to the `dependencies` object, alter the value to match the aforementioned key-value pair.  
 
 #### 3. Replace `elm-lang/virtual-dom`
 From your Elm project folder, change to the folder the `elm-lang/virtual-dom` package is located in: `cd elm-stuff/packages/elm-lang/virtual-dom`. Then delete the folder 2.0.2: `rm -rf 2.0.2`. Now clone a modified version of `elm-lang/virtual-dom` in the folder just deleted: `git clone https://github.com/jchromik/virtual-dom.git 2.0.2`. You have now successfully replaced the original package with a modified fork.
@@ -699,7 +692,7 @@ Hint: The example project contains scripts for starting and stopping Elm Reactor
 ### Setup of the Benchmark
 We are benchmarking the runtime of a single development cycle. The cycle includes everything that happens between the programmer saving changed source code and the end of the replaying phase, which is recompiling, reloading, and replaying. For benchmarking this we log the time the Elm application starts reloading (through a `beforeunload` listener) and log the time again when the history is completely replayed. Our start time is the time the page starts reloading, because the debugger itself has no influence on everything that happens prior to this. If the *livereload* server, the *livereload* plug-in, or the browser itself need much time for propagating the event saying that a source file has been changed, this is not a performance issue of the Elm debugger and therefore not to be benchmarked.  
 The benchmark was performed by a shell script which touched the source code file under observation 100 times with a waiting period of three seconds between the file operations. The waiting period is three seconds long because we found out, that one cycle usually takes less than one second. Choosing a three second waiting period ensured that the file is certainly not touched while the adaptation and emergence process is still running.
-Using this setup we get a log file with pairs of timestamps: start and end of the cycle. By calculating the difference between these timestamps we get the runtime of the Elm debugger for one cycle. This calculation as well as parsing the log is done by a small python script. Chart generation is done with R.
+Using this setup, we get a log file with pairs of timestamps: start and end of the cycle. By calculating the difference between these timestamps, we get the runtime of the Elm debugger for one cycle. This calculation as well as parsing the log is done by a small python script. Chart generation is done with R.
 Log files, benchmarking shell script, and analyzation scripts can be found at [https://github.com/jchromik/lps16-elm-examples](https://github.com/jchromik/lps16-elm-examples). The `elm-lang/virtual-dom` modifications for logging benchmark result can be found on branch `benchmark` in [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom).
 
 Benchmarks we performed:
@@ -710,6 +703,13 @@ Benchmarks we performed:
    1. Predictable input, keep all: Repeated input of a single digit character. For example: '1'. Denoted as: "*onlynumbers predictable keep*"
    2. Predictable input, reject all: Repeated input of a single non-digit character. For example: 'a'. Denoted as: "*onlynumbers predictable reject*"
    3. Unpredictable input: Randomly chosen sequence of various characters. Denoted as: "*onlynumbers unpredictable*"
+
+For all combinations between application type (`counter` and `onlynumber`), input type (`predictable`, `unpredictable`, ...) and amount of input (0 messages, 10 messages, ..., 10000 messages) we take 100 observations. Therefore each box (including whiskers and outliers) represents 100 data points.
+
+All tests are performed on a system with the following specifications:
+ - Intel Core i5 CPU M 560 @ 2.67GHz, 4 logical cores
+ - 7,6 GiB main memory
+ - Ubuntu 16.04 LTS operating system
 
 In the following we show how we programmatically generated input for the benchmarks.  
 1.1. counter predictable:
@@ -763,16 +763,13 @@ Furthermore not all vertical axes are equally scaled.**
 ![onlynumbers predictable reject](ressources/onlynumbers_predictable_reject.png)
 ![onlynumbers unpredictable](ressources/onlynumbers_unpredictable.png)
 
+When there are no messages to be replayed, only adaptation time (recompiling and reloading) is measured. This is around 700ms. Benchmarks with messages to be replayed take more time. The runtime difference between the benchmark with 0 messages and benchmarks with more than 0 messages is the time the replaying system needs to perform the message sends, which is part of the emergence time and also the value we benchmark here.
+
+![Adaptation and Emergence](ressources/adaptation_emergence.png)
+
 The charts show that replaying a history with 10000 messages takes less than 100 millisecond for all combinations of application type, input type, and amount of input we considered. Furthermore, all combinations show a adaptation and replaying time of less than 1 second, which is below the threshold @Johnson2010DMM describes to be the "maximum duration of silent gap between turns in person-to-person
 conversation" which also should not be exceeded by an application processing input without any feedback mechanism showing the progress.
 From these two facts we can conclude that the Elm debugger is fast enough to enable live programming. Nevertheless, liveness can break apart if the application under observation need relatively much time to process input. In this case, replaying history takes much longer and the experience of immediacy will vanish.
-
-For all combinations between application type (`counter` and `onlynumber`), input type (`predictable`, `unpredictable`, ...) and amount of input (0 messages, 10 messages, ..., 10000 messages) we took 100 observations. Therefore each box (including whiskers and outliers) represents 100 data points.
-
-All tests were performed on a system with the following specifications:
- - Intel Core i5 CPU M 560 @ 2.67GHz, 4 logical cores
- - 7,6 GiB main memory
- - Ubuntu 16.04 LTS operating system
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
