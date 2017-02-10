@@ -156,7 +156,10 @@ Furthermore, Karma does not support smart test execution. As a result it can onl
 -->
 
 ### What happens when the live parts of the system fail/break?
+
+<!--
 1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
+-->
 
 The most common exception in a test runner is a failed test due to an assertion error. This will not break the system and just cause Karma to print a message. However, when the tests have syntax errors this can sometimes cause the command line runner to crash. The IDE plugin for intelliJ however, handles this better and is restarted automatically by the IDE so that the user does not notice this.
 
@@ -168,7 +171,7 @@ The most common exception in a test runner is a failed test due to an assertion 
 
 The tool itself can be caused to crash when a falsy configuration is used. The crash will happen immediately after the startup so, that it can be fixed right away and does not cause any side effects.
 
-When using Karma with a headful browser there will be a browser applciation window on your desktop. This can be closed manually. Anyway, this does not affect the execution, since Karma will just restart the browser.
+When using Karma with a headful browser there will be a visible browser application window on the desktop. This can be closed manually. Anyway, this does not affect the execution, since Karma will just restart the browser.
 
 ### Left out features
 Which features of the system were not described and why were they left out?
@@ -214,8 +217,11 @@ If Karma is run in the terminal it does not provide any steady frames. It simply
 
 However, if the IDE integration is used (e.g. in intelliJ) windows for test results and coverage report are constantly displayed (as shown in the picutre in section System Boundaries). The coverage window is a steady frame which updates the percentages numbers of covered files and lines on every test run. The test window is somewhat steady as well. However, the displayed content may change depending on success and failure of tests.
 
-* What about the browser (if headfull?)
-* add screenshot
+The picture below shows the test window in intelliJ marked with red. The green bar which displays the status of the execution (with how much of it is filled) and the overall test result (with color) is allways visible. The general structure of the window also always remains the same. However, the content of the two smaller windows change in respect of which tests pass and which fail.
+
+![Karma as steady frame in intelliJ](resources/steadyFrame.png)
+
+*Karma as steady frame in intelliJ*
 
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
 
@@ -310,7 +316,7 @@ Benchmark System properties
   - clone angular repository
   - install grunt-cli (using npm)
   - npm install in angular repository
-  - exectue grunt autotest to run test continuously
+  - execute grunt autotest to run tests continuously
   - start making changes on the code
 
   2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. 
@@ -342,8 +348,8 @@ Benchmark System properties
 
 ## Benchmark 2 - smaller system
 - bricks game
-- < 100 commits
-- < 100 tests
+- ~25 commits
+- ~35 tests
 
 - < x lines of code
 
@@ -358,6 +364,11 @@ Everything that is particular about the environment and does not fit into the pr
 - get a popup next to the test instead of having the test window open all the time
 
 
+## Appendix
+
+![benchmark](resources/benchmark.png)
+
+*Benchmark for Bricks and AngularJS*
 
 ## Style Template
 - Denote headings with #
