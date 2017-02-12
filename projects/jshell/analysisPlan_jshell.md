@@ -59,8 +59,7 @@ Summary of workflow observations
 Within this workflow, a modified "pong-game" will be created, where the user, controlling a racquet, is not allowed to let the ball reaching the bottom of the screen. The GUI is based on the Java swing API. I used Java awt to have a handy implementation for points, graphics and dimensions as well.
 
 
-![Modified Pong](./img/pong.png)
-//image here
+![Modified Pong](./img/pong.PNG)
 
 
 
@@ -628,8 +627,7 @@ The benchmark was performed on a system with the following specifications:
 
 Following chart shows the benchmark results for 100 update-cycles. 
 
-![Benchmark Results](./img/benchmark.PNG)
-//image here
+![Benchmark Results](./img/benchmark.png)
 
 It is clear that the adaptation phase covers most of the response time with an average of 57 ms. The emergence time is very short with 3 ms. Therefore, the system can maintain the causal relationship within this process due to an overall system response time of 60 ms. The user experiences the changes as immediately or "live". 
 It needs to be mentioned, that this benchmark and therefore the benchmark results are based on a minimal example data. The method that was changed during the benchmark represents a simple, single-line class method without any complexity. There are not many methods which are more simpler than the method I changed during the process. Therefore, the resulting compile time as well as the reload time of class bytecode (the overall adaptation phase) can be considered as minimal. The same applies to the emergence phase. The application I implemented during the work-flow is based on a simple loop that have a minimum of complexity and therefore a low emergence time. As a result, the emergence time within this benchmark covers a small time period as well. 
