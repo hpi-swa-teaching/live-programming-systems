@@ -100,14 +100,13 @@ while(true) {
 
  While the program is running, we are able to alter its behavior to a certain extent. Just like the JVM, JShell is able to provide Hot-Swapping. Here for example, we can change the color of the Ball while the application is running.
 	 
-- We first have to enter the ``` /edit Ball``` command into the JShell. A small editor appears, where we can see our class definition for "Ball".  We now change the method-body of getColor() to 
-	``` return Color.BLUE;```
+- We first have to enter the ` /edit Ball` command into the JShell. A small editor appears, where we can see our class definition for "Ball".  We now change the method-body of getColor() to 
+	` return Color.BLUE;`
 and accept the changes. As a result, a notification is shown which indicates, that the "Ball" class was modified. The ball in the application changes it's color to blue.
 
-- We also can access the color of the ball, while the program is running via the newContentPane instance. Here we can get the color RGB value by typing:  ``` newContentPane.getBall().getColor().toString()```
-
-
-The result should be "[r=0,g=0,b=255]". JShell also provides an auto-completion functionality using the Tab-key. All accessible methods (the members which are declared as "public") and variables are shown if you use it. If you access private members, JShell will throw an error.
+- We also can access the color of the ball, while the program is running via the newContentPane instance. Here we can get the color RGB value by typing:
+ ` newContentPane.getBall().getColor().toString()`
+ The result should be "[r=0,g=0,b=255]". JShell also provides an auto-completion functionality using the Tab-key. All accessible methods (the members which are declared as "public") and variables are shown if you use it. If you access private members, JShell will throw an error.
 
 Now we want to extend our program. For our game, we need a racquet which can actively collide with the ball and steers it as a result in another direction.  
 
@@ -453,7 +452,7 @@ Within this method, first an attempt is being made to convert the input source i
 
 It needs to be mentioned, that each statement or expression is evaluated individually. Every single one is checked for completeness, is trimmed and converted to a token string, parsed into an AST and finally evaluated in order to create a corresponding snippet at the end. Thus, large code bases challenges the performance of the execution environment. As a result, feedback and liveness mechanisms are not immediate anymore. 
 
-#### The Build-In Editor
+#### The Build-In Editor <a name="editor"></a> 
 
 As already demonstrated within the workflow, JShell provides a build-in editor that provides the ability to edit for example classes or attributes. Nevertheless, this editor is not implemented within the Jshell itself, it rather comes from JDK internal libraries called ```jdk.internal.editor.spi```. The most interesting part of this editor is the "accept" button, that triggers the evaluation of the edited structure anew. If the user for example updates methods of a class, the complete class is evaluated again. 
 
@@ -530,27 +529,7 @@ The input evaluation happens right within the execution environment, whereas Hot
 
 ## Benchmark  <a name="benchmark"></a> 
 
-
-The most common units of change within the JShell are classes. As shown in the work-flow, classes can be "added", "modified" or "replaced". Due to the fact, that code replacement during run-time is limited to method bodies we are only able to "add" new or to "modify" existing classes without loosing the application context (the "replacement" of a class during run-time would reset all instances of this class). I decided to benchmark the most frequently used mechanism here, the modification of a class. The
-
-
- 
-They thereby implement an immutable past model, which makes the
-emergence time highly variable and almost completely dependent
-on the application at hand. Thus, we focused on the adaptation time
-in the pilot study. ⇒ only adaptation time benchmarking? What if i measure the amount of time needed until a ball is created??
-
-Adaptation Phase:
-the phase the new compiled code was loaded into the memory
-
-modified  method,
-
-Ball getColor verändern und messen
-
-1. **Unit of change:** Determine relevant units of change from the user perspective. Use the most common ones.
-environments have di↵erent units of change (for example functions,
-classes, objects, files, nodes, tiles).
-
+> 1. **Unit of change:** Determine relevant units of change from the user perspective. Use the most common ones.
 2. **Relevant operations:** Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
 Modifying a method based on Hot Swapping, Add class
 3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
@@ -559,31 +538,109 @@ Modifying a method based on Hot Swapping, Add class
   2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. At the same time the emergence phase ends when the rendering has finished and the result is perceivable. The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
 5. **Results for adaptation and emergence phase**
 
-adaptation timings:
-The adaptation phase spans from finishing a change to the abstract
-representation of the application to an updated executable
-form of the application in memory. The phase starts when a user finishes a change, for example by dropping a tile in a new position or saving an edited text file.
-Converting this representation to an executable form often includes
-some form of compilation. After this translation, the application
-needs to be updated in memory. Some platforms are capable of
-replacing only some parts of the application ("hot-swapping") other
-require a reload of the binary. The adaptation phase is completed as
-soon as an executable form of the updated behavior is loaded into
-memory and can potentially be executed right afterwards.
+### Unit of Change
 
-emergence timing
-The next phase comprises the emergence of an observable change
-in the behavior of the application from the adapted executable form.
-An observable change can be for example a changed textual output
-on the console, a di↵erent color of a graphical element, or a changed
-way of moving of a graphical element.
+The most common units of change is a class or its methods implemented by the user. Classes and methods can be declared and evaluated using the command line or the build-in editor. 
+
+### Relevant Operations
+
+In the context of the JShell, classes can be "added", "modified" or "replaced".  Replacing a class during run-time resets all instances of this class and leads to a loss of parts of the application context. Therefore, we are only able to maintain the liveness-characteristic of code replacement  during run-time by adding or modifying classes. After a class is added, it is "modified" if the new updates do not change its signature (therefore these updates are limited to code-replacment of method-bodies). A change of the class signature leads to a "replacement".  
+Methods can also be "added" or "modified". The modification of a method within a specific class implies a "replacement" or a "modification" of this class. 
+
+### Example Data
+According to specific example data, it needs to be mentioned, that entered classes and methods could be arbitrary due to the fact, that each user is free to implement code without any restrictions. Therefore, both units of change can vary in a wide range in terms of length or complexity based on the developers needs and programming styles. As a result, it is a difficult task to find specific code samples which reflect the complexity or length of a "common" unit of change. A possible solution for this may be found in guidelines for coding styles that specify crude measurements for code length of classes and methods as well as for their complexity.  Based on  Roock and Lippert (@Roock2006), following guidelines should be considered for implementations in regard to classes and methods:
+
+1. Methods should not have more than an average of 30 code lines (not counting line spaces and comments).
+2. A class should contain an average of less than 30 methods, resulting in up to 900 lines of code. 
+
+Nevertheless, these guidelines are hardly applicable to implementations using the JShell due to its application domain that is based on language feature learning or fast prototyping. Within this domain, coding styles are less important. 
+
+### Reproducible setup of system and benchmark 
+
+####Description of installation
+
+1. In order o be able to launch the JShell, the Oracle JDK 9 is needed. Install it using following commands:
+	-  Add Oracle's PPA using: `sudo add-apt-repository ppa:webupd8team/java`
+	- Update package repository: `sudo apt-get update`
+	- Install the JDK 9: `sudo apt-get install oracle-java9-installer`
+2. Download or clone the git-repo of the live programming lecture into an arbitrary folder.
+4. Within the `live-programming-systems/projects/jshell/code`  folder, following can be found:
+	- A JShell.jar that represents the JShell-tool
+	- A `jdk.jshell`  folder, that contains the modified class-files which is used in order to replace the default JShell implementation of the JDK 9 on application-start
+	- A `benchmark` folder that comprises all files that are needed for the benchmark
+
+####Start the application
+
+1. Move to the `live-programming-systems/projects/jshell/code`  folder using the terminal.
+- `cd live-programming-systems/projects/jshell/code`
+2. In order to start the application, we need to launch the JShell.jar with the modified class-files specified in the `jdk.jshell`  folder.
+	- Enter following command: 
+	`java --patch-module jdk.jshell=./jdk.jshell -jar JShell.jar`
+2.  Now the JShell should launch within the terminal. 
+
+
+
+####Benchmark Specification
+
+I benchmarked the time needed for code replacement of a method body.  The data for this benchmark is based on my work-flow. Here, I replaced the "getColor" method of the "Ball" class in order to change the ball color. The method were updated from:  
+
+```java
+public Color getColor() {
+	return Color.RED;
+}
+```
+
+to:
+
+```java
+public Color getColor() {
+	return Color.BLUE;
+}
+```
+
+Overall, I benchmarked the time needed for a complete update-cycle of the ball color. Following steps are part of this cycle:
+
+1.  The developer uses the build-in editor in order to change to "getColor" method-body during application run-time.
+2.  The change is propagated using the "accept"-button of this editor. 
+	
+The overall time needed for code-replacement starts after triggering the accept button of the editor and stops after the color-change was propagated onto the application panel. 
+The adaptation phase within this context is the time needed to recompile the changed "getColor"-method and to update the corresponding "Ball" class bytecode in the JVM memory. The emergence phase represents the time needed to propagate the ball color changes onto the application panel.
+
+####Benchmark Implementation
+
+In order to automate the benchmark of this update-cycle, I simulated the manual replacement of the "getColor" method-body by using the method triggered by the "accept"-button. As described in section [Build-In Editor](#editor) , this method reads the input string entered in the build-in editor and evaluates it. Using this characteristic, I specified two "Ball" classes that only differs in the implementation of the "getColor" method and passed them alternately as input parameter into this specific method.  As a result, I was able to measure to time needed for every update-cycle. 
+
+The benchmark itself is implemented as additional command for the JShell. After launching the JShell, enter following command: 
+
+- `/benchmark`
+
+The benchmark itself needs files specified in the  `benchmark` folder. Make sure is is present next to the JShell.jar.
+
+During benchmark, the application specified in my work-flow is executed first. After the successful launch of the game the actual benchmark starts. The time needed for each update-cycle is saved in a file called `benchmarkResults.txt` within the  `benchmark` folder
+
+####Benchmark Results
+
+The benchmark was performed on a system with the following specifications:
+
+- 8 GB RAM
+- Intel(R) Core i7-3612QM CPU 560 @ 2.10GHz, 4 cores 
+- Ubuntu 14.04 operating system
+
+Following chart shows the benchmark results for 100 update-cycles. 
+
+![Benchmark Results](./img/benchmark.PNG)
+//image here
+
+It is clear that the adaptation phase covers most of the response time with an average of 57 ms. The emergence time is very short with 3 ms. Therefore, the system can maintain the causal relationship within this process due to an overall system response time of 60 ms. The user experiences the changes as immediately or "live". 
+It needs to be mentioned, that this benchmark and therefore the benchmark results are based on a minimal example data. The method that was changed during the benchmark represents a simple, single-line class method without any complexity. There are not many methods which are more simpler than the method I changed during the process. Therefore, the resulting compile time as well as the reload time of class bytecode (the overall adaptation phase) can be considered as minimal. The same applies to the emergence phase. The application I implemented during the work-flow is based on a simple loop that have a minimum of complexity and therefore a low emergence time. As a result, the emergence time within this benchmark covers a small time period as well. 
+It is clear that the emergence as well as the adaptation time highly depends on the implemented application and its use. Therefore, complex use-cases are conceivable that can lead to non-immediate feedback and thus to a loss of liveness. Nevertheless, a minimum time period of code replacement of method bodies can be specified with a value of ca. 55-60ms. 
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
 ---
 
 ## Personal observations
-Everything that is particular about the environment and does not fit into the pre-defined categories mentioned so far.
+> Everything that is particular about the environment and does not fit into the pre-defined categories mentioned so far.
 
 ## Style Template
 - Denote headings with #
@@ -604,8 +661,7 @@ http://openjdk.java.net/jeps/222 (2014). Accessed 31.10.2016
 #Appendix
 
 
-###The Ball Class 
-<a name="ballclass"></a> 
+###The Ball Class  <a name="ballclass"></a> 
 ```java
 import java.awt.Point;
 import java.awt.Color;

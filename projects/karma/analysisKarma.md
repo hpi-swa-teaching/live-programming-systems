@@ -284,40 +284,65 @@ For each activity: Does the activity happen from within the running application 
 ---
 
 ## Benchmark
-1. **Unit of change:** Determine relevant units of change from the user perspective. Use the most common ones.
+1. **Unit of change:** 
 <!--
-- successful / failed / erronous tests
-- number of executed tests
-- execution system (cross browser testing)
-- execution time?
+Determine relevant units of change from the user perspective. Use the most common ones.
 -->
 
-- can files be add live
-- file changes
+- files
+- lines of code
 
-2. **Relevant operations:** Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
-- ?
-- fix tests to change stats?
+2. **Relevant operations:** 
+<!--
+Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
+-->
 
-3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. 
+- modify source code
+- modify tests
+
+3. **Example data:** 
+<!--
+Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. 
 The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
+-->
 
-Benchmark System properties
-  - angular suite
-  - ~8200 commits on master branch (as of Dec. 2016)
-  - ~1500 contributors
-  - ~5800 tests
-  - ~191k lines of code
-  - huge project
+A typical change would be adding a new test to the test suite. The new test will then automatically be executed with the other tests, once it has been saved. When using jasmine as test library tests usually look similar to this:
+
+```js
+it("should test that something is true", function() {
+  var something = new Something()
+  something.doIt()
+  expect(something.result).toBe(true)
+})
+```
+
 
 4. **Reproducible setup of system and benchmark**
+
+In order to understand the affect of the size of a code base on the performance of Karma, the benchmark includes numbers for a big and a small system. The big system is the AngularJS framework. The small one is a simple javascript browser game called bricks. The properties of both systems are displayed in the table below.
+
+ Property | AngularJS | Bricks 
+--- | --- | --- 
+Commits | ~8300 | ~25 
+Contributors | ~1500 | 1
+Tests | ~5800 | ~35
+Website | [AngularJS](https://github.com/angular/angular.js) | [Bricks](https://github.com/stephde/bricks)
+
+
   1. Description of installation on Ubuntu 16.04.1 LTS
+
+  AngularJS
   - install node/npm
-  - clone angular repository
-  - install grunt-cli (using npm)
-  - npm install in angular repository
-  - execute grunt autotest to run tests continuously
-  - start making changes on the code
+  - `git clone https://github.com/angular/angular.js.git`
+  - `npm install -g grunt-cli`
+  - `cd angular.js && npm install`
+  - `grunt autotest`
+
+  Bricks
+  - install node/npm
+  - `git clone https://github.com/stephde/bricks.git`
+  - `cd bricks && npm install`
+  - `karma start karma.conf.js`
 
   2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. 
   So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. 
@@ -346,12 +371,6 @@ Benchmark System properties
 --> describe how to take time
 --> use median & range & quartials
 
-## Benchmark 2 - smaller system
-- bricks game
-- ~25 commits
-- ~35 tests
-
-- < x lines of code
 
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
