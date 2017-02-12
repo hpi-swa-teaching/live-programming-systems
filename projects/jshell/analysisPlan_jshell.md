@@ -1,7 +1,7 @@
 ---
-title: System Name
-author: You!
-bibliography: Name of your bibfile
+title: JShell
+author: Tim Naumann
+bibliography: refs.bib
 ---
 
 # Live Programming Seminar
