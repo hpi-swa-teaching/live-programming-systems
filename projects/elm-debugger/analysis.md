@@ -8,10 +8,14 @@ bibliography: references.bib
 - Your Name: Jonas Chromik
 - Your Topic: Elm Debugger
 
+<!--
 >Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
+-->
 
 ## About the System itself
+<!--
 >Summary of system properties
+-->
 
 The system studied is the time-traveling Elm Debugger.
 Actually, there are three different time-traveling debuggers for Elm. In chronological order according to the time of development:
@@ -107,7 +111,9 @@ Although there are many ways to achieve such a setup, we only describe the used 
 There is an example project at [https://github.com/jchromik/lps16-elm-examples](https://github.com/jchromik/lps16-elm-examples) that shows prerequisites, setup, and start-up process.
 
 ### System boundaries
+<!--
 >What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
+-->
 
 This work studies a modified version of the debugging features introduced in Elm 0.18. The modifications were necessary to enable live programming related features that were not present before. Initially the `core/Debug` debugger which included the aforementioned live programming features was subject to this work. We changed the subject to the runtime debugger. The reasons are listed in the previous section.
 The debugging features studied include means of
@@ -137,10 +143,12 @@ Even though we only analyze the modified Elm debugger setup described above, the
 ![System Boundaries](ressources/system_boundaries.png)
 
 ### Context
+<!--
 >  - In which context is the system used?
     For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.
 >  - Description of user context
     (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
+-->
 
  The context of the system is application development in general and debugging of Elm applications in special.
  Furthermore, the Elm debugger can also be used for understanding the behavior of an application, without any bug involved. Therefore code exploration is also considerable use case.
@@ -148,10 +156,12 @@ Even though we only analyze the modified Elm debugger setup described above, the
  The Elm programming language is relatively new and therefore it does not have a large user base. Hence it is not clear how the debugger will be used. Concluding from other programming language and debuggers, the Elm debugger will probably be used for professional and/or amateur software development. We assume an amateur user context is more likely because the user interface is simple and the setup overhead is small while the tool itself is not very feature rich. For a professional context the features of the debugger would be part of a larger development environment.
 
 ### General Application Domain
+<!--
 >  - What is typically created in or through this system?
 >  - What are users trying to accomplish with it?
 >  - What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
 >  - ...
+-->
 
 We have to distinguish two general application domains (GADs) here: the GAD of the original runtime debugger and the GAD of the modified one.  
 The original GAD was exporting and importing the message history for creating meaningful bug reports. With an explicit message history, bugs are easily reproducible which helps finding a bug.  
@@ -160,7 +170,9 @@ Typical output of the modified system is a bug-free Elm source code file.
 Subject to the Elm debugger are websites built with Elm. Elm is a functional programming language on top of Node.js. Main use case of Elm is the construction of web user interfaces using a model-view-update ([https://guide.elm-lang.org/architecture/](https://guide.elm-lang.org/architecture/)) pattern.
 
 ### Design Goals of the System
+<!--
 >What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
+-->
 
 In this sections we present the design goals of `core/Debug`. By modifying the runtime debugger, we tried to reproduce the features of `core/Debug`. Therefore, the design goal of the runtime debugger are not relevant here.
 The time-traveling Elm debugger helps understanding, how a specific change in the applications source code affects the applications output in context of the input given by the user.
@@ -170,7 +182,9 @@ The time-traveling features help getting a meaningful impression of the connecti
 TODO: I could also write that they want to achieve Bret Victor style liveness. Is this too bold?
 
 ### Type of System
+<!--
 >What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
+-->
 
 The system is an interactive tool.  
 The system is interactive since the user can interact with it. The content shown is not static but changes when the user interacts with the system. For example, when the user goes back in time by selecting different points in the message history, the system updates the state of the observed application accordingly.
@@ -180,10 +194,14 @@ Since the system under analysis is not the Elm runtime environment but the debug
 ---
 
 ## Workflows
+<!--
 >Summary of workflow observations
+-->
 
 ### Example Workflow
+<!--
 >Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
+-->
 
 A usual interaction with the system is as follows:
  1. Edit source code using the text editor.
@@ -204,11 +222,13 @@ The debugger also provides means of inspecting the applications state. This work
 ![Screencast of debugging cycle](ressources/todomvc.ogv)
 
 ### Which activities are made live by which mechanisms?
+<!--
 >Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
 - Actual interactions
 - Feedback mechanism
 - If applicable: How is the emergence phase shortened?
 - Granularity: For example: Elm can only rerun the complete application
+-->
 
 From the cycle of changing code and observing changed behavior described in the section above, we can extract the following interactions and feedback mechanisms. They are described in the same order as they take place in the cycle:
 
@@ -238,13 +258,17 @@ From the systems perspective, the smallest granularity of change is the whole ap
 From the users perspective, the smallest granularity of change is a single file. This is because the systems feedback mechanisms are triggered whenever the user saves a changed file. The user gets feedback every time they changes a file. Therefore, a file level granularity in experienced.
 
 ### Integration of live activities into overall system
+<!--
 >Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
+-->
 
 The major limitation to the systems liveness is the concept, that every change has to happen through the source code editor. It is neither possible to change the data model from the debugger window nor can the message history be altered, besides appending to the message history. Also, the applications user interfaces can not be altered from the browser window through direct manipulation. If the applications source code is syntactically incorrect, liveness interrupts until the code is correct again. The user can not inspect or fix the bug through the browser window.  
 In summary, it can be stated, that there is only one path that is automated and therefore made live. Namely, editing the source in a manner that it is syntactically correct afterwards, then recompiling and reloading the page, and then doing exactly the same interaction with the application again. Everything else that the debugger does is not live since it only offers different ways of looking at the application running.  
 The systems goal is emergence shortening by replaying previous input messages.
 
+<!--
 >How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
+-->
 
 ![Browser encapsulates Debugger and Debugger encapsulates Application](ressources/browser_debugger_app.png)  
 Browser encapsulates Debugger and Debugger encapsulates Application
@@ -254,7 +278,9 @@ All in all it can be stated that while the browser has a potentially strong infl
 
 
 ### Limitations
+<!--
 >To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
+-->
 
 There are two conditions that confine the Elm debuggers liveness: Large amounts of input and errors in the observed Elm application.  
 Large amounts of input are a soft limitation. The liveness does not break apart at a specific amount of input but rather decreases continuously due to the message replay getting slower. According to @Johnson2010DMM there are two relevant thresholds that are crucial to the users experience of waiting time and slowdown: 100ms and 1s. When trying to find a specific number of messages where the liveness breaks apart, we have to find out how many messages are at least required to exceed these thresholds. Doing this, we have to keep in mind that this value depends on the Elm application observed, the messages send (more specific: what the Elm application does if the message is received) and the executing machine.
@@ -263,7 +289,9 @@ Whenever there is an error in the observed Elm application, liveness stops immed
 
 ![Error causes liveness to interrupt](ressources/screenshot_error.png)
 
+<!--
 >Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
+-->
 
 The major conceptual limitation is that there is no possibility to restore the applications situation by restoring the state. The model is always restored by replaying message sends. This is because the original idea behind the debugger is that the user input is the relevant and unchangeable part of a running application. The structure of the model may be changed when the source code is changed and therefore the old state of the application does not work with the new source code. The debugger assumes that, while the model may change, the application will always be able to process the input that already happened in a correct manner. This is why the situation is restored by replaying user input and not by restoring state.  
 If the messages in the message history to not match the messages the application expects, the message history is cleared and the application starts with an empty message history.  
@@ -271,15 +299,19 @@ Another, not necessarily conceptual, limitation is the absence of ways to manipu
 
 
 ### What happens when the live parts of the system fail/break?
+<!--
 >1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
 >2. How can the system itself break? What happens when there is a failure in the system/tool itself?
+-->
 
 If the application under development is erroneous, the execution of debugger and observed application is stopped and only an error message is displayed (without any possibility to interact). This behavior is equivalent to the behavior when the Elm debugger is not involved since it is caused by the Elm runtime environment.
 When there is an error in the Elm debugger itself, the behavior is the same: An error message is shown and the execution stops. In both cases the execution resumes as soon as the error is fixed.  
 If there is an error and the liveness interrupts, there is still the browsers debugger that can be used as a fallback system. But since the code generating the page is compiled Elm source code, it is not easily understandable and requires advanced knowledge about the domain.
 
 ### Left out features
+<!--
 >Which features of the system were not described and why were they left out?
+-->
 
 The scope of this work only contains the Elm debugger and nothing in scope was left out. However we did not cover the Elm runtime environment, browsers or made any assumption about the observed Elm applications.
 
@@ -288,29 +320,43 @@ The scope of this work only contains the Elm debugger and nothing in scope was l
 ## Models
 
 ### Mutable or immutable past
+<!--
 >To which category does the system or parts of it belong and why?
+-->
 
 The system is a mutable past system because changes in source code may influence the current state, as well as previous state that are reachable by going back in the message history. This happens because the Elm debugger restores state by replaying input. If a change in the observed applications source code does affect the initial state or the way the applications deals with input, the current state together with all past states will be altered.
 
+<!--
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
+-->
 
 ### Tanimoto's Level of Live Programming
+<!--
 >To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
+-->
 
 The system provides level 4 liveness. According to @Tanimoto2013PEL in level 4 liveness "[...] the computer wouldn’t wait but would keep running the program, modifying the behavior as specified by the programmer as soon as changes were made". This is exactly what the Elm debugger does. As opposed to liveness level 3 where there is waiting time between a change the programmer made and the corresponding effect. The Elm debugger would provide level 3 liveness if it was not event driven but using polling with a significantly long turn around time. Level 5 is also not the level of liveness the system provides because level 5 would include tactical prediction. The Elm debugger itself does not predict anything. There may be an IDE or text editor in use that tries to predict what the programmer wants to do and gives a selection of options. But since the IDE or text editor in use is not part of the Elm debugger by our definition, this does not count as liveness level 5.
 
+<!--
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
+-->
 
 ### Steady Frame
+<!--
 >Which activities are designed as steady frames based on the formal definition and how?
+-->
 
 The relevant "steady frame" variables in context of the Elm debugger is the message history and the application's state. The message history is stored in the session storage (a specific location within the scene). Also, the message history is constantly present, as the session storage persists between the page reloads, and constantly meaningful, because only valid message histories are stored in the session storage. It is also constantly visible because the while the application is running, we can always inspect the message history through the debugger window.  
 The application's state is only present while the application is running and vanishes when the page is reloading. Nevertheless it can be treated as steady frame part because while the application is running (which is the relevant case) the state is present. Also it is constantly meaningful because every update operation transforms a meaningful state into another meaningful state. The language does not allow breaking the state apart (e.g. in terms of changing the models structure or deallocating the corresponding memory).
 
+<!--
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
+-->
 
 ### Impact on distances
+<!--
 >How do the activities affect the different distances: temporal, spatial, semantic?
+-->
 
 #### Temporal distances
 Temporal distances emerge whenever the performance of the observed application decreases. For example, large amounts of input lead to long replay times which creates a significant temporal distance between change in source code and observable change in the running application (long emergence time).
@@ -323,14 +369,18 @@ Furthermore, the applications source code is not attached to the corresponding e
 Editing the source code and afterwards observing the effect creates a semantic distance due to the fact that editing happens in an editor while observing the effect happens in a web browser.  
 Another activity increasing semantic distance is inspecting the message history and/or the corresponding state. This is achieved by clicking on the "Explore History" button in the debugger control box. This opens a separate window showing the message history. Having the history in a separate window leads to a high semantic distance between application and message history.
 
+<!--
 *D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
+-->
 
 ---
 
 ## Implementing Liveness
 
 ### Extend of liveness in technical artifacts
+<!--
 >What parts of the system implements the liveness? (Execution environment, library, tool...)
+-->
 
 The system contains two parts that enable liveness: Automatically reloading and automatically replaying history.  
 Automatically reloading is enabled by external tools that are not related to Elm and only used _together with_ Elm. The tools in use are a *livereload* server that watches the Elm files of the observed application and a *livereload* browser plug-in that reloads the page whenever the *livereload* server recognized a change.  
@@ -338,7 +388,9 @@ Automatically replaying the history is enabled by the `elm-lang/virtual-dom` pac
 Please note that this only applies to the modified version of `elm-lang/virtual-dom` which can be found at [https://github.com/jchromik/virtual-dom](https://github.com/jchromik/virtual-dom). The original `elm-lang/virtual-dom` package was not able to replay history automatically on page reload.
 
 ### Implementations of single activities
+<!--
 >Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
+-->
 
 #### Automatic reloading
 Automatic reloading is implemented through utilization of a *livereload* server and a *livereload* plug-in.
@@ -511,12 +563,16 @@ Upload jsonString ->
 The argument `jsonString` contains the message history. The message history is unpacked using the function `assessImport` defined in `src/VirtualDom/Overlay.elm`. `assessImport` either successfully unpacks the history and provides the `rawHistory` in a native Elm data format, or it fails and returns an error message. On success, the history is replayed by the function `loadNewHistory`.
 
 #### Example: Scrubbing
+<!--
 >The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
 
 >Abstract form: Scrubbing is enabled through incremental compilation which enables quick recompilation of parts of an application...
+-->
 
 ### Within or outside of the application
+<!--
 >For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
+-->
 
 #### Automatically reloading
 Since the system boundaries do not only include the Elm debugger, but also *livereload* server and *livereload* plug-in, automatic reloading happens from within the system. There is a component that watches the files under development that is separated from the runtime debugger but part of the system. The browser plug-in that reloads the page when the service notifies it is also not part of the debugger, but part of the analyzed system. Both are components that are build _around_ the debugger, but the systems boundaries are chosen in a way that includes the components required for automatic reloading since they are crucial for the system to work as intended.
@@ -527,6 +583,7 @@ Automatically replaying is part of the debugger itself. As described above, it i
 ---
 
 ## Benchmark
+<!--
 >1. **Unit of change:** Determine relevant units of change from the user perspective. Use the most common ones.
 >2. **Relevant operations:** Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
 >3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
@@ -534,6 +591,7 @@ Automatically replaying is part of the debugger itself. As described above, it i
   1. Description of installation on Ubuntu 16.04.1 LTS
   2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. At the same time the emergence phase ends when the rendering has finished and the result is perceivable. The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
 >5. **Results for adaptation and emergence phase**
+-->
 
 ### Unit of change
 There are two relevant units of change: the message history and source code files.
@@ -771,17 +829,22 @@ The charts show that replaying a history with 10000 messages takes less than 100
 conversation" which also should not be exceeded by an application processing input without any feedback mechanism showing the progress.
 From these two facts we can conclude that the Elm debugger is fast enough to enable live programming. Nevertheless, liveness can break apart if the application under observation need relatively much time to process input. In this case, replaying history takes much longer and the experience of immediacy will vanish.
 
+<!--
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
+-->
 
 ---
 
+<!--
 ## Personal observations
 >Everything that is particular about the environment and does not fit into the pre-defined categories mentioned so far.
+-->
 
 ### Terminological clarification
 In this work we use the terms "history", "message history", and "input history" interchangeable. What we mean with all these terms, is a record of events that trigger model updates. This may be input generated by the user (e.g. clicking on a button or moving the mouse) but can also be a timer firing without the user being involved. Neither the term "message history" nor "input history" is completely accurate. "Message history" is inaccurate because there are many message sends in the Elm application that are not recorded in the message history because they do not _trigger_ model updates. They are just part of a progression of things happening after some triggering action (e.g. the messages `Store`, `Load`, and `Upload` described above). "Input history" is not accurate since it is not only input which is kept in the history. For example, if there is a timer that fires periodically without any user involved, the timer events would also be kept in the history.  
 The adjectives hard and soft in the terms hard and soft limitation are to be understood in the same manner as in hard and soft real-time. A hard limitation causes a system failure when the corresponding condition is met. This is the same behavior a hard real-time system shows when a deadline is missed. A soft limitation only degrades the value of the corresponding information with time whenever the limitation applies. In the same way a informations value is degraded in a soft real-time system when the deadline is missed.
 
+<!--
 ## Style Template
 >- Denote headings with #
 >- You can use any text highlighting, list types, and tables
@@ -790,3 +853,4 @@ The adjectives hard and soft in the terms hard and soft limitation are to be und
 >- Insert videos or web resources as markdown links
 >- Insert references as: `@RefKey` and supply a bib file
 >- No HTML tags please
+-->
