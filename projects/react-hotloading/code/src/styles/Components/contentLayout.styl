@@ -1,29 +1,86 @@
 .content
-  display inline-flex
+  display block
   width 100%
   flex-wrap wrap
+  font-family 'Raleway'
 
-  .timer
-    width timer_width
-    text-align center
-    border .1rem solid color_primary
-    margin margin_normal
+  .display
+    text-align right
+    padding padding_small
 
-    >.header
-      background color_dark
-      color color_light
-      padding padding_medium
-    
-    >.body
+    > span
       display block
-      text-align left
-      padding padding_normal
-      
-      >div
-        width 100%
-        margin-bottom margin_normal
-        font-weight font_light
+    
+    .equation
+      color color_lightdark
+      font-size font_normal
+      margin-bottom margin_small
+    
+    .input
+      color color_dark
+      font-size font_large
+  
+  .button
+    width 100%
+    position relative
+    font-size font_large
+  
+    &:active
+      background color_light
 
-        >span
-          color color_primary
-          font-weight font_medium
+    .content
+      position absolute
+      top 50%
+      transform translateY(-50%)
+
+  .button:before
+    content: "";
+    display: block;
+    padding-top: 100%; 	/* initial ratio of 1:1*/
+  .double.button:before
+    padding-top: 50%;
+
+  .operands
+    width 100%
+    font-size font_large
+    display flex
+    flex-wrap wrap
+
+    .operators
+      width 25%
+      display block
+      text-align  center
+
+      >div:nth-child(1)
+        color color_vibrant_1
+
+      >div:nth-child(2)
+        color color_vibrant_2
+
+      >div:nth-child(3)
+        color color_vibrant_3
+      
+      >div:nth-child(4)
+        color color_vibrant_4
+
+      >div:nth-child(5)
+        color color_vibrant_5
+
+    .numbers
+      width 75%
+      display flex
+      text-align center
+      flex-wrap wrap
+      font-family 'Arial'
+
+      .button
+        width 33%
+      
+      .double 
+        width 66%
+
+    .lastRow
+      width 100%
+      text-align center
+      display flex
+

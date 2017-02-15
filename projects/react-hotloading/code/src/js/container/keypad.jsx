@@ -1,27 +1,47 @@
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
 
-import {appendInput, evaluate, addOperand, clearInput} from '../actions'
+import {appendInput, evaluate, addOperand, clearInput, clearOperands} from '../actions'
 
-const Keypad = React.createClass({
-  propTypes: {
-    // increaseCount: PropTypes.func.isRequired,
-  },
+class Keypad extends React.Component {
+  // propTypes: {
+  //   // increaseCount: PropTypes.func.isRequired,
+  // }
+
+  constructor(props) {
+    super(props)
+    this.start = Date.now()
+    console.log("Start Rendering")
+    this.state = {val: 3}
+  }
 
   componentDidMount() {
-  },
+    let time = Date.now() - this.start
+    console.log("Finished Rendering after " + time  + " ms")
+    window.reactBM.push(time)
+    // setInterval( () => {
+    //   console.log("Interval set")
+    //   this.setState((prevState) => ({
+    //     val: prevState.val+1
+    //   }))
+    // }, 2000)
+  }
 
   render() {
     let onClick = (item) => {
       this.props.addInput(item)
     }
     let endEquation = () => {
+      let operands = [...this.props.operands]
       if(this.props.input != '0'){
         this.props.addOp(this.props.input)
-        this.props.solve([...this.props.operands, this.props.input])
-      }else{
-        this.props.solve([...this.props.operands])
+        if(['+', '-', '÷', '×'].indexOf(operands[operands.length -1]) > -1){
+          operands = [...this.props.operands, this.props.input]
+        }else{
+          operands = [this.props.input]
+        }
       }
+      this.props.solve(operands)
       this.props.clearInput()
     }
     return (
@@ -39,8 +59,8 @@ const Keypad = React.createClass({
         <div className="button double" onClick={() => endEquation()}><div className="content">=</div></div>
       </div>
     )
-  },
-})
+  }
+}
 
 const mapStateToProps = (state, ownProps) => ({
   operands: state.operands,
@@ -58,7 +78,11 @@ const mapDispatchToProps = (dispatch, _ownProps) => ({
     dispatch( clearInput() )
   },
   solve: (equation) => {
+    // console.log("Dispatch: ", equation)
     dispatch( evaluate(equation) )
+  },
+  clearAll: () => {
+    dispatch(clearOperands())
   }
 })
 

@@ -3,7 +3,10 @@
 
 export const appendInput = digit => ({ type: 'APPEND_INPUT', payload: { digit } })
 export const clearInput = () => ({type: 'CLEAR_INPUT', payload: { } })
-export const evaluate = (equation) => ({type: 'EVALUATE', payload: {equation} })
+export const evaluate = (equation) => {
+  // var result = solve(equation)
+  return {type: 'EVALUATE', payload: {equation} }
+}
 
 export const addOperand = operand => ({type: 'ADD_OPERAND', payload: {operand}})
 export const clearOperands = () => ({type: 'CLEAR', payload: {}})

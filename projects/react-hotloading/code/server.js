@@ -1,25 +1,57 @@
-var path = require('path');
-var webpack = require('webpack');
-var express = require('express');
-var config = require('./webpack.config');
+// -----------
+// EXPRESS SETUP
+// -----------
+var path         = require('path');
+var express      = require('express');
 
-var app = express();
-var compiler = webpack(config);
+var isDeveloping = process.env.NODE_ENV !== 'production';
+var port         = isDeveloping ? 8000 : process.env.PORT;
+var app          = express();
+var http         = require('http').Server(app);
+var router       = require('./private/router.js')(app)
 
-app.use(require('webpack-dev-middleware')(compiler, {
-  publicPath: config.output.publicPath
-}));
+if (isDeveloping) {
+  var webpack              = require('webpack');
+  var webpackMiddleware    = require('webpack-dev-middleware');
+  var webpackHotMiddleware = require('webpack-hot-middleware');
+  var config               = require('./webpack.config.js');
 
-app.use(require('webpack-hot-middleware')(compiler));
+  var compiler   = webpack(config);
+  var middleware = webpackMiddleware(compiler, {
+    publicPath: config.output.publicPath,
+    contentBase: 'src',
+    stats: {
+      colors: true,
+      hash: false,
+      timings: true,
+      chunks: false,
+      chunkModules: false,
+      modules: false
+    }
+  });
 
-app.get('*', function(req, res) {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+  app.use(middleware);
+  app.use(webpackHotMiddleware(compiler));
+  app.get('*', function response(req, res) {
+    res.write(middleware.fileSystem.readFileSync(path.join(__dirname, 'dist/index.html')));
+    res.end();
+  });
+} else {
+  // app.enable('strict routing')
+  // app.all('/board', function(req, res) { res.redirect('/board/') })
+  app.use('/board', express.static(__dirname + '/dist'));
+  app.get(/.*favicon\.png/, function response(req, res) {
+    res.sendFile(path.join(__dirname, 'dist/favicon.png'));
+  });
+  app.get('*', function response(req, res) {
+    res.sendFile(path.join(__dirname, 'dist/index.html'));
+  });
+}
 
-app.listen(3000, function(err) {
+http.listen(port, '0.0.0.0', function onStart(err) {
   if (err) {
-    return console.error(err);
+    console.log(err);
   }
 
-  console.log('Listening at http://localhost:3000/');
-})
+  console.info('==> 🌎 Listening on port %s.', port);
+});
