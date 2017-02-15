@@ -33,7 +33,6 @@ public class BallPanel extends JPanel {
 		ball.move();
 		
 		Point position = ball.getLocation();
-
 		if (position.x + ball.getRadius() > getWidth() || position.x - ball.getRadius() < 0) {
 			ball.recflectVertical();
 		}
