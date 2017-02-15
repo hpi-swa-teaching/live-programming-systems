@@ -509,12 +509,21 @@ The liveness of the Eclipse Debugger is implemented in different layers. At the 
 ### Implementations of single activities
 >Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
+The sample code snippets shown in the following belong to the Eclipse git repository `git://git.eclipse.org/gitroot/platform/eclipse.platform.releng.aggregator.git` and its submodules with revision tag `Y20170105-1040`.
+
 #### Hot Code Replace
 Changing a method's body and saving the corresponding class file triggers a recompilation of the file. The resulting bytecode is submitted via a debug channel to the JVM of the running application. There, the bytecode of the affected method body is replaced on the fly. No restart is required.
 
 ![HCR schema](./res/pics/HCR_schema.PNG)
 
 HCR has been specifically added as a standard technique to Java to facilitate experimental development and to foster iterative trial-and-error coding. HCR is reliably implemented only on 1.4.1 VMs and later. @RefKey[EclipseFAQHCR]
+
+**Abstract form**
+Hot Code Replace is a debugging technique whereby a Java Debugger transmits new class files over the debugging channel to another JVM.
+
+**Implementation reference**
+The following code snippet shows the method `redefineTypesJDK` which does the actual call to the JVM to replace bytecodes (`vm.redefineClasses(typesToBytes);`). It is part of the class `JavaHotCodeReplaceManager` in package `org.eclipse.jdt.internal.debug.core.hcr`.
+Corresponding Java file: http://git.eclipse.org/c/gerrit/jdt/eclipse.jdt.debug.git/tree/org.eclipse.jdt.debug/model/org/eclipse/jdt/internal/debug/core/hcr/JavaHotCodeReplaceManager.java?h=Y20170105-1040
 
 ```java
 /**
@@ -545,14 +554,209 @@ private void redefineTypesJDK(JDIDebugTarget target, List<IResource> resources,
 }
 ```
 
-Abstract form:
-Hot Code Replace is a debugging technique whereby a Java Debugger transmits new class files over the debugging channel to another JVM.
+The next code snippet shows the simplified method `doHotCodeReplace` which calls `redefineTypesJDK` shown above. It also notifies listeners, if HCR has succeeded or failed. It is also part of the class `JavaHotCodeReplaceManager`
 
-#### State inspection
+```java
+/**
+ * Perform a hot code replace with the given resources. For a JDK 1.4
+ * compliant VM this involves:
+ * <ol>
+ * <li>Popping all frames from all thread stacks which will be affected by
+ * reloading the given resources</li>
+ * <li>Telling the VirtualMachine to redefine the affected classes</li>
+ * <li>Performing a step-into operation on all threads which were affected
+ * by the class redefinition. This returns execution to the first (deepest)
+ * affected method on the stack</li>
+ * </ol>
+ * For a J9 compliant VM this involves:
+ * <ol>
+ * <li>Telling the VirtualMachine to redefine the affected classes</li>
+ * <li>Popping all frames from all thread stacks which were affected by
+ * reloading the given resources and then performing a step-into operation
+ * on all threads which were affected by the class redefinition.</li>
+ * </ol>
+ * 
+ * @param targets
+ *            the targets in which to perform HCR
+ * @param resources
+ *            the resources which correspond to the changed classes
+ */
+private void doHotCodeReplace(List<JDIDebugTarget> targets, List<IResource> resources,
+    List<String> qualifiedNames) {
+  ...
+  while (...) {
+    JDIDebugTarget target = ...
+    List<IThread> poppedThreads = new ArrayList<IThread>();
+    target.setIsPerformingHotCodeReplace(true);
+    try {
+      boolean framesPopped = false;
+      if (target.canPopFrames()) {
+        // JDK 1.4 drop to frame support:
+        // JDK 1.4 spec is faulty around methods that have
+        // been rendered obsolete after class redefinition.
+        // Thus, pop the frames that contain affected methods
+        // *before* the class redefinition to avoid problems.
+        try {
+          attemptPopFrames(target, resourcesToReplace,
+              qualifiedNamesToReplace, poppedThreads);
+          framesPopped = true; // No exception occurred
+        } catch (...) {
+          ...
+        }
+      }
+      ...
+      if (target.supportsJDKHotCodeReplace()) {
+        redefineTypesJDK(target, resourcesToReplace,
+            qualifiedNamesToReplace);
+      } else if (target.supportsJ9HotCodeReplace()) {
+        redefineTypesJ9(target, qualifiedNamesToReplace);
+      }
+      if (containsObsoleteMethods(target)) {
+        fireObsoleteMethods(target);
+      }
+      try {
+        if (target.canPopFrames() && framesPopped) {
+          // Second half of JDK 1.4 drop to frame support:
+          // All affected frames have been popped and the classes
+          // have been reloaded. Step into the first changed
+          // frame of each affected thread.
+          // must re-set 'is doing HCR' to be able to step
+          target.setIsPerformingHotCodeReplace(false);
+          attemptStepIn(poppedThreads);
+        } else {
+          // J9 drop to frame support:
+          // After redefining classes, drop to frame
+          attemptDropToFrame(target, resourcesToReplace,
+              qualifiedNamesToReplace);
+        }
+      } catch (...) {
+        ...
+      }
+      fireHCRSucceeded(target);
+    } catch (DebugException de) {
+      // target update failed
+      fireHCRFailed(target, de);
+    }
+    // also re-set 'is doing HCR' here in case HCR failed
+    target.setIsPerformingHotCodeReplace(false);
+    target.fireChangeEvent(DebugEvent.CONTENT);
+  }
+  ...
+}
+```
 
-#### State modification
+Saving changes by pressing a keyboard shortcut (which triggers Hot Code Replace in the end) is done in the class `SaveHandler`. This class is used as an entry point to measure HCR performance in chapter *Benchmarking*. The class belongs to package `org.eclipse.ui.internal.handlers`.
+Corresponding Java file: http://git.eclipse.org/c/gerrit/platform/eclipse.platform.ui.git/tree/bundles/org.eclipse.ui.workbench/Eclipse%20UI/org/eclipse/ui/internal/handlers/SaveHandler.java?h=Y20170105-1040
+
+```java
+public class SaveHandler extends AbstractSaveHandler {
+
+  ...
+
+  @Override
+  public Object execute(ExecutionEvent event) {
+    ISaveablePart saveablePart = getSaveablePart(event);
+    ...
+    // if editor
+    if (saveablePart instanceof IEditorPart) {
+      IEditorPart editorPart = (IEditorPart) saveablePart;
+      IWorkbenchPage page = editorPart.getSite().getPage();
+      page.saveEditor(editorPart, false);
+      return null;
+    }
+    ...
+    return null;
+  }
+
+  ...
+
+}
+```
+
+#### Variable inspection and modification
+The "Variable View" allows inspection and modification of runtime state, when halting at a Breakpoint. To modify a variable, the programmer clicks into the "Value" column which provides an input field, enters the new value or expression as String and commits the change by pressing Enter or by leaving the field. The String is sent to the other JVM where it is evaluated in the context of a pausing thread. The result is stored in the corresponding variable.
+The "Expressions View" is based on the same implementations for evaluating expressions used by the "Variables View". Therefore, we only describe the "Variables View" implementation in the following.
+
+**Abstract form**
+Variable inspection is done by requesting runtime state information via the debugging channel to another JVM. Variable modification is done by sending an expressions via the debugging channel to another JVM where the variable is changed to the result of the evaluated expression.
+
+**Implementation reference**
+The "Variable View" logic is implemented in the class `JavaObjectValueEditor` in package `org.eclipse.jdt.internal.debug.ui.actions`. A variable modification is done in method `setValue`, shown in the next snippet. The expressions is evaluated and the value is stored in the corresponding variable afterwards.
+Corresponding Java file: http://git.eclipse.org/c/gerrit/jdt/eclipse.jdt.debug.git/tree/org.eclipse.jdt.debug.ui/ui/org/eclipse/jdt/internal/debug/ui/actions/JavaObjectValueEditor.java?h=Y20170105-1040
+
+```java
+/**
+ * Evaluates the given expression and sets the given variable's value
+ * using the result.
+ * 
+ * @param variable the variable whose value should be set
+ * @param expression the expression to evaluate
+ * @throws DebugException if an exception occurs evaluating the expression
+ *  or setting the variable's value
+ */
+protected void setValue(final IVariable variable, final String expression){
+    UIJob job = new UIJob("Setting Variable Value"){ //$NON-NLS-1$
+        @Override
+        public IStatus runInUIThread(IProgressMonitor monitor) {
+            try {
+                IValue newValue = evaluate(expression);
+                if (newValue != null) {
+                    variable.setValue(newValue);
+                } else {
+                    variable.setValue(expression);
+                }
+            } catch (DebugException de) {
+                handleException(de);
+            }
+            return Status.OK_STATUS;
+        }
+    };
+    job.setSystem(true);
+    job.schedule();
+}
+```
 
 #### Code evaluation
+The "Display View", the "Scrapbook Page" and the code editor allow evaluating code snippets when a context is provided. When pressing a keyboard shortcut while a code snippet is selected, the Debugger submits the snippet via the debugging channel to another JVM to evaluate it in the context of a paused thread of that JVM. Therefore a Breakpoint is needed. The "Display View" and the code editor allow evaluating code snippets only when the application is already halting at a Breakpoint defined by the programmer. The "Scrapbook Page" requires also a Breakpoint, but solves this problem by starting a dummy application in a separate JVM and setting a Breakpoint automatically the first time the programmer triggers a snippet evaluation.
+
+**Abstract form**
+Code evaluation is done via the debugging channel to another JVM by evaluate a code snippet in the context of a paused thread of that JVM.
+
+**Implementation reference**
+The codebase for evaluating code snippets is the same for the "Display View", the "Scrapbook page" and the code editor. "Display View" and "Scrapbook Page" also share the same `JavaSnippetEditor` implementation in package `org.eclipse.jdt.internal.debug.ui.snippeteditor`. The following code snippet shows the method `evalSelection`. It starts the evaluation process by launching a separate JVM if there is none available from a running debugging session and finally triggers the evaluation engine of the other JVM.
+Corresponding Java file: http://git.eclipse.org/c/gerrit/jdt/eclipse.jdt.debug.git/tree/org.eclipse.jdt.debug.ui/ui/org/eclipse/jdt/internal/debug/ui/snippeteditor/JavaSnippetEditor.java?h=Y20170105-1040
+
+```java
+public void evalSelection(int resultMode) {
+  if (!isInJavaProject()) {
+    reportNotInJavaProjectError();
+    return;
+  }
+  if (isEvaluating()) {
+    return;
+  }
+  
+  checkCurrentProject();
+  
+  evaluationStarts();
+
+  fResultMode= resultMode;
+  buildAndLaunch();
+  
+  if (fVM == null) {
+    evaluationEnds();
+    return;
+  }
+  fireEvalStateChanged();
+
+  ITextSelection selection= (ITextSelection) getSelectionProvider().getSelection();
+  String snippet= selection.getText();
+  fSnippetStart= selection.getOffset();
+  fSnippetEnd= fSnippetStart + selection.getLength();
+  
+  evaluate(snippet);      
+}
+```
 
 #### Example: Scrubbing
 >The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
