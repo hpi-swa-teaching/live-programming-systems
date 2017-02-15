@@ -156,7 +156,7 @@ We click "Terminate", because we need to add more methods. We need to implement 
   g.fillOval(100, 100, 50, 50);
 ```
 
-11. We run the application again in Debug-mode by pressing "F11". Now, the ball is drawn:
+11. We run the application again in "Debug"-mode by pressing "F11". Now, the ball is drawn:
 ![Ball is drawn on panel](./res/pics/ball_is_drawn.png)
 We want to adjust the `paint(...)` method, so that the actual properties of the ball are used to draw and not the hard coded values. So we keep the window open again and switch to the IDE. We change the "paint"-method to:
 ```java
@@ -222,7 +222,7 @@ public class Ball {
 [...]
 ```
 
-13. We run the application again in Debugging-mode by pressing "F11". We see the ball moving from the top left corner, to the right and leaving the window. To bounce the ball from the right side, we adjust the "stepTheBall"-method:
+13. We run the application again in "Debug"-mode by pressing "F11". We see the ball moving from the top left corner, to the right and leaving the window. To bounce the ball from the right side, we adjust the "stepTheBall"-method:
 ```java
 public void stepTheBall() {
   ball.move();
@@ -335,21 +335,12 @@ Now we remove the breakpoint, save our changes and press "F8" to resume executio
 - If applicable: How is the emergence phase shortened?
 - Granularity: For example: Elm can only rerun the complete application
 
-Step 11 of the example workflow shows the first liveness activity. The program is running in Debug-mode and we change code in the body of the `paint(...)` method. Saving these changes via the Eclipse Debugger triggers Hot Code Replace (HCR). The method body of the `paint(...)` is replaced without restarting the application. But the change is only visible when the `paint`-method is triggered e.g. by resizing the window.
-
-**JAVA Hot Code Replace (HCR)**
-At an Eclipse FAQ it is written:
-> Hot code replace (HCR) is a debugging technique whereby the Eclipse Java debugger transmits new class files over the debugging channel to another JVM. In the case of Eclipse development, this also applies to the VM that runs the runtime workbench. The idea is that you can start a debugging session on a given runtime workbench and change a Java file in your development workbench, and the debugger will replace the code in the receiving VM while it is running. No restart is required, hence the reference to "hot".
-HCR has been specifically added as a standard technique to Java to facilitate experimental development and to foster iterative trial-and-error coding. HCR is reliably implemented only on 1.4.1 VMs and later. @RefKey[EclipseFAQHCR]
-
-The following schema shows what happens in step 11, when saving the changes.
-![HCR schema](./res/pics/HCR_schema.PNG)
-
-**@Stefan/Patrick: Ist das Bild + HCR Erklärung schon Implementation detail und gehört deshalb weiter unten in den Abschnitt?**
+Step 11 of the example workflow shows the first liveness activity. The program is running in "Debug"-mode and we change code in the body of the `paint(...)` method. Saving these changes via the Eclipse Debugger triggers Hot Code Replace (HCR). The method body of the `paint(...)` is replaced without restarting the application. But the change is only visible when the `paint`-method is triggered e.g. by resizing the window.
 
 In step 15, HCR is triggered again by saving a Java file. This change is immediately visible, due to stepping implemented via a separate Thread which enforces a repaint every 20ms, which provides immediate visual feedback for the programmer.
 
-In step 16, a Breakpoint pauses the execution of threads at a specific line of code. The Eclipse debugger allows us to inspect the state of the stack trace of the paused thread, e.g. by hovering over a variable to see its value in a pop-up window. We open a "Variables View" to examine all local variables available in the current stack frame including `this`. We also open the "Expressions View" to watch the resulting value of arbitrary valid Java expressions as long as the thread is paused.
+In step 16, a Breakpoint pauses the execution of threads at a specific line of code. The Eclipse debugger allows us to inspect the state of the stack trace of the paused thread, e.g. by hovering over a variable to see its value in a pop-up window. If the value is an object, it is displayed via its `toString()` method. Furthermore the object's instance variables are displayed in a foldable tree structure, but without the ability to change them.
+Next, we open a "Variables View" to examine all local variables available in the current stack frame including `this`. We also open the "Expressions View" to watch the resulting value of arbitrary valid Java expressions as long as the thread is paused.
 
 In step 16 we also modify runtime state via the "Variables View".
 
@@ -363,9 +354,9 @@ In step 18 we evaluated code snippets in a "Scrapbook Page". The first time we e
 
 >How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
 
-The Eclipse Debugger is seamlessly integrated into the Eclipse IDE. Eclipse provides a "Debugger Perspective" consisting of an source code editor in the center, surrounded by different views to inspect VM-threads, variables and console output.
-![Eclipse Debugger Perspective with default configuration](./res/pics/debugger_perspective_default.png)
-The source code editor is the same as in the default "Java Perspective", i.e. when halting at a Breakpoint, you can inspect variables like in the "Debugger Perspective" in step 16 by hovering over them with the mouse cursor. Debugging and using liveness features like Hot Code Replace is independent of the current "Perspective".
+The Eclipse Debugger is seamlessly integrated into the Eclipse IDE. Eclipse provides a "Debug Perspective" consisting of a source code editor in the center, surrounded by different views to inspect VM-threads, variables and console output.
+![Eclipse Debug Perspective with default configuration](./res/pics/debugger_perspective_default.png)
+The source code editor is the same as in the default "Java Perspective", i.e. when halting at a Breakpoint, you can inspect variables like in the "Debug Perspective" in step 16 by hovering over them with the mouse cursor. Debugging and using liveness features like Hot Code Replace is independent of the current "Perspective".
 If no context is provide by halting at a Breakpoint, the features to inspect state are disabled, i.e. the "Variables View" and "Expressions View" are empty.
 
 
@@ -373,9 +364,9 @@ If no context is provide by halting at a Breakpoint, the features to inspect sta
 >To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
 Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
 
-A conceptional limitation to live programming with Eclipse (or Java in general) is the differentiation between running an application in Default- or Debug-mode. When running in Default-mode, no debugging features are available, i.e. Hot Code Replace or state inspection/modification via Breakpoints is not possible.
+A conceptional limitation to live programming with Eclipse (or Java in general) is the differentiation between running an application in Default- or "Debug"-mode. When starting in "Run"-mode, no debugging features are available, i.e. Hot Code Replace or state inspection/modification via Breakpoints is not possible.
 
-When running in Debug-mode, there are still some limitations which we describe in the following, regarding the example workflow.
+When running in "Debug"-mode, there are still some limitations which we describe in the following, regarding the example workflow.
 
 In step 10 and 12 Hot Code Replace is not applicable, because adding methods is not implemented in the JVM of Java 8 and earlier. @RefKey[EclipseFAQHCR]
 In step 13 and 14 HCR is again not possible for the same reasons, but we chose to restart the application with one click instead of terminating it.
@@ -392,7 +383,7 @@ Another limitation is also based on the fact, that execution needs to halt at a 
 ### What happens when the live parts of the system fail/break?
 1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
 
-    Java has a built-in exception handling, allowing the Eclipse Debugger to halt execution when an unhandled exception is thrown in Debug-mode (e.g. an ArithmeticException caused by "division by zero"). If the the error can be fixed by modifying state via the "Variables View" or behavior via HCR, execution can be resumed.
+    Java has a built-in exception handling, allowing the Eclipse Debugger to halt execution when an unhandled exception is thrown in "Debug"-mode (e.g. an ArithmeticException caused by "division by zero"). If the the error can be fixed by modifying state via the "Variables View" or behavior via HCR, execution can be resumed.
     If HCR fails due to running into the limitations described before, e.g. adding a method, the Eclipse debugger handles this exception by letting the developer choose from three options: Continue, Terminate and Restart.
     ![Add method not implemented](./res/pics/hcr_failed_add_method_not_implemented.png)
     
@@ -431,19 +422,17 @@ The Eclipse debugger is an immutable past tool. HCR only allows to replace behav
 ### Tanimoto's Level of Live Programming
 >To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
 
-In general, the Eclipse debugger provides Tanimoto's liveness level 4 as long as HCR can be applied.
+- Behavior manipulation by HCR - Liveness level 4
+  The behavior of the running application is immediately changed after the user made the change. The application is kept running. A valid change to a class happens only when a user saves the class' source file from inside the Eclipse IDE. A keystroke is not a valid change to a source file.
 
-- Behavior manipulation allowing HCR
-
-  Liveness level 4: The behavior of the running program is immediately changed after the user made the change (a valid change to a class happens only when a user saves the source file containing the class inside the Eclipse IDE, a keystroke is not a valid change to a source file) and the application is kept running.
-
-- Code evaluation
-
-  //TODO question: is only possible when pausing the system (e.g. halting at a breakpoint). Is this still live? The current thread is paused, the other threads keep running.
-
-- Runtime state manipulation
-
-  //TODO question: Same as above
+- Code evaluation - Liveness level 4
+  Code evaluation is only possible when providing a context by pausing a thread of the application in "Debug"-mode. A thread is paused when reaching a Breakpoint. All other application threads and the Eclipse Debugger are kept running. When evaluating code snippets, the result is displayed immediately as long as the evaluated snippet has a sub-second execution time.
+  We argue, that this is still liveness level 4, because Tanimoto writes:
+  > In level 4, the computer wouldn’t wait but would keep running the program, modifying the behavior as specified by the programmer as soon as changes were made. @RefKey[Tanimoto2013PEL]
+  In general the Java program is kept running and the program evaluates the snippets as soon as the programmer triggers the evaluation by pressing a keyboard shortcut.
+  
+- Runtime state manipulation - Liveness level 4
+  The argumentation for liveness level 4 is the same as for code evaluation. Runtime state manipulation is only possible when providing a context by pausing a thread, but the application and the Eclipse Debugger are kept running. A state modification is applied as soon as the programmer triggers the change, for example via the "Variables View".
 
 
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
@@ -451,7 +440,30 @@ In general, the Eclipse debugger provides Tanimoto's liveness level 4 as long as
 ### Steady Frame
 >Which activities are designed as steady frames based on the formal definition and how?
 
-//TODO Variables View + Debug view when halting at a Breakpoint
+A Steady Frame is defined as:
+>"[...] a way of organizing and representing a system or activity, such that (I) relevant variables can be seen and/ or manipulated at specific locations within the scene (the framing part), and (II) these variables are defined and presented so as to be constantly present and constantly meaningful (the steady part)." @RefKey[Hancock2003RTP]
+
+The "Debug View" is a Steady Frame, because it displays constantly meaningful information about the state of the running application and its threads.
+![Steady Frame Debug View](./res/pics/steady_frame_debug_view.PNG)
+When halting one thread at a Breakpoint, additional information, like the stack trace, are available.
+![Steady Frame Debug View Breakpoint](./res/pics/steady_frame_debug_view_breakpoint.PNG)
+
+The "Variables View" and "Expression View" of the Eclipse Debugger can be seen as *frames* based on the formal definition. However, they are only *steady* when a context is provided, i.e. when halting at a Breakpoint.
+Without a context, these views do not show any runtime state information.
+The empty "Variables View":
+![Steady Frame Variables View](./res/pics/steady_frame_variables_view.PNG)
+
+The "Expressions View" without values:
+![Steady Frame Expressions View](./res/pics/steady_frame_expressions_view.PNG)
+
+When halting at a Breakpoint, they turn into Steady Frames.
+The filled "Variables View":
+![Steady Frame Variables View Breakpoint](./res/pics/steady_frame_variables_view_breakpoint.PNG)
+
+The "Expressions View" with values:
+![Steady Frame Expressions View Breakpoint](./res/pics/steady_frame_expressions_view_breakpoint.PNG)
+
+When the programmer expands the tree structure to explorer variables and values, this expansion state is kept when stepping through a method. Only when we step into another method or return from it, the tree is collapsed again.
 
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
 
@@ -459,37 +471,88 @@ In general, the Eclipse debugger provides Tanimoto's liveness level 4 as long as
 How do the activities affect the different distances: temporal, spatial, semantic?
 
 - Temporal
-    In steps 10, 12, 13 and 14 saving changes leads to a restart or termination of the application, because of the HCR limitations. This is a huge temporal distance, because the user needs to wait until the application is restarted to see the changes.
+    Changing behavior by applying Hot Code Replace has no temporal distance. The adaptation time is less than 1s (see chapter *Benchmarking*).
 
-    In step 15, the saved changes are immediately visible. There is no temporal distance for the user.
+    Changing state via the "Variables View" has no temporal distance. Modifying a variable in this view is done in less than 100ms (see chapter *Benchmarking*).
 
-    //TODO immediacy for changing state via Variables view
+    Evaluating code snippets using the "Display View", "Scrapbook Page" or the code editor's in-place features has no temporal distance regarding the adaptation time. The emergence time is depending on the execution time of the evaluated code snippet only.
 
-- Spatial
-    In step 16, when halting at a breakpoint, hovering over variables spawns a pop-up window displaying the variable's value. If the value is an object, it is displayed via its `toString()` method. Furthermore the object's instance variables are displayed in a foldable tree structure, but without the ability to change them. The spatial distance is reduced by spawning these pop-up windows, you still need to hover over a variable with the mouse cursor and only one window can be displayed at a time.
+    In all cases, the Eclipse Debugger allows the user to recognize a causality between triggering the change and seeing the effects.
 
-    The "Variables"-view allows to change the values of available variables at runtime, but with spatial distance, because the user needs to focus a different view and find the corresponding tree list entry.
+- Spatial and Semantic
+    In the Eclipse IDE, all views are pluggable. This implies that the spatial and semantic distance among different views is highly depending on the graphical arrangement.
+    In the default setup of the "Debug Perspective", the code editor is placed in the center, the "Debug View" to inspect the state of VM-Threads in the upper left and all the other state inspection tools like "Variables View" and "Expressions View" are grouped in a tab view in the upper right corner. The "Display View" is grouped in a tab view at the bottom. This approach already implies a spatial distances by physically separating these tools. The programmer has to deal with a cognitive "ping-pong" effect @RefKey[Ungar1997DEI].
+    The "Variables View" for example allows to inspect and change the values of available variables at runtime, but the programmer needs to move the focus from the editor to a different view, find the corresponding variable entry in the tree list and move the focus back to the code.
+    
+    The Eclipse Debugger tries to reduce these spatial distance by integrating parts of the features of these views directly into the code editor.
+    To inspect a variable faster and with reduced spatial and semantic distance, the programmer can hover with the cursor over a single variable in the code editor to spawn an inspection pop-up window in-place.
+    However, the inspection is read-only. The programmer still has a semantic and spatial distance, when he wants to change the value after inspecting it.
 
-    //TODO Some distance between different views (depends on arrangement)
-    //TODO Some distance between running (graphical) application and IDE
+    To evaluate code snippets, the programmer can add the snippet to the "Expressions View" or evaluate it in the "Display View" with some spatial and semantic distance. Again, to reduced these distances, the evaluation and result-printing can be done directly in the code editor by selecting a code snippet and pressing a keyboard shortcut.
 
+    On a different level, spatial distances exists between the Eclipse Debugger and the running graphical Java application itself. When the IDE is in full-screen mode, you have to permanently switch between application and Debugger, bringing the one or the other window to front.
+    This strict separation between Debugger and application causes also a huge semantic distance. To inspect state of the running application, the programmer needs to find the relevant code snippet to place a Breakpoint. Then the application still needs to reach this Breakpoint to provide the context for state inspection.
 
-- Semantic (aka how many mouse clicks)
-    //TODO Distance depends on arrangement of pluggable views and tools
-    //TODO Large distance in Variables view when trying to navigate through large trees of different variables (can open only one Variables view)
+    A large semantic distance exists regarding the differentiation between starting an application in "Run"- or "Debug"-mode. Only in "Debug"-mode the programmer can debug an application and make use of the liveness features. If a programmer is not used to always start an application in "Debug"-mode, a restart is needed to enable debugging features when needed.
 
 *D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
 
 ---
 
 ## Implementing Liveness
-//TODO Eclipse code Refs
 
 ### Extend of liveness in technical artifacts
 >What parts of the system implements the liveness? (Execution environment, library, tool...)
 
+The liveness of the Eclipse Debugger is implemented in different layers. At the lowest level, the JVM defines a Java Platform Debugger Architecture (JPDA) for debuggers in development environments @RefKey[JPDA]. The Eclipse Platform Debugger builds upon these interfaces to provide language independent facilities for launching programs, source code lookup, breakpoints and debugging UI @RefKey[EclipseDebug]. At the highest level, the Eclipse Java Debugger implements the language specific part.
+
 ### Implementations of single activities
 >Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
+
+#### Hot Code Replace
+Changing a method's body and saving the corresponding class file triggers a recompilation of the file. The resulting bytecode is submitted via a debug channel to the JVM of the running application. There, the bytecode of the affected method body is replaced on the fly. No restart is required.
+
+![HCR schema](./res/pics/HCR_schema.PNG)
+
+HCR has been specifically added as a standard technique to Java to facilitate experimental development and to foster iterative trial-and-error coding. HCR is reliably implemented only on 1.4.1 VMs and later. @RefKey[EclipseFAQHCR]
+
+```java
+/**
+ * Replaces the given types in the given JDK-compliant debug target.
+ * 
+ * This method is to be used for JDK hot code replace.
+ */
+private void redefineTypesJDK(JDIDebugTarget target, List<IResource> resources,
+    List<String> qualifiedNames) throws DebugException {
+  if (target.supportsJDKHotCodeReplace()) {
+    target.setHCROccurred(true);
+    Map<ReferenceType, byte[]> typesToBytes = getTypesToBytes(target, resources,
+        qualifiedNames);
+    try {
+      VirtualMachine vm = target.getVM();
+      if (vm == null) {
+        target.requestFailed(
+            JDIDebugHCRMessages.JavaHotCodeReplaceManager_Hot_code_replace_failed___VM_disconnected__2,
+            null);
+      }
+      vm.redefineClasses(typesToBytes);
+    } catch (...) {
+      ...
+    }
+  } else {
+    target.notSupported(JDIDebugHCRMessages.JavaHotCodeReplaceManager_does_not_support_hcr);
+  }
+}
+```
+
+Abstract form:
+Hot Code Replace is a debugging technique whereby a Java Debugger transmits new class files over the debugging channel to another JVM.
+
+#### State inspection
+
+#### State modification
+
+#### Code evaluation
 
 #### Example: Scrubbing
 >The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
@@ -498,6 +561,8 @@ How do the activities affect the different distances: temporal, spatial, semanti
 
 ### Within or outside of the application
 >For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
+
+All liveness activities are triggered from outside the running application. The Eclipse Debugger makes use of the JVM's debugging channel to initiate the activity. However, the liveness is applied inside the application's JVM. The available liveness features depend on the debugger's and the application's JVM implementation.
 
 ---
 
