@@ -17,7 +17,7 @@ Generally try to drill down on reasons behind properties of the system. Make use
 
 Karma is a tool for automatic test execution on JavaScript code.  It was build by the developers of AngularJS. They did not find a test execution framework which satisfied their needs, so they decided to build one themselves. They believe that "...quick feedback is what makes you productive and creative." @RefKey[GitHubKarma]
 
-Karma is a based on nodejs and used to test javascript modules. Its main objective is giving live feedback on test results. Aims to be very easy and intuitive to set up. On first start a configuration can be generated. Karma offers integration with the most popular build tools for node models, e.g. grunt and gulp. Moreover, the actual testing and ssertion libraries are interchangeable, so the developer can choose his favorite, e.g. mocha, Jasmine or QUinit. Additionally Karma also offers the possibility to execute tests in multiple browsers. Besides running the test, Karma can also calculate a coverage report. It can either be displayed in an IDE window or saved as a HTML file.
+Karma is a based on nodejs and used to test javascript modules. Its main objective is giving live feedback on test results. Aims to be very easy and intuitive to set up. On first start a configuration can be generated. Karma offers integration with the most popular build tools for node models, e.g. grunt and gulp. Moreover, the actual testing and assertion libraries are interchangeable, so the developer can choose his favorite, e.g. mocha, Jasmine or QUnit. Additionally, Karma also offers the possibility to execute tests in multiple browsers. Besides running the test, Karma can also calculate a coverage report. It can either be displayed in an IDE window or saved as a HTML file.
 
 Furthermore, Karma is aivalable as open source, so anyone can contribute. There is an active community around it, which continuously strives to improve it.
 
@@ -32,7 +32,7 @@ In general Karma can be used with any editor or IDE. Some IDEs like Webstorm hav
 
 *Screenshot of Webstorm IDE with Karma integration, source: https://confluence.jetbrains.com/download/attachments/51966353/Karma-testresults.png*
 
-For the purpose of this analysis I am using two different set-ups. On the on hand visual code for development with a terminal window on a second screen which continuously runs the karama runner. On the other hand intelliJ with the Karma plugin. For both set-ups Karma runs a headless phantomJS browser to execute the tests in.
+For the purpose of this analysis I am using two different set-ups. On the on hand visual code for development with a terminal window on a second screen which continuously runs the karma runner. On the other hand intelliJ with the Karma plugin. For both setups Karma runs a headless phantomJS browser to execute the tests in.
 
 
 ### Context
@@ -93,7 +93,7 @@ There are two possible setups in which Karma can be used. The first one is to us
 
 When using the first one the setup can be done in the IDE. The Karma IDE plugin has to be installed first. Then a Karma configuration file has to be created.  If this file is available it can be executed. The IDE will then automatically open a test window on the bottom. This window contains some buttons to run, stop and configure Karma and will also display test results.
 
-If Karma is run in a separate terminal window the setup is slightly different. The package has to be installed via npm as shown in the gif below.  Afterwards the creation of a config file can be started with 'Karma config' ?. After executing this command a few questions about the usage preferences of Karma have to be answered. At the end this will create a Karma configuration file. When this is done additional changes to the config can be made. Then Karma can be run with 'Karma start path/to/config.js'.
+If Karma is run in a separate terminal window the setup is slightly different. The package has to be installed via npm as shown in the gif below.  Afterwards the creation of a config file can be started by running `karma init`. After executing this command a few questions about the usage preferences of Karma have to be answered. At the end this will create a Karma configuration file. When this is done additional changes to the config can be made. Then Karma can be run with `karma start path/to/config.js`.
 
 In order to use Karma coverage reports for either setup an additional package/plugin has to be installed.
 
@@ -118,11 +118,10 @@ Description of each concrete activity in the workflow and the underlying livenes
  - ui perspective. get workflow first
 -->
 
-The main activity in Karma is giving feedback about the test results to the users. The feedback mechanism is made live by employing multiple liveness patterns. By running the tests and thus updating the test results on every save, the user gets the impression that the tests are running all the time. This enables seemingly live feedback. The streaming pattern is applied to shorten the emergence phase. This is done by displaying partial test results while the rest of the tests are still being executed.
+The main activity in Karma is giving feedback about the test results to the users. The feedback mechanism is made live by employing multiple liveness patterns. By running the tests and thus updating the test results on every save, the user gets the impression that the tests are constantly running all the time. This enables seemingly live feedback. The streaming pattern is applied to shorten the emergence phase. This is done by displaying partial test results while the rest of the tests are still being executed.
 
 Moreover, color coding is used to make test failures more recognizable. When the tests are run successful the result is displayed in green, whereas failed tests and error messages are printed in red. Therefore, the user does not need to reed the actual output in order to know the overall result.
 
-- ToDo: Granularity: For example: Elm can only rerun the complete application
 
 ### Integration of live activities into overall system
 Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
@@ -141,9 +140,9 @@ To which extend can the liveness of one activity be kept up? For example, at whi
 Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
 -->
 
-At a ceratin number of tests the execution time is too long to be considered live. For my setup the execution of approximately 500 tests takes roughly 3 seconds. However, this highly depends on the tests and the hardware they are executed on. Therefore, no general number can be given. Very complex tests (using loops or complicated calculations) can also have a big impact on the time needed for execution.
+At a ceratin number of tests the execution time is too long to be considered live. For my setup the execution of approximately 500 tests takes roughly 3 seconds. This is the line where the liveness starts to vanish. However, this highly depends on the tests and the hardware they are executed on. Therefore, no general number can be given. Very complex tests (using loops or complicated calculations) can also have a big impact on the time needed for execution and therefore influence the liveness.
 
-Besides runtime there are also some other limitations. When code changes are saved while the tests are still running, the reexecution will be queued and thus delayed until the current run is completed. This breaks the liveness and can lead to misinterpretation of the results, because the user may not be certain whether the changes he made were already included in the current test run.
+Besides runtime there are also some other limitations in Karma. When code changes are saved while the tests are still running, the reexecution will be queued and thus delayed until the current run is completed. This breaks the liveness and can lead to misinterpretation of the results, because the user may not be certain whether the changes he made were already included in the current test run.
 
 Furthermore, Karma does not support smart test execution. As a result it can only execute the entire test suite. It cannot automatically run only tests which are affected by the saved changes. If this was possible the execution time would be cut down vastly and hence the liveness be improved.
 
@@ -174,8 +173,7 @@ The tool itself can be caused to crash when a falsy configuration is used. The c
 When using Karma with a headful browser there will be a visible browser application window on the desktop. This can be closed manually. Anyway, this does not affect the execution, since Karma will just restart the browser.
 
 ### Left out features
-Which features of the system were not described and why were they left out?
-- multi browser support ? - not relevant?2
+Karma also support execution in multiple browsers. However, we will not dive deeper into this feature, because it is not relevant for evaluating the liveness.
 
 ---
 
@@ -194,7 +192,7 @@ The Karma test runner belongs to the category of mutable past. For every test ru
 
 According to Tanimoto a program has to be informative, significant and responsive to be classified as level 3 liveness. This includes for example edit triggered updates, where the programmer does not have to trigger the updates manually. In order to be classified as level 4 the responses have to be delivered more or less instantly (live).
 
-Depending on the setup and environment Karma can be classified as either of those levels. Karma show results everytime changes on the code are saved, without the programmer having to trigger Karma manually again. Thus, it can be classified as level 3.
+Depending on the setup and environment Karma can be classified as either of those levels. Karma shows results everytime changes on the code are saved, without the programmer having to trigger Karma manually again. Thus, it can be classified as level 3.
 
 However, when using the IDE setup in combination with automatic saving of changes the results are delivered live. This also depends on the execution time of the tests. Execution time for one test cycle highly depends on a number of factors:
 
@@ -204,9 +202,8 @@ However, when using the IDE setup in combination with automatic saving of change
 * coverage reporting
 * general configuration of Karma (e.g. which reporter is used)
 
-With the right setup, test results can be given really fast (less than a second), so seamingly instant for humans. In this scenario Karma can be classified as liveness level 4 in regard to Tanimoto, since it gives live updates.
+With the right setup, test results can be given really fast (less than a second), so seamingly instant for humans. Even though the tests are not running all the time, the user gets the impression that they do. In this scenario Karma can be classified as liveness level 4 in regard to Tanimoto, since it gives live updates.
 
-- ToDo: impression of running / liveness
 
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
 
