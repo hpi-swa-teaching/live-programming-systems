@@ -974,8 +974,9 @@ The available liveness features depend on the debugger's and the application's J
     }
     JDIDebugPlugin.log(new RuntimeException("HCRSucceeded: " + Calendar.getInstance().getTimeInMillis()));
   }
-  ```    
-  2. Benchmarking a variable modification
+  ```
+
+2. Benchmarking a variable modification
   To measure the adaptation time, we use the same approach as for benchmarking Hot Code Replace.
   We adjust the method `setValue` of class `JavaObjectValueEditor` (see chapter *Implementations of single activities*).
   ```java
