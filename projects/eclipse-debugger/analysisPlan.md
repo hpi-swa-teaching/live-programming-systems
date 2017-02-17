@@ -93,239 +93,271 @@ A good example to demonstrate live programming features and its limitations is c
 By default, "Build Automatically" is enabled in Eclipse, so that saving changes triggers an incremental build process in the background automatically.
 
 7. Now we want to draw a ball, so we need some code to create a Window in Java. We adjust the class "Main" to:
-```java
-import javax.swing.JFrame;
+  ```java
+  import javax.swing.JFrame;
 
-public class Main {
+  public class Main {
 
-  public static void main(String[] args) {
-      javax.swing.SwingUtilities.invokeLater(new Runnable() {
-          public void run() {
-              createAndShowGUI();
-          }
-      });
+    public static void main(String[] args) {
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                createAndShowGUI();
+            }
+        });
+    }
+    
+    private static void createAndShowGUI() {
+        JFrame frame = new JFrame("Bouncing ball");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        BallPanel ballPanel = new BallPanel();
+        ballPanel.setOpaque(true);
+        frame.setContentPane(ballPanel);
+
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
   }
-  
-  private static void createAndShowGUI() {
-      JFrame frame = new JFrame("Bouncing ball");
-      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      
-      BallPanel ballPanel = new BallPanel();
-      ballPanel.setOpaque(true);
-      frame.setContentPane(ballPanel);
-
-      frame.pack();
-      frame.setLocationRelativeTo(null);
-      frame.setVisible(true);
-  }
-}
-```
+  ```
 
 8. We also adjust the class "BallPanel" to:
-```java
-import java.awt.Dimension;
-import java.awt.Point;
-import javax.swing.JPanel;
+  ```java
+  import java.awt.Dimension;
+  import java.awt.Point;
+  import javax.swing.JPanel;
 
-public class BallPanel extends JPanel {
-  private Ball ball;
-  
-  public BallPanel() {
-    setPreferredSize(new Dimension(600, 400));
-    ball = new Ball(new Point(50,50));
+  public class BallPanel extends JPanel {
+    private Ball ball;
+    
+    public BallPanel() {
+      setPreferredSize(new Dimension(600, 400));
+      ball = new Ball(new Point(50,50));
+    }
   }
-}
-```
+  ```
 
 9. We right-click on the class "Main" and select "Debug As" > "1 Java Application". A Window opens, but no ball is visible yet.
 10. We need to add the actual drawing methods. Keeping the window open, we switch to the Eclipse IDE and add the following method to "BallPanel":
-```java
-  @Override
-  public void paint(Graphics g){
-      super.paint(g);
-      ball.paint(g);
-  }
-```
-Although we have not saved our changes yet, the Eclipse syntax check detects "Graphics" as an unknown type and underlines it red.
-![Graphics cannot be resolved to a type](./res/pics/graphics_unknown.PNG)
-So we press *Ctrl+Shift+O* to organize our imports and select "java.awt.Graphics". We save our changes which leads to the following pop-up:
-![HCR failed - Add method not implemented](./res/pics/hcr_failed_add_method_not_implemented.png)
-We click "Terminate" to close the running application, because we need to add more methods. We still need to implement the paint-method for the class "Ball". We hover with the mouse cursor over the red-underlined code snippet "ball.paint(g);" and select from the displayed pop-up "Create method ...". Now we can add the following code to the auto generated method and save the changes:
-```java
-  g.setColor(getColor());
-  g.fillOval(100, 100, 50, 50);
-```
+    ```java
+      @Override
+      public void paint(Graphics g){
+          super.paint(g);
+          ball.paint(g);
+      }
+    ```
+    Although we have not saved our changes yet, the Eclipse syntax check detects "Graphics" as an unknown type and underlines it red.
+
+    ![Graphics cannot be resolved to a type](./res/pics/graphics_unknown.PNG)
+
+    So we press *Ctrl+Shift+O* to organize our imports and select "java.awt.Graphics". We save our changes which leads to the following pop-up:
+
+    ![HCR failed - Add method not implemented](./res/pics/hcr_failed_add_method_not_implemented.png)
+
+    We click "Terminate" to close the running application, because we need to add more methods. We still need to implement the paint-method for the class "Ball". We hover with the mouse cursor over the red-underlined code snippet "ball.paint(g);" and select from the displayed pop-up "Create method ...". Now we can add the following code to the auto generated method and save the changes:
+    ```java
+      g.setColor(getColor());
+      g.fillOval(100, 100, 50, 50);
+    ```
 
 11. We run the application again in "Debug"-mode by pressing "F11". Now, the ball is drawn:
-![Ball is drawn on panel](./res/pics/ball_is_drawn.png)
-We want to adjust the `paint(...)` method, so that the actual properties of the ball are used to draw and not the hard coded values. So we keep the window open again and switch to the IDE. We change the "paint"-method to:
-```java
-  g.setColor(getColor());
-  g.fillOval(location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius());
-```
-We save and switch to our ball-window. We can not see any change, because the paint method was not triggered again yet. We enforce a repaint by grabbing the edge of the window with the mouse and make it a bit larger. Now we see the ball changing in size and position.
+
+    ![Ball is drawn on panel](./res/pics/ball_is_drawn.png)
+
+    We want to adjust the `paint(...)` method, so that the actual properties of the ball are used to draw and not the hard coded values. So we keep the window open again and switch to the IDE. We change the "paint"-method to:
+    ```java
+      g.setColor(getColor());
+      g.fillOval(location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius());
+    ```
+    We save and switch to our ball-window. We can not see any change, because the paint method was not triggered again yet. We enforce a repaint by grabbing the edge of the window with the mouse and make it a bit larger. Now we see the ball changing in size and position.
 
 12. We want to make the ball start moving and adjust the "BallPanel" code to:
-```java
-[...]
-public BallPanel() {
-    setPreferredSize(new Dimension(600, 400));
-    ball = new Ball(new Point(50,50), 8, 2);
-    
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        while (true) {
-          if (BallPanel.this.getParent().isVisible()) {
-            BallPanel.this.stepTheBall();
-          }
+  ```java
+  [...]
+  public BallPanel() {
+      setPreferredSize(new Dimension(600, 400));
+      ball = new Ball(new Point(50,50), 8, 2);
+      
+      new Thread(new Runnable() {
+        @Override
+        public void run() {
+          while (true) {
+            if (BallPanel.this.getParent().isVisible()) {
+              BallPanel.this.stepTheBall();
+            }
 
-          try {
-            Thread.sleep(20);
-          } catch (InterruptedException e) {
-            e.printStackTrace();
+            try {
+              Thread.sleep(20);
+            } catch (InterruptedException e) {
+              e.printStackTrace();
+            }
           }
         }
-      }
-  }).start();
-}
-  
-public void stepTheBall() {
-  ball.move();
-  repaint();
-}
-
-[...]
-```
-When saving, the notification pops up again, that Hot Code Replace is not possible. We terminate the running application.
-We adjust the code of "Ball" to:
-```java
-[...]
-public class Ball {
-  private Point location;
-  private int radius;
-  private int dx, dy;
-  private Color color;
-
-  public Ball(Point l, int directionX, int directionY){
-      location = l;
-      color = Color.RED;
-      radius = 16;
-      dx = directionX;
-      dy = directionY;
+    }).start();
+  }
+    
+  public void stepTheBall() {
+    ball.move();
+    repaint();
   }
 
-  public void move(){
-      getLocation().translate(dx, dy);
-  }
+  [...]
+  ```
+  When saving, the notification pops up again, that Hot Code Replace is not possible. We terminate the running application.
+  We adjust the code of "Ball" to:
+  ```java
+  [...]
+  public class Ball {
+    private Point location;
+    private int radius;
+    private int dx, dy;
+    private Color color;
 
-[...]
-```
+    public Ball(Point l, int directionX, int directionY){
+        location = l;
+        color = Color.RED;
+        radius = 16;
+        dx = directionX;
+        dy = directionY;
+    }
+
+    public void move(){
+        getLocation().translate(dx, dy);
+    }
+
+  [...]
+  ```
 
 13. We run the application again in "Debug"-mode by pressing "F11". We see the ball moving from the top left corner, to the right and leaving the window. To bounce the ball from the right side, we adjust the "stepTheBall"-method:
-```java
-public void stepTheBall() {
-  ball.move();
-  
-  Point position = ball.getLocation();
+    ```java
+    public void stepTheBall() {
+      ball.move();
+      
+      Point position = ball.getLocation();
 
-  if (position.x > getWidth()) {
+      if (position.x > getWidth()) {
+        ball.recflectVertical();
+      }
+
+      repaint();
+    }
+    ```
+    After saving a pop-up appears:
+
+    ![Confirm perspective switch](./res/pics/confirm_perspective_switch.png)
+
+    We choose "Yes". In the Debug-Perspective we can hover over the red-underlined code snippet `ball.recflectVertical();` to get the info, that this method is missing in class "Ball". We click on "Create method ...". In the class "Ball", we implement the method as follows:
+    ```java
+    public void recflectVertical() {
+        dx = -dx;       
+    }
+    ```
+    Saving leads again to the information that Hot Code Replace is not possible when adding methods. This time, we click "Restart", which terminates our running application and starts a new one with the new codebase afterwards. The ball bounces from the right side, but not from the others.
+
+14. We add the remaining checks:
+  ```java
+  public void stepTheBall() {
+      ball.move();
+      
+      Point position = ball.getLocation();
+
+      if (position.x > getWidth() || position.x < 0) {
+        ball.recflectVertical();
+      }
+
+      if (position.y > getHeight() || position.y < 0) {
+        ball.recflectHorizontal();
+      }
+      repaint();
+  }
+  ```
+  and add `recflectHorizontal()` to "Ball":
+  ```java
+  public void recflectHorizontal() {
+      dy = -dy;       
+  }
+  ```
+  Again we have to restart the application. Now the ball bounces from all sides.
+
+15. The bouncing does not look very nice, because the reflection is done based on the top left corner of the ball. We adjust the code of `stepTheBall()` to:
+  ```java
+  if (position.x + ball.getRadius() > getWidth() || position.x - ball.getRadius() < 0) {
     ball.recflectVertical();
   }
 
-  repaint();
-}
-```
-After saving a pop-up appears:
-![Confirm perspective switch](./res/pics/confirm_perspective_switch.png)
-We choose "Yes". In the Debug-Perspective we can hover over the red-underlined code snippet `ball.recflectVertical();` to get the info, that this method is missing in class "Ball". We click on "Create method ...". In the class "Ball", we implement the method as follows:
-```java
-public void recflectVertical() {
-    dx = -dx;       
-}
-```
-Saving leads again to the information that Hot Code Replace is not possible when adding methods. This time, we click "Restart", which terminates our running application and starts a new one with the new codebase afterwards. The ball bounces from the right side, but not from the others.
-
-14. We add the remaining checks:
-```java
-public void stepTheBall() {
-    ball.move();
-    
-    Point position = ball.getLocation();
-
-    if (position.x > getWidth() || position.x < 0) {
-      ball.recflectVertical();
-    }
-
-    if (position.y > getHeight() || position.y < 0) {
-      ball.recflectHorizontal();
-    }
-    repaint();
-}
-```
-and add `recflectHorizontal()` to "Ball":
-```java
-public void recflectHorizontal() {
-    dy = -dy;       
-}
-```
-Again we have to restart the application. Now the ball bounces from all sides.
-
-15. The bouncing does not look very nice, because the reflection is done based on the top left corner of the ball. We adjust the code of `stepTheBall()` to:
-```java
-if (position.x + ball.getRadius() > getWidth() || position.x - ball.getRadius() < 0) {
-  ball.recflectVertical();
-}
-
-if (position.y + ball.getRadius() > getHeight() || position.y - ball.getRadius() < 0) {
-  ball.recflectHorizontal();
-}
-```
-The changes are immediately visible without the need to restart.
+  if (position.y + ball.getRadius() > getHeight() || position.y - ball.getRadius() < 0) {
+    ball.recflectHorizontal();
+  }
+  ```
+  The changes are immediately visible without the need to restart.
 
 16. Now, we want to change the direction vector of our ball, so that it moves very slow, but without terminating the application. We place a breakpoint in the method `move()` by double clicking next to the line number. The debugger immediately holds at the breakpoint:
-![Breakpoint halt](./res/pics/breakpoint_halt.png)
-An overview which thread is currently halting at a Breakpoint together with the corresponding stack trace is visualized in den "Debug View":
-![Debug View Threads](./res/pics/debug_view_threads.png)
-Now, we hover over the variables `dx` and `dy` to view their current values:
-![Hover variable](./res/pics/hover_variable.png)
-We could also select `dx`, right-click the selection and click "Watch" in the context menu. This will open the "Expression View", where we can see the value of `dx`. However, we cannot change it.
-![Expression view](./res/pics/expression_view.PNG)
-To change the value of `dx`, we click on "Window" > "Show View" > "Variables" in the menu bar. In this view we expand "this" to see all fields of the current "Ball" instance:
-![Variables view](./res/pics/variables_view.png)
-Now we can double click into the "Value" column and change the value of `dx` to `1`. Then we remove the breakpoint by double clicking next to the line number in the editor and press "F8" to resume the execution.
-The ball is moving very slow now.
+
+    ![Breakpoint halt](./res/pics/breakpoint_halt.png)
+
+    An overview which thread is currently halting at a Breakpoint together with the corresponding stack trace is visualized in den "Debug View":
+
+    ![Debug View Threads](./res/pics/debug_view_threads.png)
+
+    Now, we hover over the variables `dx` and `dy` to view their current values:
+
+    ![Hover variable](./res/pics/hover_variable.png)
+
+    We could also select `dx`, right-click the selection and click "Watch" in the context menu. This will open the "Expression View", where we can see the value of `dx`. However, we cannot change it.
+
+    ![Expression view](./res/pics/expression_view.PNG)
+
+    To change the value of `dx`, we click on "Window" > "Show View" > "Variables" in the menu bar. In this view we expand "this" to see all fields of the current "Ball" instance:
+
+    ![Variables view](./res/pics/variables_view.png)
+
+    Now we can double click into the "Value" column and change the value of `dx` to `1`. Then we remove the breakpoint by double clicking next to the line number in the editor and press "F8" to resume the execution.
+    The ball is moving very slow now.
 
 17. Finally, we want to replace the single colored ball with an image of a football. We switch back to the "Java Perspective" and add a PNG image to our Java project's source folder named `ball.png`.
-![Adding image](./res/pics/add_image.png)
-At the moment, we do not know exactly, how to load and draw an image in Java and want to try out some ideas. We switch back to the "Debug Perspective" and set a breakpoint at `g.setColor(getColor());` in method `public void paint(Graphics g)` of class `Ball.java`.
-We press "F11" to start debugging.
-The execution stops at our breakpoint. To get a scrapbook- or workspace-like environment, we click in the menu bar "Window" > "Show View" > "Display". In this view we have access to all variables available in the context of the current executed method. We type `g.` and get some code completion suggestions. We type `g.image` to find a method which can draw an image.
-![Code completion for g.image](./res/pics/code_completion_image.png)
-We decide on the fifth entry which needs an instance of `Image`, the drawing position and width and height of the image.
-Now we need an instance of `Image`. We know that there is a class `ImageIO` which can read images. We type `ImageIO` and trigger code completion by pressing *Ctrl+Space* to get the full qualified name `javax.imageio.ImageIO` of the class. We trigger code completion again by typing `javax.imageio.ImageIO.read`. There is a method accepting an `InputStream`, which we will use.
-![Code completion for ImageIO.read](./res/pics/code_completion_imageio_read.png)
-To get an input stream for our image `ball.png` we can use the system class loader by typing `Ball.class.getResourceAsStream("ball.png")`. To test this code snippet, we select the whole line of code we want to execute and press *Ctrl+Shift+D*. The result is:
-![Evaluation of code creating an InputStream from ball.png](./res/pics/ball_image_loading_eval.png)
-Now, that we have a valid input stream, we can test drawing an image. We combine our code snippets to `g.drawImage(javax.imageio.ImageIO.read(Ball.class.getResourceAsStream("ball.png")), 10, 10, null)`, select the line of code and press *Ctrl+Shift+D*.
-![Evaluation of code drawing ball.png](./res/pics/ball_drawing_eval.png)
-The result is `(boolean) true` which means, that the drawing was successful. We switch to our running application but cannot see any image of a ball, because the actual drawing is not done yet. We press "F8" to continue execution. The program stops again at our breakpoint at `g.setColor(getColor());`. We switch again to our running application and now we see the image of the ball drawn at position (10, 10).
-![Application drawing ball.png](./res/pics/ball_image_drawn.png)
-Now we can replace the actual drawing code of method `public void paint(Graphics g)` with `g.drawImage(javax.imageio.ImageIO.read(Ball.class.getResourceAsStream("ball.png")), location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius(), null);`.
-The code is not valid yet and by hovering over the red-line code we see that a try-catch-statement is needed. We add it by selecting "Surround with try/catch".
-![Try-catch needed](./res/pics/add_try_catch.png)
-The drawing code looks like this:
-```java
-public void paint(Graphics g) {
-  try {
-    g.drawImage(javax.imageio.ImageIO.read(Ball.class.getResourceAsStream("ball.png")), location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius(), null);
-  } catch (IOException e) {
-    e.printStackTrace();
-  }
-}
-```
-Now we remove the breakpoint, save our changes and press "F8" to resume execution. The application is still running and we can switch to it and see the bouncing image of a ball.
-![Final application with image of ball drawn](./res/pics/ball_image_drawn_correctly.png)
+
+    ![Adding image](./res/pics/add_image.png)
+
+    At the moment, we do not know exactly, how to load and draw an image in Java and want to try out some ideas. We switch back to the "Debug Perspective" and set a breakpoint at `g.setColor(getColor());` in method `public void paint(Graphics g)` of class `Ball.java`.
+    We press "F11" to start debugging.
+    The execution stops at our breakpoint. To get a scrapbook- or workspace-like environment, we click in the menu bar "Window" > "Show View" > "Display". In this view we have access to all variables available in the context of the current executed method. We type `g.` and get some code completion suggestions. We type `g.image` to find a method which can draw an image.
+
+    ![Code completion for g.image](./res/pics/code_completion_image.png)
+
+    We decide on the fifth entry which needs an instance of `Image`, the drawing position and width and height of the image.
+    Now we need an instance of `Image`. We know that there is a class `ImageIO` which can read images. We type `ImageIO` and trigger code completion by pressing *Ctrl+Space* to get the full qualified name `javax.imageio.ImageIO` of the class. We trigger code completion again by typing `javax.imageio.ImageIO.read`. There is a method accepting an `InputStream`, which we will use.
+
+    ![Code completion for ImageIO.read](./res/pics/code_completion_imageio_read.png)
+
+    To get an input stream for our image `ball.png` we can use the system class loader by typing `Ball.class.getResourceAsStream("ball.png")`. To test this code snippet, we select the whole line of code we want to execute and press *Ctrl+Shift+D*. The result is:
+
+    ![Evaluation of code creating an InputStream from ball.png](./res/pics/ball_image_loading_eval.png)
+
+    Now, that we have a valid input stream, we can test drawing an image. We combine our code snippets to `g.drawImage(javax.imageio.ImageIO.read(Ball.class.getResourceAsStream("ball.png")), 10, 10, null)`, select the line of code and press *Ctrl+Shift+D*.
+
+    ![Evaluation of code drawing ball.png](./res/pics/ball_drawing_eval.png)
+
+    The result is `(boolean) true` which means, that the drawing was successful. We switch to our running application but cannot see any image of a ball, because the actual drawing is not done yet. We press "F8" to continue execution. The program stops again at our breakpoint at `g.setColor(getColor());`. We switch again to our running application and now we see the image of the ball drawn at position (10, 10).
+
+    ![Application drawing ball.png](./res/pics/ball_image_drawn.png)
+
+    Now we can replace the actual drawing code of method `public void paint(Graphics g)` with `g.drawImage(javax.imageio.ImageIO.read(Ball.class.getResourceAsStream("ball.png")), location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius(), null);`.
+    The code is not valid yet and by hovering over the red-line code we see that a try-catch-statement is needed. We add it by selecting "Surround with try/catch".
+
+    ![Try-catch needed](./res/pics/add_try_catch.png)
+
+    The drawing code looks like this:
+    ```java
+    public void paint(Graphics g) {
+      try {
+        g.drawImage(javax.imageio.ImageIO.read(Ball.class.getResourceAsStream("ball.png")), location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius(), null);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    ```
+    Now we remove the breakpoint, save our changes and press "F8" to resume execution. The application is still running and we can switch to it and see the bouncing image of a ball.
+    ![Final application with image of ball drawn](./res/pics/ball_image_drawn_correctly.png)
 
 ### Which activities are made live by which mechanisms?
 Step 11 of the example workflow shows the first liveness activity. The program is running in "Debug"-mode and we change code in the body of the `paint(...)` method. Saving these changes triggers Hot Code Replace (HCR). The method body of the `paint(...)` is replaced without restarting the application. But the change is only visible when the `paint`-method is triggered e.g. by resizing the window.
@@ -341,7 +373,9 @@ In step 17 we evaluated code snippets to explore the File-IO- and Image-drawing-
 
 ### Integration of live activities into overall system
 The Eclipse Debugger is seamlessly integrated into the Eclipse IDE. Eclipse provides a "Debug Perspective" consisting of a source code editor in the center, surrounded by different views to inspect VM-threads, variables and console output.
+
 ![Eclipse Debug Perspective with default configuration](./res/pics/debugger_perspective_default.png)
+
 The source code editor is the same as in the default "Java Perspective", i.e. when halting at a Breakpoint, you can inspect variables like in the "Debug Perspective" in step 16 by hovering over them with the mouse cursor. Debugging and using liveness features like Hot Code Replace is independent of the current "Perspective".
 
 ### Limitations
@@ -354,7 +388,9 @@ Another limitation is based on the requirement, that we need to halt a thread at
 The default JVM implementations (e.g. HotSpot and OpenJDK) of Java 8, which are optimized for speed and consistency, do not implement the full feature-set described in the JVM HotSwap specification. @RefKey[HotSwapSpec]
 
 The supported features can be inspected in Eclipse by opening the properties of a running VM:
+
 ![VM capabilities](./res/pics/vm_capabilities.PNG)
+
 We see that Hot Code Replace is supported, but method addition or arbitrary class redefinition is not supported by that Java HotSpot VM implementation.
 
 Further, HCR is also not possible when changing code of the last method on the stack (e.g. the main-method), because this stack frame cannot be popped to reenter the modified method afterwards.
@@ -370,7 +406,9 @@ State inspection and modification done by "Variables View" or "Expressions View"
 
 #### Code evaluation limitations
 Like state inspection/modification, code evaluation is only possible when a context is provided.
+
 If we want to do some trial-and-error coding without starting a dummy Java application in "Debug"-mode and placing a Breakpoint manually, we can use a "Scrapbook Page". It provides the same liveness features as the "Display View", but can be used as a standalone workspace to evaluate Java code. We click on "File" > "New" > "Other..." and in the wizard we select "Java" > "Java Run/Debug" > "Scrapbook Page" and click "Next". We enter a file name, e.g. "workspace" and click "Finish". An empty "Scrapbook Page" opens. We can enter arbitrary Java Code and evaluate it by selecting the code and pressing *Ctrl+Shift+D*.
+
 ![Scrapbook Page](./res/pics/scrapbook_page.png)
 
 ### What happens when the live parts of the system fail/break?
@@ -378,6 +416,7 @@ If we want to do some trial-and-error coding without starting a dummy Java appli
 
     Java has a built-in exception handling, allowing the Eclipse Debugger to halt execution when an unhandled exception is thrown in "Debug"-mode (e.g. an ArithmeticException caused by "division by zero"). If the the error can be fixed by modifying state via the "Variables View" or behavior via HCR, execution can be resumed.
     If HCR fails due to running into the limitations described before, e.g. adding a method, the Eclipse Debugger handles this exception by letting the developer choose from three options: Continue, Terminate and Restart.
+    
     ![Add method not implemented](./res/pics/hcr_failed_add_method_not_implemented.png)
     
       + Continue
@@ -390,10 +429,12 @@ If we want to do some trial-and-error coding without starting a dummy Java appli
       Restarts the debugging session, so that all code changes will be included in the new session, but all runtime state is lost.
 
 2. How can the system itself break? What happens when there is a failure in the system/tool itself?
-  In some cases, when saving invalid Java code (like invalid method signatures), the Eclipse Debugger is unable to properly handle these exceptions and can only notify the user via the Eclipse Debugger that something went wrong.
-  ![Exception unable to process](./res/pics/liveness_fails.PNG)
-  In such a case, the application freezes and you can only terminate the running application via the Eclipse Debugger.
-  The Debugger itself and the Eclipse IDE are still intact. Even if the application crashes on operating system level, the Eclipse IDE stays unharmed, because IDE an debugged application are running in separate JVMs and are therefore separate OS processes.
+    In some cases, when saving invalid Java code (like invalid method signatures), the Eclipse Debugger is unable to properly handle these exceptions and can only notify the user via the Eclipse Debugger that something went wrong.
+    
+    ![Exception unable to process](./res/pics/liveness_fails.PNG)
+    
+    In such a case, the application freezes and you can only terminate the running application via the Eclipse Debugger.
+    The Debugger itself and the Eclipse IDE are still intact. Even if the application crashes on operating system level, the Eclipse IDE stays unharmed, because IDE an debugged application are running in separate JVMs and are therefore separate OS processes.
 
 
 ### Left out features
@@ -418,33 +459,41 @@ The Eclipse Debugger is an immutable past tool. HCR only allows to replace behav
   Code evaluation is only possible when providing a context by pausing a thread of the application in "Debug"-mode. A thread is paused when reaching a Breakpoint. All other application threads and the Eclipse Debugger are kept running. When evaluating code snippets, the result is displayed immediately as long as the evaluated snippet has a sub-second execution time.
   We argue, that this is still liveness level 4, because Tanimoto writes:
   > In level 4, the computer wouldn’t wait but would keep running the program, modifying the behavior as specified by the programmer as soon as changes were made. @RefKey[Tanimoto2013PEL]
-  In general the Java program is kept running and the program evaluates the snippets as soon as the programmer triggers the evaluation by pressing a keyboard shortcut.
+  
+    In general the Java program is kept running and the program evaluates the snippets as soon as the programmer triggers the evaluation by pressing a keyboard shortcut.
   
 - Runtime state manipulation - Liveness level 4
   The argumentation for liveness level 4 is the same as for code evaluation. Runtime state manipulation is only possible when providing a context by pausing a thread, but the application and the Eclipse Debugger are kept running. A state modification is applied as soon as the programmer triggers the change, for example via the "Variables View".
 
 ### Steady Frame
 A Steady Frame is defined as:
->"[...] a way of organizing and representing a system or activity, such that (I) relevant variables can be seen and/ or manipulated at specific locations within the scene (the framing part), and (II) these variables are defined and presented so as to be constantly present and constantly meaningful (the steady part)." @RefKey[Hancock2003RTP]
+>[...] a way of organizing and representing a system or activity, such that (I) relevant variables can be seen and/ or manipulated at specific locations within the scene (the framing part), and (II) these variables are defined and presented so as to be constantly present and constantly meaningful (the steady part). @RefKey[Hancock2003RTP]
 
 The "Debug View" is a Steady Frame, because it displays constantly meaningful information about the state of the running application and its threads.
+
 ![Steady Frame Debug View](./res/pics/steady_frame_debug_view.PNG)
+
 When halting one thread at a Breakpoint, additional information, like the stack trace, are available.
+
 ![Steady Frame Debug View Breakpoint](./res/pics/steady_frame_debug_view_breakpoint.PNG)
 
 The "Variables View" and "Expression View" of the Eclipse Debugger can be seen as *frames* based on the formal definition. However, they are only *steady* when a context is provided, i.e. when halting at a Breakpoint.
 Without a context, these views do not show any runtime state information.
 The empty "Variables View":
+
 ![Steady Frame Variables View](./res/pics/steady_frame_variables_view.PNG)
 
 The "Expressions View" without values:
+
 ![Steady Frame Expressions View](./res/pics/steady_frame_expressions_view.PNG)
 
 When halting at a Breakpoint, they turn into Steady Frames.
 The filled "Variables View":
+
 ![Steady Frame Variables View Breakpoint](./res/pics/steady_frame_variables_view_breakpoint.PNG)
 
 The "Expressions View" with values:
+
 ![Steady Frame Expressions View Breakpoint](./res/pics/steady_frame_expressions_view_breakpoint.PNG)
 
 When the programmer expands the tree structure to explorer variables and values, this expansion state is kept when stepping through a method. Only when we step into another method or return from it, the tree is collapsed again.
