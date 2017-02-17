@@ -61,35 +61,35 @@ A good example to demonstrate live programming features and its limitations is c
 4. In the "Package Explorer" we right-click on our new project "BouncingBall" and choose "New" > "Class". In the opening Dialog we enter the name "Main" and select the checkbox "public static void main(String[] args)" and click "Finish"
 5. We add three more classes, but leaving the checkbox for creating a main method unchecked. The classes are "Ball", "BallPanel" and "BallDialog"
 6. We select the class "Ball" and add some fields and methods to it by adjusting (in the following, "adjusting" always means writing the code and saving the changes by pressing *Ctrl+S*) the code like this:
-```java
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Point;
+  ```java
+  import java.awt.Color;
+  import java.awt.Graphics;
+  import java.awt.Point;
 
-public class Ball {
-  private Point location;
-  private int radius;
-  private Color color;
+  public class Ball {
+    private Point location;
+    private int radius;
+    private Color color;
 
-  public Ball(Point l){
-      location = l;
-      color = Color.RED;
-      radius = 16;
+    public Ball(Point l){
+        location = l;
+        color = Color.RED;
+        radius = 16;
+    }
+
+    public Point getLocation() {
+        return location;
+    }
+
+    public int getRadius() {
+        return radius;
+    }
+
+    public Color getColor() {
+        return color;
+    }
   }
-
-  public Point getLocation() {
-      return location;
-  }
-
-  public int getRadius() {
-      return radius;
-  }
-
-  public Color getColor() {
-      return color;
-  }
-}
-```
+  ```
 By default, "Build Automatically" is enabled in Eclipse, so that saving changes triggers an incremental build process in the background automatically.
 
 7. Now we want to draw a ball, so we need some code to create a Window in Java. We adjust the class "Main" to:
