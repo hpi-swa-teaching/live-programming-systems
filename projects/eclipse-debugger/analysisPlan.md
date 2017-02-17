@@ -510,6 +510,7 @@ The liveness of the Eclipse Debugger is implemented in different layers. At the 
 >Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
 The sample code snippets shown in the following belong to the Eclipse git repository `git://git.eclipse.org/gitroot/platform/eclipse.platform.releng.aggregator.git` and its submodules with revision tag `Y20170105-1040`.
+We simplified the code snippets to highlight the most important parts by leaving out unimportant lines (indicated by '...'). These snippets are only a glimpse into the complex implementation of the Eclipse Debugger and we do not claim it to be complete.
 
 #### Hot Code Replace
 Changing a method's body and saving the corresponding class file triggers a recompilation of the file. The resulting bytecode is submitted via a debug channel to the JVM of the running application. There, the bytecode of the affected method body is replaced on the fly. No restart is required.
@@ -554,7 +555,7 @@ private void redefineTypesJDK(JDIDebugTarget target, List<IResource> resources,
 }
 ```
 
-The next code snippet shows the simplified method `doHotCodeReplace` which calls `redefineTypesJDK` shown above. It also notifies listeners, if HCR has succeeded or failed. It is also part of the class `JavaHotCodeReplaceManager`
+The next code snippet shows the method `doHotCodeReplace` which calls `redefineTypesJDK` shown above. It also notifies listeners, if HCR has succeeded or failed. It is also part of the class `JavaHotCodeReplaceManager`
 
 ```java
 /**
@@ -695,7 +696,7 @@ Corresponding Java file: http://git.eclipse.org/c/gerrit/jdt/eclipse.jdt.debug.g
  *  or setting the variable's value
  */
 protected void setValue(final IVariable variable, final String expression){
-    UIJob job = new UIJob("Setting Variable Value"){ //$NON-NLS-1$
+    UIJob job = new UIJob("Setting Variable Value"){ 
         @Override
         public IStatus runInUIThread(IProgressMonitor monitor) {
             try {
@@ -717,10 +718,10 @@ protected void setValue(final IVariable variable, final String expression){
 ```
 
 #### Code evaluation
-The "Display View", the "Scrapbook Page" and the code editor allow evaluating code snippets when a context is provided. When pressing a keyboard shortcut while a code snippet is selected, the Debugger submits the snippet via the debugging channel to another JVM to evaluate it in the context of a paused thread of that JVM. Therefore a Breakpoint is needed. The "Display View" and the code editor allow evaluating code snippets only when the application is already halting at a Breakpoint defined by the programmer. The "Scrapbook Page" requires also a Breakpoint, but solves this problem by starting a dummy application in a separate JVM and setting a Breakpoint automatically the first time the programmer triggers a snippet evaluation.
+The "Display View", the "Scrapbook Page" and the code editor allow evaluating code snippets when a context is provided. When pressing a keyboard shortcut while a code snippet is selected, the Debugger submits the snippet via the debugging channel to another JVM to evaluate it in the context of a paused thread of that JVM. Therefore a Breakpoint is needed. The "Display View" and the code editor allow evaluating code snippets only when the application is already halting at a Breakpoint defined by the programmer. The "Scrapbook Page" requires also a Breakpoint, but solves this problem by starting a dummy application in a separate JVM and setting a Breakpoint automatically the first time the programmer triggers a snippet evaluation. The result of the evaluation is transfered back to the calling JVM so that the Eclipse Debugger can display the result finally.
 
 **Abstract form**
-Code evaluation is done via the debugging channel to another JVM by evaluate a code snippet in the context of a paused thread of that JVM.
+Code evaluation is done by sending code snippets via the debugging channel to another JVM. There the code snippet is evaluated in the context of a paused thread of that JVM. The result is sent back to the calling JVM.
 
 **Implementation reference**
 The codebase for evaluating code snippets is the same for the "Display View", the "Scrapbook page" and the code editor. "Display View" and "Scrapbook Page" also share the same `JavaSnippetEditor` implementation in package `org.eclipse.jdt.internal.debug.ui.snippeteditor`. The following code snippet shows the method `evalSelection`. It starts the evaluation process by launching a separate JVM if there is none available from a running debugging session and finally triggers the evaluation engine of the other JVM.
@@ -758,10 +759,101 @@ public void evalSelection(int resultMode) {
 }
 ```
 
-#### Example: Scrubbing
->The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
+The following code snippet shows parts of the "Scrapbook Page" implementation to start a separate JVM to provide an evaluation context.
+First of all, the class `ScrapbookLauncher` in package `org.eclipse.jdt.internal.debug.ui.snippeteditor` is responsible for managing the separate JVM.
+Corresponding Java file: http://git.eclipse.org/c/gerrit/jdt/eclipse.jdt.debug.git/tree/org.eclipse.jdt.debug.ui/ui/org/eclipse/jdt/internal/debug/ui/snippeteditor/ScrapbookLauncher.java?h=Y20170105-1040
 
->Abstract form: Scrubbing is enabled through incremental compilation which enables quick recompilation of parts of an application...
+```java
+  /**
+   * Launches a VM for the given scrapbook page, in debug mode.
+   * Returns an existing launch if the page is already running.
+   * @param page the scrapbook page file
+   * 
+   * @return resulting launch, or <code>null</code> on failure
+   */
+  protected ILaunch launch(IFile page) {
+              
+    ...
+    
+    IDebugTarget vm = getDebugTarget(page);
+    if (vm != null) {
+      //already launched
+      return vm.getLaunch();
+    }
+    
+    IJavaProject javaProject= JavaCore.create(page.getProject());
+      
+    URL jarURL = null;
+    try {
+      jarURL = JDIDebugUIPlugin.getDefault().getBundle().getEntry("snippetsupport.jar"); 
+      jarURL = FileLocator.toFileURL(jarURL);
+    } catch (...) {
+      ...
+    }
+    
+    List<IRuntimeClasspathEntry> cp = ...
+    try {
+      ...
+      IRuntimeClasspathEntry[] classPath = ...
+      
+      return doLaunch(javaProject, page, classPath, jarFile);
+    } catch (CoreException e) {
+      JDIDebugUIPlugin.errorDialog("Unable to launch scrapbook VM", e); 
+    }
+    return null;
+  }
+```
+
+The next snippet shows the class `ScrapbookMain` in package `org.eclipse.jdt.internal.debug.ui.snippeteditor`. It implements the `main` method containing the eval-loop and the method `nop` where a Breakpoint is set by the `ScrapbookLauncher` to halt thread execution to get a context for code evaluation.
+Corresponding Java file: http://git.eclipse.org/c/gerrit/jdt/eclipse.jdt.debug.git/tree/org.eclipse.jdt.debug.ui/Snippet%20Support/org/eclipse/jdt/internal/debug/ui/snippeteditor/ScrapbookMain.java?h=Y20170105-1040
+
+```java
+/**
+ * Support class for launching a snippet evaluation.
+ * ...
+ */
+public class ScrapbookMain {
+  
+  public static void main(String[] args) {
+
+    URL[] urls= getClasspath(args);
+    if (urls == null) {
+      return;
+    }
+    
+    while (true) {
+      try {
+        evalLoop(urls);
+      } catch (...) {
+        ...;
+      }
+    }
+  
+  }
+  
+  static void evalLoop(URL[] urls) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    ...
+    ClassLoader cl= new URLClassLoader(urls, null);
+    Class<?> clazz= cl.loadClass("org.eclipse.jdt.internal.debug.ui.snippeteditor.ScrapbookMain1"); 
+    Method method= clazz.getDeclaredMethod("eval", new Class[] {Class.class}); 
+    method.invoke(null, new Object[] {ScrapbookMain.class});
+  }
+  
+  /**
+   * The magic "no-op" method, where {@link org.eclipse.jdt.internal.debug.ui.snippeteditor.ScrapbookLauncher#createMagicBreakpoint(String)} sets a
+   * breakpoint.
+   * <p>
+   */
+  public static void nop() {
+    try {
+      Thread.sleep(100);
+    } catch(InterruptedException e) {
+    }
+  }
+  
+  ...
+}
+```
 
 ### Within or outside of the application
 >For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
