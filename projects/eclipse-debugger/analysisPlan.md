@@ -888,8 +888,9 @@ The available liveness features depend on the debugger's and the application's J
 ## Benchmark
 ### Unit of change
   For the Eclipse Debugger, there are two relevant units of change when running an application in "Debug"-mode:
-    1. Method bodies
-    2. Variables when halting at a Breakpoint
+
+  1. Method bodies
+  2. Variables when halting at a Breakpoint
 
 ### Relevant operations
   Modify is the only possible operation (see limitations of Hot Code Replace).
@@ -1006,11 +1007,14 @@ The available liveness features depend on the debugger's and the application's J
   ```
 
 ### Results for adaptation and emergence phase
+
 1. Method bodies
-  Adaptation time: ~200-400ms
-  Emergence time: Depending on application code. In our case ~1-20ms, because stepping is triggered every 20 ms.
-  The following chart shows the average adaptation time (save+compile, Hot Code Replace) and the emergence part for 10 manual measurements.
-  ![Benchmark Hot Code Replace](./res/pics/benchmark_hcr.PNG)
+    Adaptation time: ~200-400ms
+    Emergence time: Depending on application code. In our case ~1-20ms, because stepping is triggered every 20 ms.
+    The following chart shows the average adaptation time (save+compile, Hot Code Replace) and the emergence part for 10 manual measurements.
+    
+    ![Benchmark Hot Code Replace](./res/pics/benchmark_hcr.PNG)
+
 2. Variables when halting at a Breakpoint
   Adaptation time: ~20-100ms
   Emergence time: -
