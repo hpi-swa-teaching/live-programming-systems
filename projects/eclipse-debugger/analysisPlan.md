@@ -1,69 +1,74 @@
 ---
-title: Eclipse debugger
+title: Eclipse Debugger
 author: Daniel Stolpe
 bibliography: refs.bib
 ---
 
 # Live Programming Seminar
 - Your Name: Daniel Stolpe
-- Your Topic: Eclipse Java debugger
-
->Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
+- Your Topic: Eclipse Debugger (Java)
 
 ## About the System itself
->Summary of system properties
-
 Eclipse provides IDEs and platforms for many languages and architectures. Eclipse is famous for their Java IDE, C/C++, JavaScript and PHP IDEs built on extensible platforms for creating desktop, Web and cloud IDEs. The Eclipse IDEs are open-source. @RefKey[EclipseOrg]
+
 Eclipse was inspired by the Smalltalk-based VisualAge family of IDEs. @RefKey[EclipseFAQWhereFrom]
+
 The Eclipse Project was originally created by IBM in November 2001 and supported by a consortium of software vendors. The Eclipse Foundation was created in January 2004 as an independent not-for-profit corporation to act as the steward of the Eclipse community. @RefKey[EclipseOrgOrg]
+
+The Java Debugger is part of the "Java Development Tools (JDT) Debug" project. It is implemented on top of the language independent "debug model" provided by the platform debugger which provides language independent facilities for launching programs, source code lookup, breakpoints and debugging UI. @RefKey[EclipseDebug]
+
+Talking about the Eclipse Debugger in the following always relates to the Java Debugger.
 
 ### System boundaries
 >What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
 
-We are focusing on the Java Debugger of the Eclipse Java IDE. The Java Debugger is part of the "Java Development Tools (JDT) Debug" project. It is implemented on top of the language independent "debug model" provided by the platform debugger which provides language independent facilities for launching programs, source code lookup, breakpoints and debugging UI. @RefKey[EclipseDebug]
-We use Java 1.8.0 update 112 as Virtual Machine for running Eclipse itself and the sample application we develop.
+We focus on parts of the Eclipse Debugger, which are facilitating liveness. These are the graphical tools allowing to inspect and modify runtime state, to modify runtime behavior and to evaluate code snippets at runtime. Although these features depend on the available features of the underlying JVM, we focus only on the Eclipse Debugger implementation.
+
+The "Scrapbook Page" does not directly belong to the Eclipse Debugger, but we also look at that concept and implementation, because it fits in the context of liveness and builds upon the same code like some tools of the Eclipse Debugger.
 
 ### Context
-  - In which context is the system used?
-    The Eclipse Java debugger is used for debugging Java applications during development within Eclipse or debugging arbitrary Java applications remotely.
-     
-  - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
-    The Eclipse Java debugger or the Eclipse Java IDE is not used by a specific user group. Amateurs and students use it to learn coding, professional developers use it to build small and large scale applications. Especially for unexperienced developers, the IDE is useful to immediately see syntactical errors and suggestions on how to fix them. Also code completion features help to explore and find classes and methods. The debugger is useful for every user group to understand and debug runtime behavior.
+The Eclipse Debugger is used in software development by a single person in front of one computer. It is often used by professional developers in companies, but also by amateurs and students at home, in university classes or schools.
 
 ### General Application Domain
-There are different Eclipse IDEs for different programming languages and different purposes. Mainly, these IDEs are used to build desktop, Web and Cloud applications. The Eclipse Java Debugger is used to support the creation of these applications by providing a graphical debugger.
+The Eclipse Debugger is used for debugging Java applications graphically. The user wants to understand the runtime behavior of an application, mostly to find bugs. This is supported by graphical tools to set Breakpoints, inspect variables and watch expressions. With its liveness features like Hot Code Replace, code evaluation and variable modification it can also be used for limited experimental development and iterative trial-and-error coding.
+The debugged application can run locally or on a remote computer.
 
 ### Design Goals of the System
 >What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
 
-Eclipse is a community for individuals and organizations who wish to collaborate on commercially-friendly open source software. Its projects are focused on building an open development platform comprised of extensible frameworks, tools and runtimes for building, deploying and managing software across the lifecycle. An important aspect of Eclipse is the focus on enabling the use of open source technology in commercial software products and services. @RefKey[EclipseOrgOrg]
+The Eclipse Debugger is mainly designed to interactively debug any kind of Java applications to find bugs faster and increase productivity. Therefore, the different graphical tools to inspect runtime state etc. are pluggable to allow customization to keep only those tools in direct view of the programmer which he needs for his current task.
+
+Many typical features needed to debug an application, like showing the current value of a variable or setting Breakpoints, are also available directly in the code editor via mouse interaction or keyboard shortcuts. This shall help the the programmer to stay focused on one view.
+
+To allow some experimental development and iterative-trial-and-error coding with Java, the Eclipse Debugger provides Hot Code Replace to change runtime behavior without the need to restart a program. This shall also improve productivity by avoiding lots of restarts, especially for long running programs like servers or other applications with significant boot times or important runtime state.
+
+Scrapbook pages allow additional interactive code snippet evaluation. @RefKey[EclipseDebug]
+
+The Eclipse Debugger is not designed to develop a whole application at runtime.
 
 ### Type of System
-*What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?*
-The Eclipse Java Debugger is an interactive debugger which provides the following debugging functionality @RefKey[EclipseDebug]:
+>What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
 
-  - Launching of a Java VM in either run or debug mode
-  - Attaching to a running Java VM
-  - Expression evaluation in the context of a stack frame
-  - Scrapbook pages for interactive Java code snippet evaluation
-  - Dynamic class reloading where supported by Java virtual machine (since Java 1.4)
+The Eclipse Debugger is an interactive, graphical debugger for Java applications.
 
 ---
 
 ## Workflows
-Writing code in Eclipse is supported by syntax highlighting, code completion and lots of other feedback mechanisms to detect syntactical errors. The views and tools are pluggable so that you can adjust the IDE to your needs. When debugging, the Eclipse Debugger provides some liveness features to replace code of methods and lots of different ways to inspect runtime state. These features are mainly used to find bugs faster, but not to develop applications at runtime. In following exemplary workflow, we try to develop the application as live as possible, keeping the application running as long as possible while writing the source code.
+Although the Eclipse Debugger is not designed to develop a whole application at runtime, we try to develop it as live as possible in the following exemplary workflow. Therefore, we keep the application running as long as possible while writing the source code. This helps to illustrate the possibilities and limitations of live programming with the Eclipse Debugger.
+
+We use a Java Virtual Machine version 1.8.0 update 112 for running Eclipse Neon.1a Release (4.6.1) and the sample application we develop.
 
 ### Example Workflow
 >Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
 
 A good example to demonstrate live programming features and its limitations is creating a bouncing ball simulation with Java 2D drawing features.
 
-1. We start Eclipse (in this test case Neon.1a Release (4.6.1))
+1. We start Eclipse
 2. We choose from the menu bar "File" > "New" > "Java Project"
 3. We choose a project name, e.g. "BouncingBall" and click "Finish"
 4. In the "Package Explorer" we right-click on our new project "BouncingBall" and choose "New" > "Class". In the opening Dialog we enter the name "Main" and select the checkbox "public static void main(String[] args)" and click "Finish"
 5. We add three more classes, but leaving the checkbox for creating a main method unchecked. The classes are "Ball", "BallPanel" and "BallDialog"
-6. We select the class "Ball" and add some fields and methods to it by adjusting (in the following, "adjusting" always is writing the code and saving the changes by pressing *Ctrl+S*) the code like this:
+6. We select the class "Ball" and add some fields and methods to it by adjusting (in the following, "adjusting" always means writing the code and saving the changes by pressing *Ctrl+S*) the code like this:
 ```java
 import java.awt.Color;
 import java.awt.Graphics;
@@ -93,6 +98,7 @@ public class Ball {
   }
 }
 ```
+By default, "Build Automatically" is enabled in Eclipse, so that saving changes triggers an incremental build process in the background automatically.
 
 7. Now we want to draw a ball, so we need some code to create a Window in Java. We adjust the class "Main" to:
 ```java
@@ -140,7 +146,7 @@ public class BallPanel extends JPanel {
 ```
 
 9. We right-click on the class "Main" and select "Debug As" > "1 Java Application". A Window opens, but no ball is visible yet.
-10. We need to add the actual drawing methods, so keeping the window open, we switch to the Eclipse IDE and add the following method to "BallPanel":
+10. We need to add the actual drawing methods. Keeping the window open, we switch to the Eclipse IDE and add the following method to "BallPanel":
 ```java
   @Override
   public void paint(Graphics g){
@@ -148,9 +154,11 @@ public class BallPanel extends JPanel {
       ball.paint(g);
   }
 ```
-"Graphics" is unknown to the compiler, so we press *Ctrl+Shift+O* to organize our imports and select "java.awt.Graphics". We save our changes which leads to the following pop-up:
+Although we have not saved our changes yet, the Eclipse syntax check detects "Graphics" as an unknown type and underlines it red.
+![Graphics cannot be resolved to a type](./res/pics/graphics_unknown.PNG)
+So we press *Ctrl+Shift+O* to organize our imports and select "java.awt.Graphics". We save our changes which leads to the following pop-up:
 ![HCR failed - Add method not implemented](./res/pics/hcr_failed_add_method_not_implemented.png)
-We click "Terminate", because we need to add more methods. We need to implement the paint-method for the class "Ball". We hover with the mouse cursor over the red-underlined code snippet "ball.paint(g);" and select from the displayed pop-up "Create method ...". Now we can add the following code to the auto generated method and save the changes:
+We click "Terminate" to close the running application, because we need to add more methods. We still need to implement the paint-method for the class "Ball". We hover with the mouse cursor over the red-underlined code snippet "ball.paint(g);" and select from the displayed pop-up "Create method ...". Now we can add the following code to the auto generated method and save the changes:
 ```java
   g.setColor(getColor());
   g.fillOval(100, 100, 50, 50);
@@ -244,7 +252,7 @@ public void recflectVertical() {
     dx = -dx;       
 }
 ```
-Saving leads again to the information that Hot Code Replace is not possible when adding methods. This time, we click "Restart". The ball bounces from the right side, but not from the others.
+Saving leads again to the information that Hot Code Replace is not possible when adding methods. This time, we click "Restart", which terminates our running application and starts a new one with the new codebase afterwards. The ball bounces from the right side, but not from the others.
 
 14. We add the remaining checks:
 ```java
@@ -285,9 +293,11 @@ The changes are immediately visible without the need to restart.
 
 16. Now, we want to change the direction vector of our ball, so that it moves very slow, but without terminating the application. We place a breakpoint in the method `move()` by double clicking next to the line number. The debugger immediately holds at the breakpoint:
 ![Breakpoint halt](./res/pics/breakpoint_halt.png)
-We can hover over the variables `dx` and `dy` to view their current values:
+An overview which thread is currently halting at a Breakpoint together with the corresponding stack trace is visualized in den "Debug View":
+![Debug View Threads](./res/pics/debug_view_threads.png)
+Now, we hover over the variables `dx` and `dy` to view their current values:
 ![Hover variable](./res/pics/hover_variable.png)
-We could also select `dx`, right-click the selection and click "Watch" in the context menu. This will open the "Expression View", where we can see the value of `dx`. Unfortunately we cannot change it.
+We could also select `dx`, right-click the selection and click "Watch" in the context menu. This will open the "Expression View", where we can see the value of `dx`. However, we cannot change it.
 ![Expression view](./res/pics/expression_view.PNG)
 To change the value of `dx`, we click on "Window" > "Show View" > "Variables" in the menu bar. In this view we expand "this" to see all fields of the current "Ball" instance:
 ![Variables view](./res/pics/variables_view.png)
@@ -325,9 +335,6 @@ public void paint(Graphics g) {
 Now we remove the breakpoint, save our changes and press "F8" to resume execution. The application is still running and we can switch to it and see the bouncing image of a ball.
 ![Final application with image of ball drawn](./res/pics/ball_image_drawn_correctly.png)
 
-18. Now we want to show another tool, the "Scrapbook Page", which has not fit into the workflow shown above. It provides the same liveness features like the "Display View", but can be used as a standalone workspace to evaluate Java code. We click on "File" > "New" > "Other..." and in the wizard we select "Java" > "Java Run/Debug" > "Scrapbook Page" and click "Next". We enter a file name, e.g. "workspace" and click "Finish". An empty "Scrapbook Page" opens. We can enter arbitrary Java Code and evaluate it by selecting the code and pressing *Ctrl+Shift+D*.
-![Scrapbook Page](./res/pics/scrapbook_page.png)
-
 ### Which activities are made live by which mechanisms?
 >Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
 - Actual interactions
@@ -335,19 +342,16 @@ Now we remove the breakpoint, save our changes and press "F8" to resume executio
 - If applicable: How is the emergence phase shortened?
 - Granularity: For example: Elm can only rerun the complete application
 
-Step 11 of the example workflow shows the first liveness activity. The program is running in "Debug"-mode and we change code in the body of the `paint(...)` method. Saving these changes via the Eclipse Debugger triggers Hot Code Replace (HCR). The method body of the `paint(...)` is replaced without restarting the application. But the change is only visible when the `paint`-method is triggered e.g. by resizing the window.
+Step 11 of the example workflow shows the first liveness activity. The program is running in "Debug"-mode and we change code in the body of the `paint(...)` method. Saving these changes triggers Hot Code Replace (HCR). The method body of the `paint(...)` is replaced without restarting the application. But the change is only visible when the `paint`-method is triggered e.g. by resizing the window.
 
 In step 15, HCR is triggered again by saving a Java file. This change is immediately visible, due to stepping implemented via a separate Thread which enforces a repaint every 20ms, which provides immediate visual feedback for the programmer.
 
-In step 16, a Breakpoint pauses the execution of threads at a specific line of code. The Eclipse debugger allows us to inspect the state of the stack trace of the paused thread, e.g. by hovering over a variable to see its value in a pop-up window. If the value is an object, it is displayed via its `toString()` method. Furthermore the object's instance variables are displayed in a foldable tree structure, but without the ability to change them.
-Next, we open a "Variables View" to examine all local variables available in the current stack frame including `this`. We also open the "Expressions View" to watch the resulting value of arbitrary valid Java expressions as long as the thread is paused.
+In step 16, a Breakpoint pauses the execution of threads at a specific line of code. In the "Debug View" we see an overview of all running and paused threads. The Eclipse Debugger allows us to inspect the state of the stack trace of a paused thread, e.g. by hovering over a variable in the code editor to see its value in a pop-up window. If the value is an object, it is displayed via its `toString()` method. Furthermore the object's instance variables are displayed in a foldable tree structure, but without the ability to change them.
+Next, we open the "Expressions View" to watch the resulting value of arbitrary valid Java expressions as long as the thread is paused. We also open a "Variables View" to examine all local variables available in the current stack frame including `this`. 
 
 In step 16 we also modify runtime state via the "Variables View".
 
-In step 17 we evaluated code snippets to explore the File-IO- and Image-drawing-API. Runtime state manipulation and code evaluation via the Eclipse debugger are only possible because a context (variables of the current stack frame) is provided when pausing execution.
-
-In step 18 we evaluated code snippets in a "Scrapbook Page". The first time we evaluate a code snippet, a separate JVM process is started to provide the runtime context. We can see this process in the "Debug View".
-![Scrapbook Page process](./res/pics/scrapbook_page2.png)
+In step 17 we evaluated code snippets to explore the File-IO- and Image-drawing-API. Runtime state manipulation and code evaluation via the Eclipse Debugger are only possible because a context (variables of the current stack frame) is provided when pausing execution.
 
 ### Integration of live activities into overall system
 >Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
@@ -357,49 +361,58 @@ In step 18 we evaluated code snippets in a "Scrapbook Page". The first time we e
 The Eclipse Debugger is seamlessly integrated into the Eclipse IDE. Eclipse provides a "Debug Perspective" consisting of a source code editor in the center, surrounded by different views to inspect VM-threads, variables and console output.
 ![Eclipse Debug Perspective with default configuration](./res/pics/debugger_perspective_default.png)
 The source code editor is the same as in the default "Java Perspective", i.e. when halting at a Breakpoint, you can inspect variables like in the "Debug Perspective" in step 16 by hovering over them with the mouse cursor. Debugging and using liveness features like Hot Code Replace is independent of the current "Perspective".
-If no context is provide by halting at a Breakpoint, the features to inspect state are disabled, i.e. the "Variables View" and "Expressions View" are empty.
-
 
 ### Limitations
->To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
-Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
+#### Conceptual limitations
+A conceptional limitation to live programming with the Eclipse Debugger (or Java in general) is the differentiation between running an application in "Run"- or "Debug"-mode. When starting in "Run"-mode, no debugging features are available, i.e. Hot Code Replace or state inspection/modification via Breakpoints is not possible.
 
-A conceptional limitation to live programming with Eclipse (or Java in general) is the differentiation between running an application in Default- or "Debug"-mode. When starting in "Run"-mode, no debugging features are available, i.e. Hot Code Replace or state inspection/modification via Breakpoints is not possible.
+Another limitation is based on the requirement, that we need to halt a thread at a Breakpoint, to inspect/modify runtime state. Finding the relevant context to put that Breakpoint can be difficult. E.g. if we want to change the speed of the bouncing ball, we have to find the relevant lines of code which provide access to a reference of the ball. When found, execution still has to reach this Breakpoint. This might be no problem in a small application, but the more complex a system becomes, the more difficult it will be to find the relevant lines of code.
 
-When running in "Debug"-mode, there are still some limitations which we describe in the following, regarding the example workflow.
+#### Hot Code Replace limitations
+The default JVM implementations (e.g. HotSpot and OpenJDK) of Java 8, which are optimized for speed and consistency, do not implement the full feature-set described in the JVM HotSwap specification. @RefKey[HotSwapSpec]
 
-In step 10 and 12 Hot Code Replace is not applicable, because adding methods is not implemented in the JVM of Java 8 and earlier. @RefKey[EclipseFAQHCR]
-In step 13 and 14 HCR is again not possible for the same reasons, but we chose to restart the application with one click instead of terminating it.
-
-The default JVM implementations (e.g. HotSpot and OpenJDK) of Java 8, which are optimized for speed and consistency, do not implement the full feature-set described in the JVM HotSwap specification (@RefKey[HotSwapSpec]).
 The supported features can be inspected in Eclipse by opening the properties of a running VM:
 ![VM capabilities](./res/pics/vm_capabilities.PNG)
-In the image we see that Hot Code Replace is supported, but method addition or arbitrary class redefinition is not supported by that Java HotSpot VM implementation.
-In general HCR is also not possible when altering code of the last method on the stack (e.g. the main-method), because this stack frame cannot be popped to reenter the modified method afterwards.
+We see that Hot Code Replace is supported, but method addition or arbitrary class redefinition is not supported by that Java HotSpot VM implementation.
 
-Another limitation is also based on the fact, that execution needs to halt at a Breakpoint, to inspect/modify state. Finding the relevant context to put the Breakpoint can be difficult. E.g. if we want to change the speed of the bouncing ball, we have to find the relevant lines of code which provides access to a reference of the ball. When found, execution still has to reach this Breakpoint. This might be no problem in a small application, but the more complex a system becomes, the more difficult it will be to find the right lines of code.
+Further, HCR is also not possible when changing code of the last method on the stack (e.g. the main-method), because this stack frame cannot be popped to reenter the modified method afterwards.
+
+The project DCEVM (Dynamic Code Evolution VM) @RefKey[DCEVM] shows an approach to eliminate these limitations. Their developers promise:
+>Dynamic Code Evolution VM allows unlimited redefinition of loaded classes at runtime by patching the Java default VM. @RefKey[DCEVM]
+
+However the advanced liveness feature-set has a downside:
+>DCEVM executes deoptimization (purge of code cache) after any class redefinition. It decreases JVM's performance (after redefinition). This is especially a problem on large scale projects with significant number of classes. @RefKey[DCEVMGitHub]
+
+#### State inspection/modification limitations
+State inspection and modification done by "Variables View" or "Expressions View" is depending on a context. We need to explicitly place a Breakpoint to pause a thread. Otherwise they display no state.
+
+#### Code evaluation limitations
+Like state inspection/modification, code evaluation is only possible when a context is provided.
+If we want to do some trial-and-error coding without starting a dummy Java application in "Debug"-mode and placing a Breakpoint manually, we can use a "Scrapbook Page". It provides the same liveness features as the "Display View", but can be used as a standalone workspace to evaluate Java code. We click on "File" > "New" > "Other..." and in the wizard we select "Java" > "Java Run/Debug" > "Scrapbook Page" and click "Next". We enter a file name, e.g. "workspace" and click "Finish". An empty "Scrapbook Page" opens. We can enter arbitrary Java Code and evaluate it by selecting the code and pressing *Ctrl+Shift+D*.
+![Scrapbook Page](./res/pics/scrapbook_page.png)
 
 
 ### What happens when the live parts of the system fail/break?
 1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
 
     Java has a built-in exception handling, allowing the Eclipse Debugger to halt execution when an unhandled exception is thrown in "Debug"-mode (e.g. an ArithmeticException caused by "division by zero"). If the the error can be fixed by modifying state via the "Variables View" or behavior via HCR, execution can be resumed.
-    If HCR fails due to running into the limitations described before, e.g. adding a method, the Eclipse debugger handles this exception by letting the developer choose from three options: Continue, Terminate and Restart.
+    If HCR fails due to running into the limitations described before, e.g. adding a method, the Eclipse Debugger handles this exception by letting the developer choose from three options: Continue, Terminate and Restart.
     ![Add method not implemented](./res/pics/hcr_failed_add_method_not_implemented.png)
     
       + Continue
-      The developer can continue the execution, but there are no valid debug information for the changed stack frames available. You can continue stepping into and over method calls or resume normal code execution, but the changes made to the main method, will not take place, until restarting the debugging session.
+      The developer can safely continue the execution using the old, unchanged codebase. The changes made will not become active until restarting the debugging session and therefore the whole application.
 
       + Terminate
-      Stops the current debugging session.
+      Stops the current debugging session and terminates the application.
 
       + Restart
-      Restarts the debugging session, so that all changes will be included in the new session.
+      Restarts the debugging session, so that all code changes will be included in the new session, but all runtime state is lost.
 
 2. How can the system itself break? What happens when there is a failure in the system/tool itself?
-    In some cases, when saving invalid Java code (like invalid method signatures), the Eclipse debugger is unable to properly handle these exceptions and can only notify the user via the Eclipse Debugger that something went wrong.
-    ![Exception unable to process](./res/pics/liveness_fails.PNG)
-    In such a case, the application freezes and you can only terminate the running application via the Eclipse debugger.
+  In some cases, when saving invalid Java code (like invalid method signatures), the Eclipse Debugger is unable to properly handle these exceptions and can only notify the user via the Eclipse Debugger that something went wrong.
+  ![Exception unable to process](./res/pics/liveness_fails.PNG)
+  In such a case, the application freezes and you can only terminate the running application via the Eclipse Debugger.
+  The Debugger itself and the Eclipse IDE are still intact. Even if the application crashes on operating system level, the Eclipse IDE stays unharmed, because IDE an debugged application are running in separate JVMs and are therefore separate OS processes.
 
 
 ### Left out features
@@ -415,7 +428,7 @@ Which features of the system were not described and why were they left out?
 ### Mutable or immutable past
 >To which category does the system or parts of it belong and why?
 
-The Eclipse debugger is an immutable past tool. HCR only allows to replace behavior (class methods) that will be executed from now on. If you replace code of a method currently executed, the stack frame will be reset. Side-effects of already executed code cannot be reverted automatically.
+The Eclipse Debugger is an immutable past tool. HCR only allows to replace behavior (class methods) that will be executed from now on. If you replace code of a method currently executed, the stack frame will be reset. Side-effects of already executed code cannot be reverted automatically.
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
@@ -1001,11 +1014,9 @@ The available liveness features depend on the debugger's and the application's J
 ## Personal observations
 >Everything that is particular about the environment and does not fit into the pre-defined categories mentioned so far.
 
-**@Stefan/Patrick: Ist hier die richtige Stelle, um Projekte wie DCEVM zu erwähnen, die die JVM erweitern, um Hot Code Replace auch für das Hinzufügen von Methoden usw. zu ermöglichen?**
-
 Eclipse is highly depending on the implemented liveness-features of the underlying VM.
 
-The programmer has to explicitly start the application in Debug mode to enable the described liveness features. From my own experience having used Eclipse some years to develop server-side Java code in a company, many developers do not run the application in Debug mode by default. Only if there is a bug and you try to find it with the help of the Eclipse Debugger, you run the application in Debug mode. You find the bug, terminate the execution, fix the source code and restart the application.
+The programmer has to explicitly start the application in "Debug"-mode to enable the described liveness features. From my own experience having used Eclipse some years to develop server-side Java code in a company, many developers do not run the application in "Debug"-mode by default. Only if there is a bug and they try to find it with the help of the Eclipse Debugger, they run the application in Debug mode. They find the bug, terminate the execution, fix the source code and restart the application.
 
 To sum it up Live Programming in the Eclipse Debugger is mainly used for faster debugging, but not for application development. The result of Live Programming is an iteration of the source code, not the artifact created with Live Programming.
 

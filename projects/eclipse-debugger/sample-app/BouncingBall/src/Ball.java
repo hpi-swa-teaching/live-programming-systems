@@ -18,15 +18,12 @@ public class Ball {
         dx = directionX;
         dy = directionY;
     }
-
     public Point getLocation() {
         return location;
     }
-
     public int getRadius() {
         return radius;
     }
-
     public Color getColor() {
         return color;
     }
@@ -36,8 +33,7 @@ public class Ball {
     }
 
 	public void paint(Graphics g) {
-		g.setColor(getColor());
-		g.fillOval(location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius());
+		drawBallImage(g);
 	}
 	
 
