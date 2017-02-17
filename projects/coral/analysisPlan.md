@@ -15,24 +15,24 @@ bibliography: refs.bib
 
 Coral is a visual programming environment mainly developed for CGI artists. It follows a node-based approach and can be used to manipulate the individual parts (vertices, edges) of geometrical objects in parallel but is also able to do so called pipeline work (i.e. rename files). The technical base could also be used to do number crunching tasks or database operations in scientific contexts with the benefit of automatic and transparent parallelism but this has not yet been done in practice.
 
-The name Coral is used for a standalone application with a node editor and a live 3D preview, a Maya plug-in and a C++ library. In this report only the standalone application is considered, as it provides the same live programming features as the Maya plug-in in but is easier to install. Because there is no othern known project that uses the underlying C++ "Coral" library it is acceptable to speak of Coral as the standalone app or Maya plug-in.
+The name Coral is used for a standalone application with a node editor and a live 3D preview, a Maya plug-in and a C++ library. In this report only the standalone application is considered, as it provides the same live programming features as the Maya plug-in in but is easier to install. Because there is no other known project that uses the underlying C++ "Coral" library it is acceptable to speak of Coral as the standalone app or Maya plug-in.
 
 ### System boundaries
 > What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
 
 The subject of this report is the standalone Coral application in version 0.3.
-Only the very basic built-in nodes are considered as the other nodes don't add any more new live aspects and would make the mechanisms more difficult to understand.
+It is possible to load nodes as plugins, but here only the very basic built-in nodes are considered as the other nodes don't add any more new live aspects and would make the mechanisms more difficult to understand.
 
 ### Context
 >   - In which context is the system used?
 For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.
 - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
 
-Coral is used for rapid prototyping of CGI algorithms and workflows, for example the deformation of 3D models, replication of models in specific patterns ("Crowd Instancing") and the creation of animations. Another totally different usecase is the creation of so called pipeline tools, that are used for example to transfer artefacts from one production step to another.
+Coral is used for rapid prototyping of CGI algorithms and workflows, for example the deformation of 3D models, replication of models in specific patterns ("Crowd Instancing") and the creation of animations. Another totally different usecase is the creation of so called pipeline tools, that are used for example to transfer artifacts from one production step to another.
 
-Coral is used only by professional 3D artists and pipeline technical directors (TD). They know the terminology and typical CGI workflow which means the program doens't have to focus on being easy to understand.
+Coral is used only by professional 3D artists and pipeline technical directors (TD). They know the terminology and typical CGI workflow which means the program doesn't have to focus on being easy to understand.
 
-Requirements to the system are dependability and performance because of its use in a professional environment and the large datasize of models and textures. The most important requirement to use Coral for pipeline tools is comprehensibility to be able to make complex pipeline task understanble for all artists in the studio and not just the technical director that created the tool.
+Requirements to the system are dependability and performance because of its use in a professional environment and the large datasize of models and textures. The most important requirement to use Coral for pipeline tools is comprehensibility to be able to make complex pipeline task understandable for all artists in the studio and not just the technical director that created the tool.
 
 ### General Application Domain
 > - What is typically created in or through this system?
@@ -40,37 +40,44 @@ Requirements to the system are dependability and performance because of its use 
 - What kind of systems are modified or developed with it (graphical application, client-server architecture, big data, streaming)?
 - ...
 
-**TODO**
+Coral is development and runtime environment at the same time: the node-networks are created in the application and then directly used to complete a single task (like creating a geometry) or to be a permanent part of a data pipeline (i.e. for interactions in Maya)
+Being both development and runtime environment makes it possible to  modify the node network it is executed, which is an important live aspect in Coral.
 
-* Coral is development and runtime environment at the same time:
-* the node-networks are created in the application and then directly used to complete a single task (like creating a geometry) or to be a permanent part of a data pipeline (i.e. for interactions in Maya)
-* the node network can be modified while it is executed -> this is the live programming aspect that will be analysed
-* ?
+A typical use case for Coral is the modification of existing 3D models. By developing an algorithm with the math nodes in Coral that works on the position of the vertices it is for example possible to twist a model around its center axis and automatically reposition each vertex.
+
+Other use cases would be the already mentioned pipeline tools, the replication of 3D models in specific patterns and the creation of animations with the time node and the animation step node.
+
+It would also be possible to do scientific number crunching and database analysis tasks with Coral, but until now nobody really tried to do that.
 
 ### Design Goals of the System
 > What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
 
-There are many so called pipeline tasks in a computer graphics design studio. These task consist of multiple steps that modify a dataset like a geometrical model and often spread across different applications. The goal of Coral is to visualize this process and to make it easy to change parts of the pipeline and directly see the changes in the result.
-
 **Design Rationals:**
-* adjustements should be immediately visible
+
+* adjustments should be immediately visible
 * complex logical and math operations should be easier to understand through the use of simple nodes
 * changes to the node network should be possible at every time and without any compilation step
-* pipeline work should be more comprehensable and easier to adjust to changing requirements
+* pipeline work should be more comprehensible and easier to adjust to changing requirements
 
 **Values:**
+
 * increase performance of model deformations
 * decrease duration needed for single production steps by eliminating the need to code and by increasing the efficiency by using transparent multithreading
 
 **Parts reflecting this:**
+
 * Comprehensibility and changeability through **dataflow architecture** with nodes and connections
 * automatic and transparent multithreading by using **Intel TBB** and **"slicing"** (splitting large operations in multiple small ones)
 * making changes instantly visible with the **live preview**
 
+Another design goal of Coral is to improve the development pipeline tasks. These tasks consist of multiple steps that modify a dataset like a geometrical model and are often spread across different applications. The goal of Coral is to visualize this process and to make it easy to change parts of the pipeline and directly see the changes in the result.
+
 ### Type of System
 > What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
 
-Coral is an interactive node-based tool with a graphical user interface meant for use by 3D artists and developers. It is part of the dataflow category.
+Coral is an interactive node-based tool with a graphical user interface meant for use by 3D artists and developers. It combines development and runtime environment and is part of the dataflow category due to its design as a node based system.
+
+The core library that implements the nodes and the connections between them can be used as an independent C++ library.
 
 ## Workflows
 Summary of workflow observations
@@ -171,40 +178,52 @@ values, even collapsing multiple nodes to one “super” node.
 > To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
 Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
 
-**TODO**
+**Node Count:**
 
-Performance? Max. size of geometries? Max amount of nodes / connections?
+More than 500 nodes in the same project results in poor performance (the refresh rate of the UI sinks below 5 FPS). This is mainly caused by the overhead of the UI of each node, if this would be optimized by only drawing a small number of nodes on the same time it would certainly be possible to have even more nodes in project because from a technical point of view each nodes is only a small C++ object that doesn't consume much resources.
+
+**Vertex count:**
+
+In a test with a typical algorithm that deforms a 3D model the maximum amount of vertices that Coral was able to interactively display in the preview was 100.000. At that point the preview was refreshed at 20 FPS. With one million vertices the refresh rate was decreased to 2 FPS which isn't anymore usable.
+
+One should mention that both of these performance limitations aren't really important in a real world use case because the user wouldn't be able to understand node networks with more than 500 nodes anyway and it is hard to see wrong positions vertices in a model with more than 100.000 vertices.
+
+The screenshot below shows around 80 nodes on the left and almost 2000 vertices and its normals on the right.
+
+![Performance Limitations](./images/performance_limitations.png)
+
+**Modules:**
+
+Beside the mentioned performance limitations a major limitation of Coral is that a group of nodes, even when collapsed to a single node cannot be shared between projects. This means that it is not possible to develop modularized and easily extendable application with Coral. This is in particular unfortunate because it is almost possible to create something like C++ abstract syntax trees within Coral as nearly all basic datatypes and syntax elements like for-loops are available as nodes.
 
 ### What happens when the live parts of the system fail/break?
 > 1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
 
-**TODO**
+**Exceptions:**
 
-Prevent connecting wrong datatypes and showing a helpful tooltip
+Coral doesn't handle exceptions that are raised in the logic of nodes so that they immediately lead to a program crash. This is a major problem in this software because it is not always obvious if the divisor of a division could be zero, but if it is, the program crashes without a warning.
 
-> 2. How can the system itself break? What happens when there is a failure in the system/tool itself?
+**Datatypes:**
 
-**TODO**
-
-Fault Injection?
+A useful mechanism in Coral is the check of the datatypes when connecting nodes. If the datatypes are not compatible, the application shows a tooltip with a hint about what was wrong. By hovering over a node connection it is also possible to see which datatypes are supported by it and which one is currently used.
 
 ### Left out features
 > Which features of the system were not described and why were they left out?
 
-**TODO**
+This report doesn't describe how pipeline tools exactly work because they are interfacing with other applications that weren't available to me and the process would be hard to reproduce because of dependencies on the file system structure. The same applies to the not described Maya integration.
 
-Coral C++ Library, Maya Integration, Geometries, Textures, Kernel Node, Audio Node
+More advanced nodes like the OpenCL Kernel Node and the Audio Input Node were also left out because they are considered experimental in Coral 0.3 and don't add any new live aspects.
 
 ---
 
 ## Models
 
 ### Mutable or immutable past
-To which category does the system or parts of it belong and why?
+> To which category does the system or parts of it belong and why?
 
 Because of its dataflow design Coral belongs to the **Immutable Past** category. Changing a value or adding a node only influences the current state of the node network and is not affected for example by previous user input.
 
-Interestingly there is the possibility to create systems *in* Coral that show indications of a **Mutable Past**. An example for this is the bouncing ball in the example workflow that is created by using only time-dependent functions. After changing the speed of the ball it doens't continue from its current positon but jumps to where it would have been if the speed was like that from the beginning on.
+Interestingly there is the possibility to create systems *in* Coral that show indications of a **Mutable Past**. An example for this is the bouncing ball in the example workflow that is created by using only time-dependent functions. After changing the speed of the ball it doesn't continue from its current position but jumps to where it would have been if the speed was like that from the beginning on.
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
@@ -218,7 +237,7 @@ All activities in Coral belong to Tanimoto Level 4. There is no perceivable lag 
 ### Steady Frame
 > Which activities are designed as steady frames based on the formal definition and how?
 
-The whole application is designed as a steady frame. All active nodes are always visible (except they are collapsed, but then the collapsed node is visible). The values of the nodes are accessable within one click and then shown in the node browser. The values are always up-to-date / meaningful (at least when the user hits the enter key). The live preview is also always up-to-date and doesn’t need an explicit refresh by the user.
+The whole application is designed as a steady frame. All active nodes are always visible (except they are collapsed, but then the collapsed node is visible). The values of the nodes are accessible within one click and then shown in the node browser. The values are always up-to-date / meaningful (at least when the user hits the enter key). The live preview is also always up-to-date and doesn’t need an explicit refresh by the user.
 
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
 
@@ -231,7 +250,7 @@ The whole application is designed as a steady frame. All active nodes are always
 
 **Semantic Distance:** To understand which value affects which part of the model can be very hard even for professional CGI artists and developers. There is no mechanism in Coral to decrease the semantic distance for example with matching colors of a value and its affected parts in the model. This means the semantic distance is higher than it should be and could be enhanced.
 
-**Perspective:** The visualization of the model in the viewport is well suited for this application domain. It is not only a table of meaningless values or a 2D projection of the model but the way the model will later be renderen, only without textures and lighting.
+**Perspective:** The visualization of the model in the viewport is well suited for this application domain. It is not only a table of meaningless values or a 2D projection of the model but the way the model will later be rendered, only without textures and lighting.
 
 *D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
 
@@ -269,7 +288,7 @@ newNodeName = coralApp.executeCommand("CreateNode",
                                                 parentNode = parentNode)
 ```
 
-'coralApp.execute()' is used to achieve loose coupling between the UI components and the application logic. The new node is then instatiated by the Python function '_instantiateNode()':
+'coralApp.execute()' is used to achieve loose coupling between the UI components and the application logic. The new node is then instantiated by the Python function '_instantiateNode()':
 
 ```python
 # coral/py/coral/coralApp.py lines 370-400:
@@ -296,7 +315,7 @@ def _instantiateNode(className, name, parent):
     return coralNode
 ```
 
-The function 'findNodeClass()' in the first line ensures that new node types can be added at runtime (i.e. as a plugin). It returns the name of the corresponding class (that could be implemented in Python or C++ with an automatic Python wrapper) and that is then instatiated.
+The function 'findNodeClass()' in the first line ensures that new node types can be added at runtime (i.e. as a plugin). It returns the name of the corresponding class (that could be implemented in Python or C++ with an automatic Python wrapper) and that is then instantiated.
 
 At the end of the method an initialization function is called. This is one of the parts where the 'liveness' comes from because the node could run actions exactly at the moment when it is created and doesn't require the user to click on 'start' button in the user interface.
 After that the node is added to its parent node (the nodes are organized hierarchically to be able to collapse and expand them).
@@ -391,7 +410,7 @@ The last code part shows how the UI of the node is created live at runtime by it
 
 **Abstract:**
 
-A Node is added live to the exisiting node network by creating an object of the corresponding class, calling its initialization function, adding it to the parent node and dynmically creating a UI for it.
+A Node is added live to the existing node network by creating an object of the corresponding class, calling its initialization function, adding it to the parent node and dynamically creating a UI for it.
 
 #### Removing a Node
 
@@ -481,9 +500,9 @@ Nodes are removed by disconnecting all attributes from other nodes and removing 
 
 **Concrete:**
 
-To be exact, a connection between Nodes is always a connections between an input attribute of one node and an output attribute of another. It cvan be done by clicking and holding on the circle next to an output attribute in the GUI and dragging the line to the circle next to an input attribute of another Node.
+To be exact, a connection between Nodes is always a connections between an input attribute of one node and an output attribute of another. It can be done by clicking and holding on the circle next to an output attribute in the GUI and dragging the line to the circle next to an input attribute of another Node.
 
-The following code shows the connectTo() function of an attribute. Each output attribute can be connected to multiple input attributes, but each input can only be conencted to one output. Because of that the outputs are stored in an array and the only input can be set with the function setInput().
+The following code shows the connectTo() function of an attribute. Each output attribute can be connected to multiple input attributes, but each input can only be connected to one output. Because of that the outputs are stored in an array and the only input can be set with the function setInput().
 
 After that the nodes containing the attributes are notified about the change. The live mechanism of instantly updating the calculations is triggered by setting the attributes in a 'dirty' state at the end of the function.
 
@@ -516,7 +535,7 @@ bool Attribute::connectTo(Attribute *attribute, ErrorObject *errorObject){
 }
 ```
 
-If an attribute of a node is in 'dirty' state, the updateSlice() method is called. This is where the real calculations are done, in this example calculating a trigonometric function with the input values. The result is then send to the output attribute and could triggere further actions in connected nodes.
+If an attribute of a node is in 'dirty' state, the updateSlice() method is called. This is where the real calculations are done, in this example calculating a trigonometric function with the input values. The result is then send to the output attribute and could trigger further actions in connected nodes.
 
 ```c++
 // coral/builtinNodes/MathNodes.cpp lines 538-577:
@@ -566,7 +585,7 @@ void TrigonometricFunctions::updateSlice(Attribute *attribute, unsigned int slic
 
 Connecting nodes is a live activity because the connection is done by setting the in- and outputs of the node objects at runtime and marking the attributes as 'dirty', which triggers the recalculating of the results of the node instantly.
 
-#### Removing Conncetions
+#### Removing Connections
 
 **Concrete:**
 
@@ -583,7 +602,7 @@ Removing a connection is made live by the same mechanism as making a connection.
 
 The Node Inspector is a window that shows all attributes of the currently selected node. It shows spinboxes for numeric values, text field for strings and drop down menus for enumeration attributes. It can be used to change the values and settings of a node at any time.
 
-This is maybe the most typical form of 'live programming' and direct manipulation in Coral, but is achived with a very simple mechanism. Each UI element has a Python method 'widgetValueChanged()' that sets the attribute to the new value and marks it as dirty. This triggers the call of the updateSlice() functions tha updates the result of the nodes as described above.
+This is maybe the most typical form of 'live programming' and direct manipulation in Coral, but is achieved with a very simple mechanism. Each UI element has a Python method 'widgetValueChanged()' that sets the attribute to the new value and marks it as dirty. This triggers the call of the updateSlice() functions that updates the result of the nodes as described above.
 
 ```python
 # coralUi/py/coralUi/nodeInspector/fields.py lines 86-96:
@@ -608,7 +627,7 @@ Changing a value in the Node Inspector is a live action, as the attribute is set
 ### Within or outside of the application
 > For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
 
-All liveness is implemented within the application. The Coral C++ library implements the functions to change values and connections at runtime and the standalone GUI programm provides the UI elements to access these functions.
+All liveness is implemented within the application. The Coral C++ library implements the functions to change values and connections at runtime and the standalone GUI program provides the UI elements to access these functions.
 
 ---
 
@@ -618,33 +637,45 @@ All liveness is implemented within the application. The Coral C++ library implem
 2. **Relevant operations:** Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
   * The most common actions are adding a node to the network, changing a value of a node in the inspector, connecting another node, disconnecting it and deleting a previously connected node.
 3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
-  * **TODO**
-  * The typicall changes to the system are very small due to the fact that every changes is immediately applied.
+  * The examples that is used in this benchmark can be found in the "examples" directory with the name "bindDeformer.crl". It deforms a 3D model (here a simple plane) at a specified position, simulating a force pulling from that position.
+  * The typical changes to the system are very small due to the fact that every change is immediately applied.
 4. **Reproducible setup of system and benchmark**
   1. Description of installation on Ubuntu 16.04.1 LTS
-    * sudo apt-get install git scons libopenimageio-dev libboost-dev libboost-python-dev libopenexr-dev libglew-dev libtbb-dev qt4-dev-tools python-qt4-gl
+    * sudo apt-get install git scons libopenimageio-dev libboost-dev libboost-python-dev libopenexr-dev libglew-dev libtbb-dev qt4-dev-tools python-qt4-gl build-essential
     * git clone https://bitbucket.org/T64/coral_extended.git
     * cd coral_extended
     * scons -f buildStandalone.py
-    * ./start.sh
-    * **TODO** load example file?
+    * (There are no additional files in this Github repository because all required files are in the newly created public Bitbucket repository.)
   2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. At the same time the emergence phase ends when the rendering has finished and the result is perceivable. The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
-    * In this benchmark only the adaptation phase is measured because as Coral uses pure OpenGL to display the calculated values directly in the viewport, the emergence phase consists only of uploading the buffers to the GPU and the GPU drawing them. This is almost always done in one frame (20 ms at 50 Hz refresh rate).
-    * All parts of the benchmark involve the DrawLine node because the end of the adaptation phase ends here clearly when the node starts to upload the buffers to the GPU. The measurement of the adaptation phase begins in each case at the first method that is called after the user interaction in the GUI.
+    * Run "./start.sh" from the commandline.
+    * Load an example network by clicking on "File" -> "Open Network..." and opening the file "bindDeformer.crl" in the directory "examples".
+    * Start the benchmark by adding a "DrawGeo" node (the benchmark is only implemented within this node).
+    * The time to add the node and a few other results are displayed on the commandline.
+    * Other activities that are measured are changing a float value in the inspector, connecting and disconnecting attributes and deleting nodes. The emergence phase (displaying the new model in the live preview) is only measured when the DrawGeo node is used.
+    * All parts of the benchmark involve the DrawGeo node because the end of the adaptation phase ends here clearly when the node starts to upload the buffers to the GPU. The measurement of the adaptation phase begins in each case at the first method that is called after the user interacts with the GUI.
+
+
 5. **Results for adaptation and emergence phase**
+
+![Benchmark Results](./images/benchmark_results.png)
 
 **Adaptation Phase**
 
-The adaptation phase duration in this setup always stays below 20ms. This means that it can be done in one frame and is instantly visible to the user.
-The adaptation phase of changing a value in the inspector, (dis-)connecting a node and deleting a connected node is even lower at around 3ms. This means that there wouldn't even be a delay if multiple of these actions were done in one frame (i.e. when expanding a node).
+The adaption phase when adding a new node to the network takes around 15ms. It is longer than in the other activities because adding a node means creating the C++ object for it, allocating the required memory and initializing all values. 
+The adaptation phase when changing a value, connecting or disconnecting attributes and deleting nodes is always below 3ms because technically this only means to change a member variable of a C++ object or modifying pointers. The minimal differences can be explained for example by the overhead of dereferencing pointers.
+The short adaption phase means that there wouldn't even be a delay if multiple of these actions are done in one frame (i.e. when expanding a node).
 
-The only spike in the benchmark is the first iteration of connecting a float node. The benchmark was repeated several times and it shows that it takes longer to connect a node for the first time than the next times. This is probably due to the value type specialization mechanism that determines the value type to use on the first attempt to connect a node.
-
-![Ball moving forward](./images/benchmark_results.png)
-   
 **Emergence Phase**
 
-The emergence phase in Coral starts when the node network was modified and ends when the changes are visible in the viewport. As this is done using pure OpenGL, the emergence phase is typically one frame (20 ms at 50 Hz refresh rate).
+The emergence phase in Coral starts when a single node was modified and the network needs to be adapted. This takes much longer than the adaptation phase because this includes checks if all datatypes are still the same and if not if they can be changed to be compatible or if a connection has to be removed. The datatypes are implemented using strings and parsing strings is usually not very efficient.
+
+When the rest of the network has been adapted the computation of the new results begins. This is quit fast because of the use of highly efficient C++ algorithms and the sue of IntelTBB for automatic parallelization.
+
+The last step is to upload the new models to the GPU and displaying them in the OpenGL preview. This was not measured in this benchmark but usually takes less than one frame (20ms at a refresh rate of 50 FPS).
+
+Adding a node doesn't have an emergence phase because a new node is not connected to the rest of the network and doesn't change anything.
+
+The emergence phase in the rest of the activities is most of the time below 60ms which means that the results are display at most three frames later. This is almost not noticeable by the user and means any changes are perceived as "live".
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
