@@ -3,7 +3,6 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Calendar;
 
 public class Ball {
     private Point location;
@@ -11,7 +10,6 @@ public class Ball {
     private int dx, dy;
 	private Color color;
 	private BufferedImage ballImage;
-	private int test = 1000;
 
     public Ball(Point l, int directionX, int directionY){
         location = l;
@@ -38,7 +36,8 @@ public class Ball {
     }
 
 	public void paint(Graphics g) {
-		drawBallImage(g);
+		g.setColor(getColor());
+		g.fillOval(location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius());
 	}
 	
 

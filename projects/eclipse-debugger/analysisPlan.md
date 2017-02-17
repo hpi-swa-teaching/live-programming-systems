@@ -858,19 +858,141 @@ public class ScrapbookMain {
 ### Within or outside of the application
 >For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
 
-All liveness activities are triggered from outside the running application. The Eclipse Debugger makes use of the JVM's debugging channel to initiate the activity. However, the liveness is applied inside the application's JVM. The available liveness features depend on the debugger's and the application's JVM implementation.
+All liveness activities are triggered from outside the running application. The Eclipse Debugger, running inside its own JVM, makes use of the application's JVM debugging channel to initiate an activity. However, the liveness is applied inside the application's JVM. There, bytecode gets replaced, variables are set and state information is read to send it back to the calling JVM.
+The available liveness features depend on the debugger's and the application's JVM implementation.
 
 ---
 
 ## Benchmark
+### Unit of change
+  For the Eclipse Debugger, there are two relevant units of change when running an application in "Debug"-mode:
+    1. Method bodies
+    2. Variables when halting at a Breakpoint
+
+### Relevant operations
+  Modify is the only possible operation (see limitations of Hot Code Replace).
+
+### Example data
+  Changing a method body in Java is a change to the Java source file containing the corresponding Java class. This implies the need to recompile the whole Java source file to apply the change and the only influencing factor for compile time is the size of that file. There is no common size of a Java file, but typically a class does not contain more than 500 lines of code. Therefore, we choose the class `Ball` from our example workflow to benchmark a change of a method body. The class `Ball` has less than 50 lines of code, which is no problem because compiling 50 or 500 lines of code makes no relevant compile time difference for our benchmark.
+  The actual method body change we do is altering the `paint`-method from:
+  ```java
+  public void paint(Graphics g) {
+    drawBallImage(g);
+  }
+  ```
+  to:
+  ```java
+  public void paint(Graphics g) {
+    g.setColor(getColor());
+    g.fillOval(location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius());
+  }
+  ```
+  For benchmarking a variable modification, we place a Breakpoint in the `move`-method and change the value of variable `dx` to another value via the "Variables View" when the application is halting at the Breakpoint.
+  ```java
+  public void move(){
+      getLocation().translate(dx, dy);
+  }
+  ```
+
+### Reproducible setup of system and benchmark
+#### Installation on Ubuntu 16.04.1 LTS
 //TODO
-1. **Unit of change:** Determine relevant units of change from the user perspective. Use the most common ones.
-2. **Relevant operations:** Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
-3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
-4. **Reproducible setup of system and benchmark**
-  1. Description of installation on Ubuntu 16.04.1 LTS
-  2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. At the same time the emergence phase ends when the rendering has finished and the result is perceivable. The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
-5. **Results for adaptation and emergence phase**
+
+#### Instrumentation of system for measurements
+1. Benchmarking a method body modification
+  To measure the adaptation time from the perspective of the programmer, we add some lines of code to relevant classes of the Eclipse IDE.
+  We use Eclipse's internal error logging mechanism to display our measurement. Unfortunately, we cannot simply store the timestamp to some kind of global variable, because start and end of our measurement have to be done in different modules of the Eclipse IDE. Therefore we simply display timestamps when the programmer requests to save a Java source file, when Hot Code Replace starts and when it finishes.
+  The log messages can be displayed by opening the "Error Log View" ("Window" > "Show view" > "Error Log").
+  First of all, we adjust the `execute`-method of class `SaveHandler` which we already mentioned in chapter *Implementations of single activities*.
+  ```java
+  import java.util.Calendar;
+
+  ...
+
+  public Object execute(ExecutionEvent event) {
+
+    ISaveablePart saveablePart = getSaveablePart(event);
+
+    // no saveable
+    if (saveablePart == null)
+      return null;
+
+    // if editor
+    if (saveablePart instanceof IEditorPart) {
+      IEditorPart editorPart = (IEditorPart) saveablePart;
+      IWorkbenchPage page = editorPart.getSite().getPage();
+      
+      WorkbenchPlugin.log(new RuntimeException("SaveHandler saveEditor: " + Calendar.getInstance().getTimeInMillis())); //$NON-NLS-1$
+      page.saveEditor(editorPart, false);
+      return null;
+    }
+
+    // if view
+    IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
+    WorkbenchPage page = (WorkbenchPage) activePart.getSite().getPage();
+    page.saveSaveable(saveablePart, activePart, false, false);
+
+    return null;
+  }
+  ```
+  Next, we adjust the method `doHotCodeReplace` of class `JavaHotCodeReplaceManager` (see chapter *Implementations of single activities*).
+  ```java
+  private void doHotCodeReplace(List<JDIDebugTarget> targets, List<IResource> resources,
+      List<String> qualifiedNames) {
+    JDIDebugPlugin.log(new RuntimeException("doHotCodeReplace: " + Calendar.getInstance().getTimeInMillis()));
+
+    ...
+  ```
+  And in the same class the method `fireHCRSucceeded`.
+  ```java
+  private void fireHCRSucceeded(IJavaDebugTarget target) {
+    ListenerList<IJavaHotCodeReplaceListener> listeners = getHotCodeReplaceListeners(target);
+    for (IJavaHotCodeReplaceListener listener : listeners) {
+      listener.hotCodeReplaceSucceeded(target);
+    }
+    JDIDebugPlugin.log(new RuntimeException("HCRSucceeded: " + Calendar.getInstance().getTimeInMillis()));
+  }
+  ```    
+  2. Benchmarking a variable modification
+  To measure the adaptation time, we use the same approach as for benchmarking Hot Code Replace.
+  We adjust the method `setValue` of class `JavaObjectValueEditor` (see chapter *Implementations of single activities*).
+  ```java
+  protected void setValue(final IVariable variable, final String expression){
+    UIJob job = new UIJob("Setting Variable Value"){ //$NON-NLS-1$
+      @Override
+      public IStatus runInUIThread(IProgressMonitor monitor) {
+        try {
+          long time1 = Calendar.getInstance().getTimeInMillis();
+          IValue newValue = evaluate(expression);
+          if (newValue != null) {
+            variable.setValue(newValue);
+            long time2 = Calendar.getInstance().getTimeInMillis();
+            JDIDebugUIPlugin.log(new RuntimeException("ObjectValueEditor setValue " + (time2-time1))); //$NON-NLS-1$
+          } else {
+            variable.setValue(expression);
+          }
+        } catch (DebugException de) {
+          handleException(de);
+        }
+        return Status.OK_STATUS;
+      }
+    };
+    job.setSystem(true);
+    job.schedule();
+  }
+  ```
+
+### Results for adaptation and emergence phase
+1. Method bodies
+  Adaptation time: ~200-400ms
+  Emergence time: Depending on application code. In our case ~1-20ms, because stepping is triggered every 20 ms.
+  The following chart shows the average adaptation time (save+compile, Hot Code Replace) and the emergence part for 10 manual measurements.
+  ![Benchmark Hot Code Replace](./res/pics/benchmark_hcr.PNG)
+2. Variables when halting at a Breakpoint
+  Adaptation time: ~20-100ms
+  Emergence time: -
+
+
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
