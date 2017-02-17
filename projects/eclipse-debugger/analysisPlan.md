@@ -924,8 +924,11 @@ The available liveness features depend on the debugger's and the application's J
 #### Instrumentation of system for measurements
 1. Benchmarking a method body modification
   To measure the adaptation time from the perspective of the programmer, we add some lines of code to relevant classes of the Eclipse IDE.
+  
   We use Eclipse's internal error logging mechanism to display our measurement. Unfortunately, we cannot simply store the timestamp to some kind of global variable, because start and end of our measurement have to be done in different modules of the Eclipse IDE. Therefore we simply display timestamps when the programmer requests to save a Java source file, when Hot Code Replace starts and when it finishes.
+  
   The log messages can be displayed by opening the "Error Log View" ("Window" > "Show view" > "Error Log").
+  
   First of all, we adjust the `execute`-method of class `SaveHandler` which we already mentioned in chapter *Implementations of single activities*.
   ```java
   import java.util.Calendar;
@@ -1020,7 +1023,7 @@ The available liveness features depend on the debugger's and the application's J
 2. Variables when halting at a Breakpoint
   
     Adaptation time: ~20-100ms
-    
+
     Emergence time: -
 
 ---
