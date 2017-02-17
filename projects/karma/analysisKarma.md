@@ -78,14 +78,14 @@ In order to use Karma coverage reports for either setup an additional package/pl
 
 #### Standard workflow
 
-When the system has been set up as described in the previous section Karma can be used very easily. Once Karma is started, it immediately begins to run the tests for your code as specified in the configuration. Every time changes are applied to your code base the test are rerun. Karma will display the results for your test then.
+When the system has been set up as described in the previous section Karma can be used very easily. Once Karma is started, it immediately begins to run the tests for your code as specified in the configuration. Every time changes are applied to your code base the test are rerun. Karma will then display the results for your test.
 
-The standard workflow would be to save changes on the code. Right afterwards looking at the test results to find out whether the changes broke any test. If that is the case the changes (or test) have to adjusted so that all test pass again. Then new changes can be applied and the workflow starts over. This workflow is display in the screencast - as shown below? - .
+The standard workflow would be to save changes on the code. Right afterwards looking at the test results to find out whether the changes broke any test. If that is the case the changes (or test) have to be adjusted so that all tests pass again. Then new changes can be applied and the workflow starts over.
 
-- ToDo: describe workflow and add screencast as extra file
+For example if a new function is to be added to an object, one would first write a test which calls the function. Karma will then replay the tests and show an error message, which specifies that the method does not exist. In the next step one would create this method, causing Karma to rerun the tests again and display success. After that one would add an expectation for the new functions result in the test. This will cause the tests to fail again, since the methods functionality is not implemented yet. When implementing the method now, one will get immediate feedback on whether the function works as expected, since the tests are constantly reexecuted while modifying the code.
+
 
 ### Which activities are made live by which mechanisms?
-
 
 The main activity in Karma is giving feedback about the test results to the users. The feedback mechanism is made live by employing multiple liveness patterns. By running the tests and thus updating the test results on every save, the user gets the impression that the tests are constantly running all the time. This enables seemingly live feedback. The streaming pattern is applied to shorten the emergence phase. This is done by displaying partial test results while the rest of the tests are still being executed.
 
@@ -93,7 +93,6 @@ Moreover, color coding is used to make test failures more recognizable. When the
 
 
 ### Integration of live activities into overall system
-Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
 
 While Karma is running the code and the tests can be modified and the changes will be included in the live feedback. A restart of karma is not necessary for this. However, all changes that required adjustments in the configuration of Karma require a restart. An example for this is adding a new source file which is not yet watched by the filewatcher. However, for files in folders that are included with a wildcard this is not necessary. Similarly, changing karma to include a coverage report requires a change in its configuration and therefore a restart has to be done.
 
@@ -124,8 +123,6 @@ Karma also support execution in multiple browsers. However, we will not dive dee
 ### Mutable or immutable past
 <!-- To which category does the system or parts of it belong and why? -->
 The Karma test runner belongs to the category of mutable past. For every test run that is triggered by Karma it replays all tests. Therefore, the recent changes are applied to all tests. This gives the impression, that this changes had been applied in the past. Thus, Karma gives the impression of a mutable past.
-
-- code changes during execution are deferred
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
@@ -183,18 +180,10 @@ Semantic depends the effort or necessary actions to take in order to get to the 
 ## Implementing Liveness
 
 ### Extend of liveness in technical artifacts
-What parts of the system implements the liveness? (Execution environment, library, tool...)
-- the tool !?
+The test runner itself implements the liveness. Therefore, it listens to external events e.g. modification on a file on the filesystem. The implemented liveness patterns are described below.
 
 ### Implementations of single activities
-Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
-<!--
-#### Example: Scrubbing
-The mouse event in the editor is captured and if the underlying AST element allows for scrubbing a slider is rendered. On changing the slider the value in the source code is adjusted, the method including the value is recompiled. After the method was compiled and installed in the class, the execution continues. When the method is executed during stepping the effects of the modified value become apparent.
-
-Abstract form: Scrubbing is enabled through incremental compilation which enables quick recompilation of parts of an application...
--->
 #### Streaming
 When the test execution is triggered partial results are shown immediately. The console (or IDE plugin) displays the number of tests which have been executed successfully already. Furthermore, the total number of tests which are to be run is shown. If any tests have failed the signature of those is displayed as well.
 
@@ -214,32 +203,22 @@ Karma uses a filewatcher to capture changes on all files specified in the config
 As described in the workflow section, Karma uses the tests as code examples. These examples are than used to execute the tests. Therefore it runs and evaluates the program under different preconditions.
 
 ### Within or outside of the application
-The activities are trigger from outside of the application. Possible triggers can be changing a file, adding a new file or removing a file. As described before Karma listens to these events with a filewatcher and triggers the test run when they occur.
+The activities are triggered from outside of the application. Possible triggers can be changing a file, adding a new file or removing a file. As described before, Karma listens to these events with a filewatcher and triggers a new test run when they occur.
 
 ---
 
 ## Benchmark
 1. **Unit of change:** 
-<!--
-Determine relevant units of change from the user perspective. Use the most common ones.
--->
 
 - files
 - lines of code
 
 2. **Relevant operations:** 
-<!--
-Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
--->
 
 - modify source code
 - modify tests
 
 3. **Example data:** 
-<!--
-Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. 
-The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
--->
 
 A typical change would be adding a new test to the test suite. The new test will then automatically be executed with the other tests, once it has been saved. When using jasmine as test library tests usually look similar as shown below in pseudo code. Other changes could be any modification on the code or tests.
 
@@ -264,25 +243,21 @@ Tests | ~5800 | ~35
 Website | [AngularJS](https://github.com/angular/angular.js) | [Bricks](https://github.com/stephde/bricks)
 
 
-  1. Description of installation on Ubuntu 16.04.1 LTS
+### Description of installation on Ubuntu 16.04.1 LTS
 
-  AngularJS
+#### AngularJS
   - install node/npm
   - `git clone https://github.com/angular/angular.js.git`
   - `npm install -g grunt-cli`
   - `cd angular.js && npm install`
   - `grunt autotest`
 
-  Bricks
+#### Bricks
   - install node/npm
   - `git clone https://github.com/stephde/bricks.git`
   - `cd bricks && npm install`
   - `karma start karma.conf.js`
 
-  2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. 
-  So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. 
-  At the same time the emergence phase ends when the rendering has finished and the result is perceivable. 
-  The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
 
 
 5. **Results for adaptation and emergence phase**
@@ -311,14 +286,3 @@ I think the liveness in Karma could be increase further. One way to achieve this
 ![benchmark](resources/benchmark.png)
 
 *Benchmark for Bricks and AngularJS*
-
-<!--
-## Style Template
-- Denote headings with #
-- You can use any text highlighting, list types, and tables
-- Insert images in the following way:
-  `![This is the caption](/url/of/image.png)`
-- Insert videos or web resources as markdown links
-- Insert references as: `@RefKey` and supply a bib file
-- No HTML tags please
--->
