@@ -297,7 +297,7 @@ By default, "Build Automatically" is enabled in Eclipse, so that saving changes 
 
     An overview which thread is currently halting at a Breakpoint together with the corresponding stack trace is visualized in den "Debug View":
 
-    ![Debug View Threads](./res/pics/debug_view_threads.png)
+    ![Debug View Threads](./res/pics/debug_view_threads.PNG)
 
     Now, we hover over the variables `dx` and `dy` to view their current values:
 
@@ -316,7 +316,7 @@ By default, "Build Automatically" is enabled in Eclipse, so that saving changes 
 
 17. Finally, we want to replace the single colored ball with an image of a football. We switch back to the "Java Perspective" and add a PNG image to our Java project's source folder named `ball.png`.
 
-    ![Adding image](./res/pics/add_image.png)
+    ![Adding image](./res/pics/add_image.PNG)
 
     At the moment, we do not know exactly, how to load and draw an image in Java and want to try out some ideas. We switch back to the "Debug Perspective" and set a breakpoint at `g.setColor(getColor());` in method `public void paint(Graphics g)` of class `Ball.java`.
     We press "F11" to start debugging.
@@ -335,7 +335,7 @@ By default, "Build Automatically" is enabled in Eclipse, so that saving changes 
 
     Now, that we have a valid input stream, we can test drawing an image. We combine our code snippets to `g.drawImage(javax.imageio.ImageIO.read(Ball.class.getResourceAsStream("ball.png")), 10, 10, null)`, select the line of code and press *Ctrl+Shift+D*.
 
-    ![Evaluation of code drawing ball.png](./res/pics/ball_drawing_eval.png)
+    ![Evaluation of code drawing ball.png](./res/pics/ball_drawing_eval.PNG)
 
     The result is `(boolean) true` which means, that the drawing was successful. We switch to our running application but cannot see any image of a ball, because the actual drawing is not done yet. We press "F8" to continue execution. The program stops again at our breakpoint at `g.setColor(getColor());`. We switch again to our running application and now we see the image of the ball drawn at position (10, 10).
 
@@ -389,7 +389,7 @@ The default JVM implementations (e.g. HotSpot and OpenJDK) of Java 8, which are 
 
 The supported features can be inspected in Eclipse by opening the properties of a running VM:
 
-![VM capabilities](./res/pics/vm_capabilities.PNG)
+![VM capabilities](./res/pics/vm_capabilities.png)
 
 We see that Hot Code Replace is supported, but method addition or arbitrary class redefinition is not supported by that Java HotSpot VM implementation.
 
@@ -431,7 +431,7 @@ If we want to do some trial-and-error coding without starting a dummy Java appli
 2. How can the system itself break? What happens when there is a failure in the system/tool itself?
     In some cases, when saving invalid Java code (like invalid method signatures), the Eclipse Debugger is unable to properly handle these exceptions and can only notify the user via the Eclipse Debugger that something went wrong.
     
-    ![Exception unable to process](./res/pics/liveness_fails.PNG)
+    ![Exception unable to process](./res/pics/liveness_fails.png)
     
     In such a case, the application freezes and you can only terminate the running application via the Eclipse Debugger.
     The Debugger itself and the Eclipse IDE are still intact. Even if the application crashes on operating system level, the Eclipse IDE stays unharmed, because IDE an debugged application are running in separate JVMs and are therefore separate OS processes.
