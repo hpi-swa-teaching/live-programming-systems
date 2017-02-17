@@ -2,20 +2,21 @@ import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
 
 import { addOperand, clearInput, evaluate } from '../actions'
+import {foo} from '../reducers/foo.js'
 
 const Operator = React.createClass({
   propTypes: {
-    increaseCount: PropTypes.func.isRequired,
   },
 
   componentDidMount() {
+    // foo()
   },
+
 
   render() {
     let onClick = (item) => {
       let operands = [...this.props.operands, this.props.input, item]
       if(this.props.input == 0){
-        console.log(this.props.operands)
         operands = [...this.props.operands]
       }else{
         this.props.addOp(this.props.input)
@@ -29,7 +30,6 @@ const Operator = React.createClass({
         <div className="button" onClick={() => onClick('+')}><div className="content">+</div></div>
         <div className="button" onClick={() => onClick('-')}><div className="content">-</div></div>
         <div className="button" onClick={() => onClick('÷')}><div className="content">​‌÷</div></div>
-        <div className="button" onClick={() => onClick('×')}><div className="content">×</div></div>
       </div>
     )
   },

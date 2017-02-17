@@ -13,12 +13,12 @@ bibliography: refs.bib
 ## About the System itself
 > Summary of system properties
 
-The system that I want to evaluate in the following is the official Java REPL (Read-Eval-Print Loop) which will be released with Java 9 in June 2017. Therefore I experimented with the early access version. 
+The system that I want to evaluate in the following is the official Java REPL (Read-Eval-Print Loop) called *JShell*.  The JShell is an inherent part of the Java Development Kit (JDK) 9 and therefore will be released accompanied with Java 9 in June 2017. As a result, I experimented with the early access version of the JShell (Version 0.710) released in November 2016. Based on this early access state, it is possible that more features could be available until the release date. Nevertheless, the following analysis is based on the current accessible JShell version 0.710. 
 
 ### System boundaries
 > What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
 
-This report is based on the JShell version 0.710 released in november 2016. No libraries or extension were added to it. However, JShell needs the Java 9 early access JDK in order to operate. Despite the fact, that new features and APIs are added to the Java programming language with Java 9, I will only focus on the REPL features provided by JShell. Furthermore it needs to be mentioned, that Java 9 is still in development. Concerning the JShell, it is therefore possible that more features could be available until the release. Nevertheless I focused on the current accessible version and evaluated following mechanisms:
+Within this report, I will only focus on the REPL features provided by the JShell that are available accompanied with the official JShell version 0.710. I therefore intentionally excluded  libraries or possible extensions. I will evaluate following mechanisms during this report:
 
  - The REPL itself with its specific commands and features
  - Hot Swapping provided by the JVM in combination with the JShell
@@ -28,7 +28,7 @@ This report is based on the JShell version 0.710 released in november 2016. No l
     For example: Application development (coding, debugging, exploration), education, art, science (data exploration), simulation, exploration of ideas or data.
 - Description of user context (professional, amateur, public presentation in front of audience, (un)known requirements, children, ...)
 
-The main context for a REPL in Java like the JShell is the desire to provide easy and comfortable access to the Java language, though addresses programming beginners or those you want to explore this language. Robert Field, the architect of JShell, points out, that "the number one reason schools cite for moving away from Java as a teaching language is that other languages have a REPL and have far lower bars to an initial "Hello, world!" program" [1]. Therefore JShell tries to fill this lack of immediate feedback based on a REPL in order to lower the learning curve for initial learning.  Furthermore the REPL can be used in order to investigate new API or to prototype quickly.
+The main context for a REPL in Java like the JShell is the desire to provide easy and comfortable access to the Java language, though addresses programming beginners or those who want to explore this language. Therefore the JShell will be mainly used in an educational context in order to teach for example children programming concepts or how to code applications using a beginner-friendly execution environment. Nevertheless, it is also suitable for experienced software developers in order to support them exploring the language and its API or to code and to test small prototypes. 
 
 ### General Application Domain
 >  - What is typically created in or through this system?
@@ -40,13 +40,14 @@ The JShell is not designed to create complex software architectures like client-
 ### Design Goals of the System
 > What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
 
-The system heavily supports prototyping and the exploration of Java code and APIs. Here for example, JShell provides features like auto-completion for types and methods, a little editor for classes as well as extra commands like /imports, /types and /methods, supporting the developer to quickly implement prototypes and to maintain an overall view about the code and new APIs. Furthermore it is possible for the developer to change classes and methods on demand while the program is running. The developer is therefore able to change system behavior interactively, but only to a limited extent. More information about this limits can be found within section [Limitations](#limitations).
+
+Robert Field, the architect of JShell, points out, that "the number one reason schools cite for moving away from Java as a teaching language is that other languages have a REPL and have far lower bars to an initial "Hello, world!" program" [1]. Therefore JShell tries to fill this lack of immediate feedback for Java based on a official REPL in order to lower the learning curve for initial learning and to counteract the decreasing use of Java as educational language. 
 
 ### Type of System
 
 > What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
 
-The JShell represents an interactive tool, giving immediate feedback based on developers input. A context for code is provided so that users are able to execute their code without for example a main-function. Therefore JShell can be also be seen as an execution environment for Java. 
+The JShell represents an interactive tool, giving immediate feedback based on developers input. A context for code is provided in a way that users are able to execute their code without for example a main-function. Therefore JShell can be also seen as an execution environment for Java. 
 
 ---
 
@@ -74,38 +75,56 @@ Within this workflow, a modified "pong-game" will be created, where the user, co
 5. If we want to launch a java application, we normally would have to create a main-function in a specific class as entry-point for the program.  However, JShell already provides this context. As a result we do not need a static main method. Expressions and statements are evaluated and executed as soon as we entered them. With the following commands, we can show our GUI with the Bouncing Ball in it:
 
 ```java
+import javax.swing.JFrame;
+import java.awt.event.*;
+
 JFrame frame = new JFrame("Modified Pong");
-frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //Create and set up the content pane.
 GamePanel newContentPane = new GamePanel();
-newContentPane.setOpaque(true); 
-//content panes must be opaque
+newContentPane.setOpaque(true);
+	 
 frame.add(newContentPane);
+frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE)
 
 //Display the window.
 frame.pack();
 frame.setLocationRelativeTo(null);
 frame.setVisible(true);
 		
-while(true) {
-	newContentPane.play();						
-	try {
-		Thread.sleep(20);
-	} catch (InterruptedException e) {
-		e.printStackTrace();
+boolean runThread = true;
+
+Thread thread = new Thread(new Runnable() {
+	@Override
+	public void run() {
+		while(runThread) {
+			newContentPane.play(); 
+			try {
+				Thread.sleep(20);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}	
 	}
-}
+});
+		
+frame.addWindowListener(new WindowAdapter() {
+	public void windowClosing(WindowEvent e) {
+	   	runThread = false;
+  	}
+});
+
+thread.start();
 ```
 #### Code-Modifications at Run-Time
 
- While the program is running, we are able to alter its behavior to a certain extent. Based on the underlying JVM, JShell is able to provide hot swapping of code during run-time. In the following, we now change the color of the Ball while the application is running.
+ While the program is running, we are able to alter its behavior to a certain extent. Based on the underlying JVM, JShell is able to provide code replacement at run-time to a certain extend. In the following, we now change the color of the Ball while the application is running.
 	 
 - First we have to enter the ` /edit Ball` command into the JShell. A small editor appears, where we can see our class definition for "Ball".  Change the method-body of "getColor()" to `return Color.BLUE;`
-- Now propagate the changes using the "accept"-button at the bottom of the editor. As a result, a notification is shown onto the command line which indicates, that the "Ball" class was modified.  The ball in the application changes it's color to blue. The resulting behavior should look like below. In this context, it needs to be mentioned that the modification of classes during run-time is limited to method-bodies. If we would change the signature of this class by for example the change of method parameters, JShell would replace this class and would reset all related instances to null. This use-case is discussed later in more detail.
+- Now propagate the changes using the "accept"-button at the bottom of the editor. As a result, a notification is shown onto the command line which indicates, that the "Ball" class was modified.  The ball in the application changes it's color to blue. The resulting behavior should look like below. Click on "exit" to close the editor.
 
 ![Modified Pong](./img/pong_color.gif)
 
-- We are able access the color of the ball, while the program is running via the newContentPane instance. Here we can get the color RGB value by typing:
+- We are able to access the color of the ball while the program is running via the *newContentPane* instance. Here we can get the color RGB value by typing:
  ` newContentPane.getBall().getColor().toString()`
  The result should be "[r=0,g=0,b=255]". JShell also provides an auto-completion functionality using the Tab-key. All accessible methods (the members which are declared as "public") and variables are shown if you use it. If you access private members, JShell will throw an error.
 
@@ -114,19 +133,19 @@ Now we want to extend our program. For our game, we need a racquet which can act
 1. First we extend our GamePanel class. Here we create a racquet instance of our Racquet class. 
 	- Type ``` /edit GamePanel``` into the JShell. The editor should appear. Now declare the private attribute racquet ``` private Racquet racquet;``` and click on accept and on exit.
 	- We now get a notification that "GamePanel" is replaced, and that it *cannot be referenced until Racquet is declared*. So instead of a compile error, JShell uses forward reference to handle this undeclared member. As code is entered and evaluated sequentially, these references will be temporarily unresolved (@Field2014). As a result, we are not able to instantiate the class "GamePanel" anymore without having the "Racquet" class declared.  
-	- At the same time, JShell also resets all related instances like the newContentPane object to null due to the signature change of the class. Here, we got a notation that all existing instances of this class are reset to null in the context of the JShell. So if we for example enter the object name *newContentPane* into the JShell and tries to reference it, we get a NullPointerException. It needs to be mentioned, that in case of any exception JShell remains stable and propagates the exception message onto the command line. 
-		- Despite the null pointer reference, we still see the GUI and can also reference the ball inside the thread itself. Although JShell has reset the objects within the user session, every thread in the underlying JVM itself has a working memory in which it keeps its own working copy of variables that it has to use or assign. As the thread executes a program, it operates on these working copies. Within our example its the GamePanel object *newContentPane*. As a result, we do not get a NullPointerException out of the existing GUI thread and have to close the GUI on our own. Close it now. 
+	- At the same time, JShell also resets all related instances like the newContentPane object to null due to the signature change of the class. Here, we got a notation that all existing instances of this class are reset to null in the context of the JShell. So if we for example enter the object name *newContentPane* into the JShell and tries to reference it, we get a NullPointerException. It clearly shows that JShell remains stable in case of an exception and that it propagates the exception message onto the command line.
+	- Although the replacement of class GamePanel implied a reset of instances within the context of the JShell, the game still works without NullPointerExceptions. This special case will be discussed in the [error handling section ](#error) later. For now close the game. 
 
 2. The next step in the work-flow is the creation of the "Racquet" class [(Source can be found here)](#racquet). Our racquet here is a rectangle, that listens to user interactions with the keyboard. In the end we should able to move it using the left and right arrows on our keyboard. Enter the Racquet class into the JShell. 
 
 3. To recognize the collisions between the racquet and the ball, we use a simple approach. The "Rectangle" java library offers a method named intersects, that checks whether or not two rectangles overlap based on their dimensions and positions. That is a simple solution but it is sufficient for our use-case. 
-	- To use this approach we have to model our ball as rectangle (as square in particular). The rectangle edges are just as long as the ball radius. We extend our "Ball" class with a method getBounds(), that returns our ball as rectangle. To do so type "\edit Ball" into the JShell and extend the Ball class with following method:
+	- To use this approach we have to model our ball as rectangle (as square in particular). The rectangle edges are just as long as the ball radius. We extend our "Ball" class with a method "getBounds()", that returns our ball as rectangle. To do so type `\edit Ball` into the JShell and extend the Ball class with following method:
 
 - >  public Rectangle getBounds() { 	
 >      return new Rectangle(location.x,location.y, getRadius(), 
 	getRadius());  } 
 
-- We also have to edit our "GamePanel" class in order to recognize the collisions and to react properly. As already mentioned, we use the intersects-method of the "Rectangle" library in order to detect collisions. Replace the current "GamePanel" class with the one defined [here](#gamepanel2).  To do so, again type "/edit GamePanel" in the JShell and replace the code. We now have to execute the code [here](#execution) again to start our GUI.  The result should look like the figure below. However, we are not yet able to move the racquet. 
+- We also have to edit our "GamePanel" class in order to recognize the collisions and to react properly. As already mentioned, we use the intersects-method of the "Rectangle" library in order to detect collisions. Replace the current "GamePanel" class with the one defined [here](#gamepanel2).  To do so, again type `/edit GamePanel` in the JShell and replace the code. We now have to execute the code [here](#execution) again to start our GUI.  The result should look like the figure below. However, we are not yet able to move the racquet. 
 
 ![Ball + Racquet](./img/pong.PNG)
 	
@@ -134,28 +153,28 @@ Now we want to extend our program. For our game, we need a racquet which can act
 >  import java.awt.event.KeyListener;
 >    import java.awt.event.KeyEvent; 
 
-	- To import these libraries, just insert the statements into the command line. Within the JShell, we have the potential to import the whole Java API provided by JDK 9. This is intended by the JShell developers to support the users in exploring Java and its API  to have a rapid learning curve.
+	- To import these libraries, just insert the statements into the command line. Within the JShell, we have the potential to import the whole Java API provided by JDK 9. This is intended by the JShell developers to support the users exploring Java and its API  to have a rapid learning curve.
 5.  Now we are able to add keylisteners to our GamePanel constructor. Add following code to the constructor after defining the racquet and the ball object. Again use the 
  `/edit GamePanel` command.
 ```java
  addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-			}
+	@Override
+	public void keyTyped(KeyEvent e) {
+	}
 
-			@Override
-			public void keyReleased(KeyEvent e) {
-				racquet.keyReleased(e);
-			}
+	@Override
+	public void keyReleased(KeyEvent e) {
+		racquet.keyReleased(e);
+	}
 
-			@Override
-			public void keyPressed(KeyEvent e) {
-				racquet.keyPressed(e);
-			}
-		});
-		setFocusable(true);
+	@Override
+	public void keyPressed(KeyEvent e) {
+		racquet.keyPressed(e);
+	}
+});
+setFocusable(true);
 ```
-- After you have successfully updated the class, you will again get a message that the GamePanel class was replaced and that instances like newContentPane were reset. Usually hot swapping would allow to update class constructors during run-time without causing JShell to replace the whole class. Nevertheless the code above alters the signature of the class by adding KeyListeners to it. As a result, JShell has to replace all GamePanel instances. We now have to close the old GUI and have to execute the code [here](#execution) again to propagate our changes. 
+- After you have successfully updated the class, you will again get a message that the GamePanel class was replaced and that instances like newContentPane were reset. Usually hot swapping would allow to update class constructors during run-time without causing JShell to replace the whole class. Nevertheless, the code above alters the signature of the class by adding KeyListeners to it. As a result, JShell has to replace all GamePanel instances. We now have to close the old GUI and have to reexecute the code [here](#execution) to propagate our changes. 
 
 Finally we are able to control our Racquet and to play the game. 
 
@@ -169,46 +188,51 @@ Finally we are able to control our Racquet and to play the game.
 
 There are two mayor liveness mechanisms:
 
-1. The evaluation of statements and commands (for example the adding of classes) at run-time resulting in immediate feedback.  
+1. The evaluation of statements and commands at run-time results in immediate feedback.  
 -  The Read-Eval-Print Loop implemented in the JShell iterates over the user input and interprets it "as soon as" statements/commands are entered. The evaluation thread gives feedback based on messages or exceptions that are printed onto the command line. 
 		
-2.  Source code replacement at run-time. Limited to method-bodies. 
- - Hot Swapping allows JShell to update method bodies at run-time by replacing their Java byte-code.  It allows for incremental and therefore quick changes to the executable form and preserves the current context of a change (@Rein2016HLL). As a result, we are able to manipulate the runtime state of an application by a redefinition of method bodies. If a method was updated successfully or if errors occur using Hot Swapping, JShell again prints out messages and appropriate exceptions.
+2.  Code replacement at run-time. Limited to method-bodies. 
+ - Hot swapping based on the underlying JVM allows JShell to update method-bodies at run-time by replacing their Java byte-code.  It allows for incremental and therefore quick changes to the executable form and preserves the current context of a change (@Rein2016HLL). As a result, we are able to manipulate the run-time state of an application by a redefinition of method bodies. If a method was updated successfully or if errors occur using the code replacement mechanism, JShell again prints out messages and appropriate exceptions.
  
 > - If applicable: How is the emergence phase shortened?
 
-The emergence phase highly depends on the implemented applications and their use. Therefore, the implementation defines the emergence phase for state evaluation or code replacement. Thus, only developers are able to shorten this phase by considering carefully how they use the JShell or how they implement their applications in order to maintain liveness. 
+There is no build-in mechanism to shorten the emergence phase. Due to the fact that it highly depends on the implemented applications and their use, the implementation defines the emergence phase for state evaluation or code replacement. Thus, developers are requested to shorten this phase by considering carefully how they use the JShell or how they implement their applications in order to maintain liveness. 
 
 > - Granularity: For example: Elm can only rerun the complete application
 
-JShell is able to perform changes on all levels of granularity. On the one hand, fine-grained manipulations of application state can be realized using code replacement while on the other hand it is also able to open complex programs or to rerun them using specific commands. 
+JShell is able to perform changes on all levels of granularity. On the one hand, fine-grained manipulations of application state can be realized using code replacement while on the other hand it is also able to open complex programs or to rerun them using specific commands.
 
 ### Integration of live activities into overall system
 > Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
 > How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
 
-When used correctly, there are no parts of JShell that are not live. However, the live activities highly depend on the code entered by the user or the executed programs. Within my workflow, I intentionally used threads for the described game in order to show all possible live mechanisms of JShell. I was able to alter the program behavior using for example code replacement because I created several parallel execution contexts based on these threads as well as implemented my application in a way, that causes behavior-updates if specific method bodies are changed at run-time. However, if the JShell main-thread  is blocked unintentionally by a program (due to for example endless loops like the one used in the execution code of the game), the developer is unable to enter any statements into the JShell due to the blocked evaluation thread. As a result, the liveness mechanisms based on statements, commands and code replacement cannot be used anymore. The system is not interactive anymore.
+When used correctly, there are no parts of the JShell that are not live. However, the live activities highly depend on the code entered by the user or the executed programs. Within my workflow, I intentionally used threads for the described game in order to show all possible live mechanisms of the JShell. I was able to alter the program behavior using for example code replacement due to the fact that I created several parallel execution contexts based on these threads as well as implemented my application in a way, that causes behavior-updates if specific method bodies are changed at run-time. However, if the JShell main-thread  is blocked unintentionally by a program (here for example endless loops like the one used in the execution code of the game), the developer is unable to enter any statements into the JShell due to the blocked evaluation thread. As a result, the liveness mechanisms based on statements, commands and code replacement cannot be used anymore. The system is no longer interactive.
 
 ###  Limitations  <a name="limitations"></a> 
 > To which extend can the liveness of one activity be kept up? For example, at which magnitude of data flow nodes does the propagation of values become non-immediate? At which magnitude of elapsed time can the Elm debugger not replay the application immediately anymore or when does it break down? Does an exception break the liveness?
 > Further, what are conceptual limitations. For example, in a bi-directional mapping system properties of single elements might be modified and reflected in the code. This might not be possible for properties of elements created in loops.
 
+
 #### Statement Evaluation Limitations
-The JShell-REPL itself evaluates single statements, expressions and commands immediately without any loss of output emergency. Nevertheless, if you open complex statement files of java code, the JShell needs time to enter and evaluate each of the statements individually. The propagation of values become non-immediate.
+The JShell-REPL evaluates single statements, expressions and commands immediately without any loss of output emergency. Nevertheless, if you open complex statement files of java code, the JShell needs time to enter and evaluate each of the statements individually. The propagation of values become non-immediate.
 
 
 #### Code Replacement Limitations
-Per default, the capabilities of redefinition done by the JVM using hots swapping are limited to method bodies. It cannot either add methods or fields or otherwise change anything else, except for the method bodies. This limitation is based on requirements for performance and stability of the underlying JVM. Two heavily optimized Just-In-Time compilers as well as several multi-generational garbage collectors challenges the implementation of an extended Hot Swapping feature. Due to the occupation of a specific size and structure of memory for each object in the system, a change of a class signature would trigger a need of memory rearrangement and relocation within the whole system and especially for all instances of this specific class. 
-The first problem here is that the actual layout of memory depends on the garbage collector that is currently active and, to be compatible with all of them, the relocation should probably be delegated to the active garbage collector. Therefore we would have to suspend the JVM in order to perform memory relocations.  Furthermore multiple platforms with varying memory models and instructions sets could also need special treatments that increase further implementation efforts and decreases platform independence.
+Per default, the capabilities of redefinition done by the JVM using hots swapping are limited to method bodies. It cannot either add methods or fields or otherwise change anything else, except for the method bodies. This limitation is based on requirements for performance and stability of the underlying JVM. Two heavily optimized Just-In-Time compilers as well as several multi-generational garbage collectors challenges the implementation of an extended hot swapping feature (@Booth2010). Due to the occupation of a specific size and structure of memory for each object in the system, a change of a class signature would trigger a need of memory rearrangement and relocation within the whole system and especially for all instances of this specific class. 
+The first problem here is that the actual layout of memory depends on the garbage collector that is currently active and, to be compatible with all of them, the relocation should probably be delegated to the active garbage collector. Therefore, we would have to suspend the JVM in order to perform memory relocations.  Furthermore, multiple platforms with varying memory models and instructions sets could also need special treatments that increase further implementation efforts and decreases platform independence.
 The second problem accompanies with the high optimized JIT compiler. The main optimization that the JVM does is inlining. Here most of the method calls are replaced by there implementation in order to spare the actual call and as a result improve performance. As a result, adding a method to a class would arise the need to check all tracked inlined spots and their dependencies in order to deoptimize them. This would be a severe performance hit for the JVM (@Booth2010).
 As a result, code replacement is limited to method bodies in order to optimize the overall system performance as well as to maintain platform independence of the JVM.  However, tools like JRebel tackle and solve the problems concerning Hot Swapping but are not part of the default JVM implementation and therefore not in the scope of this report. 
 
-### What happens when the live parts of the system fail/break?
+### What happens when the live parts of the system fail/break?  <a name="error"></a> 
 > What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
 How can the system itself break? What happens when there is a failure in the system/tool itself?
 
-In case of an error or rising exceptions due to for example the input of invalid java code, The JShell propagates the error onto the command-line. The thread for input-evaluation catches all errors and exceptions, prints an appropriate message and **continues evaluation** of the remaining commands and statements. If this thread itself is terminated through user code, it is restarted again immediately by the JVM. In this process it looses its former state and all inputs made by the user are gone but can be restored through specific commands that re-execute statements that were saved within the JShell internal "Replay History". 
-In case of an error within the process of editing classes or methods via the editor provided by the "/edit some_class" command (for example some invalid Java-Code is entered into the editor), no update is applied to the method or class in change and a specific exception is thrown. Furthermore no code replacement is done if the users intention was to change methods at run-time . The exception handling here is the same as in the case before. 
+In case of an error or rising exceptions due to for example the input of invalid java code into the command line, the JShell propagates the error onto the command-line. The thread for input-evaluation catches all errors and exceptions, prints an appropriate message and **continues evaluation** of the remaining commands and statements. If this thread itself is terminated through user code, it is restarted again immediately by the JVM. In this process it looses its former state and all inputs made by the user are gone but can be restored through specific commands that re-execute statements that were saved within the JShell internal "Replay History". 
+In case of an error within the process of editing classes or methods via the editor provided by the "/edit some_class" command (for example some invalid Java-Code is entered into the editor), no update is applied to the method or class in change and a specific exception is thrown. Furthermore, no code replacement is done if the users intention was to change methods at run-time . The exception handling here is the same as in the case before. 
+
+
+An interesting aspect within the workflow that is not related to liveness mechanisms but where I struggled with the most was the absence of errors respectively NullPointerExceptions after the replacement of classes. We were able to see the game and to reference it inside the thread despite the fact that the *newContentPane* object where reset to null within the context of the JShell.  The point was the following: Although JShell has reset the objects within the user session, every thread in the underlying JVM itself has a working memory in which it keeps its own working copy of variables that it has to use or assign. As the thread executes a program, it operates on these working copies. Within our example its the GamePanel object *newContentPane*. As a result, we do not get a NullPointerException out of the existing GUI thread and therefore had to close it on our own. As already mentioned, this characteristic is not related to the liveness mechanisms and their error handling but can be confusing especially for programming beginners who are not aware of this fact. They may learn wrong error assumptions.    
+
 Overall I was not able to break the JShell and its liveness mechanisms with any inputs or applications I experimented with during this report and it is therefore a highly stable execution environment.
 
 ### Left out features  <a name="features"></a> 
@@ -224,22 +248,21 @@ As already mentioned in the work-flow, JShell provides several different command
 ### Mutable or immutable past
 > To which category does the system or parts of it belong and why?
 
-The live mechanisms wihthin the JShell belong to the immutable past model. The code evaluation as well as hot-swapping preserves the current context of a change. As
-a result, the application can continue the execution from the state at which the change was applied with changed behavior.
+The live mechanisms within the JShell belong to the immutable past model. The code evaluation as well as hot-swapping preserves the current context of a change. As a result, the application can continue the execution from the state at which the change was applied with the desired behavior.
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
 ### Tanimoto's Level of Live Programming
 > To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
 
-The liveness mechanisms used in the JShell cannot be assigned to exactly one level described by Tanimoto.  The fact that the code evaluation is explicitly triggered by the user using the enter key on its keyboard or the accept button in the JShell editor indicates an edit-driven update for  the JShell state. Therefore the definition of Tanimotos level 3 fits to the code evaluation. Nevertheless, the JShell remains constantly running during modifications. This fact satisfies level 4 characteristics specified by Tanimoto. Therefore it is difficult using the given definitions to assign a fix level to the liveness mechanisms of the JShell.  
+The liveness mechanisms used in the JShell cannot be assigned to exactly one level described by Tanimoto.  The fact, that the code evaluation is explicitly triggered by the developers using the enter key on its keyboard or the "accept"-button in the JShell editor, indicates an edit-driven update for  the JShell state. Therefore, the definition of Tanimotos level three fits to the code evaluation. Nevertheless, the JShell remains constantly running during modifications. This fact satisfies level four characteristics specified by Tanimoto. Overall it is a difficult task using the given definitions to assign a fix level to these liveness mechanisms.  
 
 *S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
 
 ### Steady Frame
 > Which activities are designed as steady frames based on the formal definition and how?
 
-The JShell itself does not provide a steady frame.  The fact that we are able to inspect its state with commands like "/vars" or "/types" and have to enter these commands explicitly does not for example satisfy the need to have a certain "frame", that shows relevant variables at specific locations within the scene. Furthermore, the propagated values based on these commands are  not "constantly meaningful": The information provided for object instances are for example limited to memory addresses and therefore insignificant for the user. Nevertheless, developers are able to implement a steady frame for the application on their own. 
+The JShell itself does not provide a steady frame.  The fact, that we are able to inspect its state with commands like "/vars" or "/types" that we have to enter these commands explicitly, does not for example satisfy the need to have a certain "frame", that shows relevant variables at specific locations within the scene. Furthermore, the propagated values based on these commands are  not "constantly meaningful": The information provided for object instances are for example limited to memory addresses and therefore insignificant for the user. Nevertheless, developers are able to implement a steady frame for the application on their own. 
 
 *C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
 
@@ -249,13 +272,13 @@ The JShell itself does not provide a steady frame.  The fact that we are able to
  Following distances evolves in the context of the JShell.
  
  1. Small Temporal Distance:
- As already mentioned, the evaluation of single statements and expressions as well as the replacement of code during run-time are activities that are perceived as live by users. These mechanisms causes immediate feed due to their short execution times therefore providing a small temporal distance.
+ As already mentioned, the evaluation of single statements and expressions as well as the replacement of code during run-time are activities that are perceived as live by users. These mechanisms causes immediate feedback due to their short execution times, therefore, providing a small temporal distance.
  
  2. Any Spatial Distance:
  The spatial distance depends on how developers using the JShell for their needs. If users for example interact with the JShell based on the provided command line, a small spatial distance arise. However, if IDEs or editors are used in order to develop applications that are afterwards executed using the JShell, the spatial distance is arbitrary and therefore individually for each user.  
  
  3. Small Semantic Distance:
- The Jshell represents an execution environment for applications written in Java. Therefore users intentionally interact with the JShell in order to write code for their applications or to execute it. As a result, their fully aware of the behavior and the results arising from the entered code.  The semantic distance is therefore small.
+ The JShell represents an execution environment for applications written in Java. Therefore, users intentionally interact with the JShell in order to write code for their applications or to execute it. As a result, their fully aware of the behavior and the results arising from the entered code.  The semantic distance is very small. 
 
 
 *D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
@@ -269,15 +292,16 @@ The JShell itself does not provide a steady frame.  The fact that we are able to
 
 As already mentioned, we have two liveness mechanisms: the immediate evaluation of statements, expressions and commands as well as the opportunity to replace code at run-time. Here, the implementation of both mechanisms makes every effort to leverage the accuracy and engineering effort of the existing language support in the JDK: 
 
-1. The immediate evaluation is implemented by the execution environment itself that re-executes the evaluation of user input in a loop using the JDK Compiler API.  
-2. The replacement of code is realized by the underlying JVM using hot swapping. 
+1. The immediate evaluation is implemented by the execution environment itself. It re-executes the evaluation of user input in a loop using the JDK Compiler API.  
+2. The replacement of code is realized by the underlying JVM. The JShell triggers it explicitly using the Java Debug Interface (JDI API). 
 
 ### Implementations of single activities
 > Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
 
+
 #### Code and Input Evaluation
 
-The input evaluation is done by JShell, using an endless loop, that re-executes the evaluation process of user input. The endless loop implementing this process is part of the JShellTool class and is called right after the start of the tool:
+The input evaluation is done using an endless loop, that re-executes the evaluation process of user input. The endless loop implementing this process is part of the JShellTool class and is called right after the start of the tool:
 
 ```java
 // the boolean "live" is set to true after the successful 
@@ -305,7 +329,7 @@ while (live) {
 
 
 
-The loop distinguishes between commands and java statements/expressions.  If the user finishes his or her input, the distinction is made. The most important method for triggering the process of statement evaluation is called *processCompleteSource*. It is used several times within the JShellTool class and represents the entry for statement evaluation:
+The loop distinguishes between commands and java statements/expressions.  If the user finishes his or her input, the distinction is made. The most important method for triggering the process of statement evaluation is called *processCompleteSource*. It is used several times within the JShellTool class and represents the entry point for statement evaluation:
 
 ```java
  private boolean processCompleteSource(String source) throws IllegalStateException {
@@ -317,10 +341,10 @@ The loop distinguishes between commands and java statements/expressions.  If the
 }
 ```
 
-Within this method, valid input source is converted into so called *snippets* using `state.eval(source)`. A snippet can be one expression, statement, variable declaration, method declaration, class declaration or import. Therefore, execution and declaration within the JShell is made using this structures. 
+Within this method, valid input is converted into so called *snippets* using `state.eval(source)`. A snippet can be one expression, statement, variable declaration, method declaration, class declaration or import. The execution and declaration within the JShell is made using this structures. 
 Within the  `state.eval(source)`-method,  the input is compiled and loaded using the  `compileAndLoad` method first. Afterwards, executable snippets are executed and their value is safed within the snippet object. 
 
-As already mentioned, he `compileAndLoad`-method is used in order to compile the input and to load classes if necessary. It therefore uses the javac compiler API (`CompilerTask.compile()`) and interacts directly with the JVM (within the `load` method).  
+As already mentioned, the `compileAndLoad`-method is used in order to compile the input and to load/reload classes if necessary. It therefore uses the javac compiler API (`CompilerTask.compile()`) to compile the source and interacts afterwards directly with the JVM (within the `load` method) using the JDI API.  
 
 ```java
 private Set<Unit> compileAndLoad(Set<Unit> ins) {
@@ -344,11 +368,11 @@ private Set<Unit> compileAndLoad(Set<Unit> ins) {
 }
 ```
 
-It needs to be mentioned, that each statement or expression is evaluated individually. Every single one is checked for completeness, is trimmed and converted to a token string, parsed into an AST and finally evaluated in order to create a corresponding snippet at the end. Thus, large code bases challenges the performance of the execution environment. As a result, feedback and liveness mechanisms are not immediate anymore. 
+It needs to be mentioned, that each statement or expression is evaluated individually. Every single one is checked for completeness, is trimmed and converted to a token string, parsed into an AST and finally evaluated/executed in order to create a corresponding snippet at the end. Thus, large code bases challenges the performance of the execution environment. As a result, feedback and liveness mechanisms are not immediate anymore. 
 
 #### The Build-In Editor <a name="editor"></a> 
 
-As already demonstrated within the workflow, JShell provides a build-in editor that provides the ability to edit for example classes or attributes. Nevertheless, this editor is not implemented within the Jshell itself, it rather comes from JDK internal libraries called ```jdk.internal.editor.spi```. The most interesting part of this editor is the "accept" button, that triggers the evaluation of the edited structure anew. If the user for example updates methods of a class, the complete class is evaluated again. 
+As already demonstrated within the workflow, JShell provides a build-in editor that provides the ability to edit for example classes or attributes. Nevertheless, this editor is not implemented within the Jshell itself, it rather comes from JDK internal libraries called ```jdk.internal.editor.spi```. The most interesting part of this editor is the "accept"-button, that triggers the evaluation of the edited structure anew. 
 
 The implementation of the accept button is pretty similar to the one used in the main loop. Again the  ``` processCompleteSource``` method is used in order to evaluate the input modified within the editor. Thus, input is always treated the same way within the JShell whether it is directly inserted into the command line or entered via the external editor. So like the evaluation within the command line, using the editor leads to performance issues in combination with large code bases. 
 
@@ -369,7 +393,7 @@ public void accept(String s) {
 
 ####Code Replacement
 
-The JShell provides the ability to replace code at run-time using the hot swapping mechanism. This code replacement is done within the evaluation process of statements or expressions. The call for a redefinition is made within the `compileAndLoad`-method that I already described above. Here, the `doRedefines`-call at the end of the method implements the class redefinition based on the class bytecode. 
+The JShell provides the ability to replace code at run-time using the underlying JVM. This code replacement is done within the evaluation process of statements or expressions. The call for a redefinition is made within the `compileAndLoad`-method that I already described above. Here, the `doRedefines`-call at the end of the method implements the class redefinition based on the class bytecode. 
 
 ```java
 /**
@@ -388,7 +412,7 @@ boolean doRedefines() {
     }
 ```
 
-Within `doRedefines`-method the  Java Debug Interface (JDI) is used,  providing explicit control over a virtual machine's execution. It offers the ability to create suspend, and resume threads, to inspect local variables and the stack backtrace as well as to reload classes. The call to the JDI API is done via the `redefine` method, directly accessing the virtual machine in order to redefine the class based on its bytecode. At this point, the further implementation of the code replacement process is handed over to the underlying JVM.  I therefore stopped the code exploration due to the fact that we are not longer in the context of the JShell implementation. 
+Within the `doRedefines`-method the  Java Debug Interface (JDI) is used,  providing explicit control over a virtual machine's execution. It offers the ability to create, suspend, and resume threads, to inspect local variables and the stack backtrace as well as to reload classes. The call to the JDI API is done via the `redefine` method, directly accessing the virtual machine in order to redefine the class based on its bytecode. At this point, the further implementation of the code replacement process is handed over to the underlying JVM.  I therefore stopped the code exploration due to the fact that we are not longer in the context of the JShell implementation. 
 
 
 ### Within or outside of the application
@@ -409,20 +433,35 @@ Modifying a method based on Hot Swapping, Add class
 
 ### Unit of Change
 
-The most common units of change is a class or its methods implemented by the user. Classes and methods can be declared and evaluated using the command line or the build-in editor. 
+The most common unit of change in the context of the JShell is a class implemented by the user. Classes can be declared and evaluated using the command line or the build-in editor. 
 
 ### Relevant Operations
 
-In the context of the JShell, classes can be "added", "modified" or "replaced".  Replacing a class during run-time resets all instances of this class and leads to a loss of parts of the application context. Therefore, we are only able to maintain the liveness-characteristic of code replacement  during run-time by adding or modifying classes. After a class is added, it is "modified" if the new updates do not change its signature (therefore these updates are limited to code-replacment of method-bodies). A change of the class signature leads to a "replacement".  
-Methods can also be "added" or "modified". The modification of a method within a specific class implies a "replacement" or a "modification" of this class. 
+Classes can be "added", "modified" or "replaced".  Replacing a class during run-time resets all instances of this class leading to a loss of parts of the application context. Therefore, we are only able to maintain the liveness-characteristic of code replacement  during run-time by adding or modifying classes. If a class is newly declared by the user without overwriting an already existing version, the class is "added". After a class is added, it can be "modified" if new updates occur that do not change its signature (therefore these updates are limited to code-replacement of method-bodies). A change of the class signature leads to a "replacement".  
 
 ### Example Data
-According to specific example data, it needs to be mentioned, that entered classes and methods could be arbitrary due to the fact, that each user is free to implement code without any restrictions. Therefore, both units of change can vary in a wide range in terms of length or complexity based on the developers needs and programming styles. As a result, it is a difficult task to find specific code samples which reflect the complexity or length of a "common" unit of change. A possible solution for this may be found in guidelines for coding styles that specify crude measurements for code length of classes and methods as well as for their complexity.  Based on  Roock and Lippert (@Roock2006), following guidelines should be considered for implementations in regard to classes and methods:
+According to specific example data, it needs to be mentioned, that classes could be arbitrary due to the fact, that each user is free to implement code without any restrictions. Therefore, the unit of change can vary in a wide range in terms of length or complexity based on the developers needs and programming styles. As a result, it is a difficult task to find specific code samples which reflect the complexity or length of a "common" unit of change. A possible solution for this may be found in guidelines for coding styles that specify crude measurements for code length of classes and methods as well as for their complexity.  Based on  Roock and Lippert (@Roock2006), following guidelines should be considered for implementations in regard to classes and methods:
 
 1. Methods should not have more than an average of 30 code lines (not counting line spaces and comments).
 2. A class should contain an average of less than 30 methods, resulting in up to 900 lines of code. 
 
 Nevertheless, these guidelines are hardly applicable to implementations using the JShell due to its application domain that is based on language feature learning or fast prototyping. Within this domain, coding styles are less important. 
+
+In regard to the lecture, I benchmarked the time needed for a class modification based on example data provided within my work-flow. Here, I replaced the "getColor" method of the "Ball" class in order to change the ball color. The method were updated from:  
+
+```java
+public Color getColor() {
+	return Color.RED;
+}
+```
+
+to:
+
+```java
+public Color getColor() {
+	return Color.BLUE;
+}
+```
 
 ### Reproducible setup of system and benchmark 
 
@@ -433,6 +472,7 @@ Nevertheless, these guidelines are hardly applicable to implementations using th
 	- Update package repository: `sudo apt-get update`
 	- Install the JDK 9: `sudo apt-get install oracle-java9-installer`
 2. Download or clone the git-repo of the live programming lecture into an arbitrary folder.
+
 4. Within the `live-programming-systems/projects/jshell/code`  folder, following can be found:
 	- A JShell.jar that represents the JShell-tool
 	- A `jdk.jshell`  folder, that contains the modified class-files which is used in order to replace the default JShell implementation of the JDK 9 on application-start
@@ -451,33 +491,17 @@ Nevertheless, these guidelines are hardly applicable to implementations using th
 
 ####Benchmark Specification
 
-I benchmarked the time needed for code replacement of a method body.  The data for this benchmark is based on my work-flow. Here, I replaced the "getColor" method of the "Ball" class in order to change the ball color. The method were updated from:  
-
-```java
-public Color getColor() {
-	return Color.RED;
-}
-```
-
-to:
-
-```java
-public Color getColor() {
-	return Color.BLUE;
-}
-```
-
 Overall, I benchmarked the time needed for a complete update-cycle of the ball color. Following steps are part of this cycle:
 
 1.  The developer uses the build-in editor in order to change to "getColor" method-body during application run-time.
 2.  The change is propagated using the "accept"-button of this editor. 
 	
-The overall time needed for code-replacement starts after triggering the accept button of the editor and stops after the color-change was propagated onto the application panel. 
+The overall time needed for code-replacement starts after triggering the "accept"-button of the editor and stops after the color-change was propagated onto the application panel. 
 The adaptation phase within this context is the time needed to recompile the changed "getColor"-method and to update the corresponding "Ball" class bytecode in the JVM memory. The emergence phase represents the time needed to propagate the ball color changes onto the application panel.
 
 ####Benchmark Implementation
 
-In order to automate the benchmark of this update-cycle, I simulated the manual replacement of the "getColor" method-body by using the method triggered by the "accept"-button. As described in section [Build-In Editor](#editor) , this method reads the input string entered in the build-in editor and evaluates it. Using this characteristic, I specified two "Ball" classes that only differs in the implementation of the "getColor" method and passed them alternately as input parameter into this specific method.  As a result, I was able to measure to time needed for every update-cycle. 
+In order to automate the benchmark of this update-cycle, I simulated the manual replacement of the "getColor" method-body by using the method triggered by the "accept"-button explicitly. As described in section [Build-In Editor](#editor) , this method reads the input string entered in the build-in editor and evaluates it. Using this characteristic, I specified two "Ball" classes that only differs in the implementation of the "getColor"-method and passed them alternately as input parameter into this specific method.  As a result, I was able to measure the time needed for every update-cycle. 
 
 The benchmark itself is implemented as additional command for the JShell. After launching the JShell, enter following command: 
 
@@ -485,7 +509,7 @@ The benchmark itself is implemented as additional command for the JShell. After 
 
 The benchmark itself needs files specified in the  `benchmark` folder. Make sure is is present next to the JShell.jar.
 
-During benchmark, the application specified in my work-flow is executed first. After the successful launch of the game the actual benchmark starts. The time needed for each update-cycle is saved in a file called `benchmarkResults.txt` within the  `benchmark` folder
+During benchmark, the application specified in my work-flow is executed first. After the successful launch of the game, the actual benchmark starts. The time needed for each update-cycle is saved in a file called `benchmarkResults.txt` within the  `benchmark` folder
 
 ####Benchmark Results
 
@@ -790,10 +814,7 @@ public class GamePanel extends JPanel{
 		racquet.move();
 		
 		Point position = ball.getLocation();
-		if(position.y >= FRAMEHEIGHT - ball.getRadius()){
-			this.gameOver();
-		}
-		
+			
 		if (position.x > FRAMEWIDTH - ball.getRadius() || position.x < 0) {
 			ball.recflectVertical();
 		}
@@ -814,12 +835,6 @@ public class GamePanel extends JPanel{
 
 	private boolean collision() {
 		return this.racquet.getBounds().intersects(this.ball.getBounds());
-	}
-
-	private void gameOver() {
-		JOptionPane.showMessageDialog(this, "Game Over", "Game Over", JOptionPane.YES_NO_OPTION);
-		ball.moveTo(FRAMEWIDTH/2,FRAMEHEIGHT/2);
-		ball.recflectHorizontal();
 	}
 }
 ```

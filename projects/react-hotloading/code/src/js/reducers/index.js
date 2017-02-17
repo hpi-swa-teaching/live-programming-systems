@@ -1,7 +1,7 @@
 import { routerReducer } from 'react-router-redux'
 import { combineReducers } from 'redux'
 
-import operands from './reducers/operandsReducer'
+import operands from './operandsReducer'
 
 const lastAction = (state = null, action) => action
 let clear = true
@@ -23,7 +23,8 @@ function input(state='0', action){
 function result(state=null, action){
   switch(action.type){
     case 'EVALUATE':
-      return solve(action.payload.equation)
+      // Do not pass a copy of equation in here
+      return solve([...action.payload.equation])
     case 'CLEAR':
       return null
     default:
@@ -35,7 +36,7 @@ export default combineReducers({
   operands,
   input,
   result,
-  lastAction,
+  // lastAction,
   routing: routerReducer,
 })
 
@@ -52,11 +53,10 @@ function solve(equation){
   }
   return equation[0]
 }
-
 function simpleSolve(op1, op2, operation){
   switch(operation){
     case '+':
-      return op1 + op2
+      return op1 - op2
     case '-':
       return op1 - op2
     case '×':

@@ -10,6 +10,15 @@ export const UnconnectedApp = React.createClass({
   propTypes: {
     onBoardQuery: PropTypes.func.isRequired,
   },
+  // constructor() { 
+  //   this.start = Date.now()
+  //   console.log("Start Rendering")
+  // },
+
+  // componentDidMount() {
+  //   let time = Date.now() - this.start
+  //   console.log("Finished Rendering after " + time + " ms")
+  // },
 
   componentWillMount() {
   },
