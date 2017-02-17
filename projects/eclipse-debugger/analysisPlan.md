@@ -20,8 +20,6 @@ The Java Debugger is part of the "Java Development Tools (JDT) Debug" project. I
 Talking about the Eclipse Debugger in the following always relates to the Java Debugger.
 
 ### System boundaries
->What have you looked at exactly? Mention the boundaries of the system and state what is included and excluded. For example, in Chrome the system might be the developer tools. This ignores any JavaScript libraries which might add additional live capabilities to the tools or to the page currently developed. Another example are auto-testing setups which span a particular editor, testing framework, and auto-testing tool.
-
 We focus on parts of the Eclipse Debugger, which are facilitating liveness. These are the graphical tools allowing to inspect and modify runtime state, to modify runtime behavior and to evaluate code snippets at runtime. Although these features depend on the available features of the underlying JVM, we focus only on the Eclipse Debugger implementation.
 
 The "Scrapbook Page" does not directly belong to the Eclipse Debugger, but we also look at that concept and implementation, because it fits in the context of liveness and builds upon the same code like some tools of the Eclipse Debugger.
@@ -34,8 +32,6 @@ The Eclipse Debugger is used for debugging Java applications graphically. The us
 The debugged application can run locally or on a remote computer.
 
 ### Design Goals of the System
->What is the design rational behind the system? Which values are supported by the system? Which parts of the system reflect this rational? For example, auto-testing setups are designed to improve productivity by improving the workflow for TDD through providing feedback on the overall system behavior during programming. Smalltalk systems are designed for expressiveness and enabling understanding through allowing users to directly access and manipulate all runtime objects in the system.
-
 The Eclipse Debugger is mainly designed to interactively debug any kind of Java applications to find bugs faster and increase productivity. Therefore, the different graphical tools to inspect runtime state etc. are pluggable to allow customization to keep only those tools in direct view of the programmer which he needs for his current task.
 
 Many typical features needed to debug an application, like showing the current value of a variable or setting Breakpoints, are also available directly in the code editor via mouse interaction or keyboard shortcuts. This shall help the the programmer to stay focused on one view.
@@ -47,8 +43,6 @@ Scrapbook pages allow additional interactive code snippet evaluation. @RefKey[Ec
 The Eclipse Debugger is not designed to develop a whole application at runtime.
 
 ### Type of System
->What is the general nature of the system? For example: interactive tool, system, library, language, execution environment, application. What makes the system part of that category?
-
 The Eclipse Debugger is an interactive, graphical debugger for Java applications.
 
 ---
@@ -59,8 +53,6 @@ Although the Eclipse Debugger is not designed to develop a whole application at 
 We use a Java Virtual Machine version 1.8.0 update 112 for running Eclipse Neon.1a Release (4.6.1) and the sample application we develop.
 
 ### Example Workflow
->Description of the major workflow which illustrates all relevant "live programming" features. The workflow description should cover all major elements and interactions available. Augmented by annotated pictures and screencast.
-
 A good example to demonstrate live programming features and its limitations is creating a bouncing ball simulation with Java 2D drawing features.
 
 1. We start Eclipse
@@ -336,12 +328,6 @@ Now we remove the breakpoint, save our changes and press "F8" to resume executio
 ![Final application with image of ball drawn](./res/pics/ball_image_drawn_correctly.png)
 
 ### Which activities are made live by which mechanisms?
->Description of each concrete activity in the workflow and the underlying liveness mechanism (which is described on a conceptual level and thus could be mapped to other systems)
-- Actual interactions
-- Feedback mechanism
-- If applicable: How is the emergence phase shortened?
-- Granularity: For example: Elm can only rerun the complete application
-
 Step 11 of the example workflow shows the first liveness activity. The program is running in "Debug"-mode and we change code in the body of the `paint(...)` method. Saving these changes triggers Hot Code Replace (HCR). The method body of the `paint(...)` is replaced without restarting the application. But the change is only visible when the `paint`-method is triggered e.g. by resizing the window.
 
 In step 15, HCR is triggered again by saving a Java file. This change is immediately visible, due to stepping implemented via a separate Thread which enforces a repaint every 20ms, which provides immediate visual feedback for the programmer.
@@ -354,10 +340,6 @@ In step 16 we also modify runtime state via the "Variables View".
 In step 17 we evaluated code snippets to explore the File-IO- and Image-drawing-API. Runtime state manipulation and code evaluation via the Eclipse Debugger are only possible because a context (variables of the current stack frame) is provided when pausing execution.
 
 ### Integration of live activities into overall system
->Which activities in the system are not interactive anymore? Which elements can be manipulated in a live fashion and which can not?
-
->How does this workflow integrate with other parts of the system (potentially not live)? What happens at the boundaries between live parts and non-live parts? For example, the interactively assembled GUI is later passed to a compiler which creates an executable form of the GUI.
-
 The Eclipse Debugger is seamlessly integrated into the Eclipse IDE. Eclipse provides a "Debug Perspective" consisting of a source code editor in the center, surrounded by different views to inspect VM-threads, variables and console output.
 ![Eclipse Debug Perspective with default configuration](./res/pics/debugger_perspective_default.png)
 The source code editor is the same as in the default "Java Perspective", i.e. when halting at a Breakpoint, you can inspect variables like in the "Debug Perspective" in step 16 by hovering over them with the mouse cursor. Debugging and using liveness features like Hot Code Replace is independent of the current "Perspective".
@@ -391,7 +373,6 @@ Like state inspection/modification, code evaluation is only possible when a cont
 If we want to do some trial-and-error coding without starting a dummy Java application in "Debug"-mode and placing a Breakpoint manually, we can use a "Scrapbook Page". It provides the same liveness features as the "Display View", but can be used as a standalone workspace to evaluate Java code. We click on "File" > "New" > "Other..." and in the wizard we select "Java" > "Java Run/Debug" > "Scrapbook Page" and click "Next". We enter a file name, e.g. "workspace" and click "Finish". An empty "Scrapbook Page" opens. We can enter arbitrary Java Code and evaluate it by selecting the code and pressing *Ctrl+Shift+D*.
 ![Scrapbook Page](./res/pics/scrapbook_page.png)
 
-
 ### What happens when the live parts of the system fail/break?
 1. What happens when the application under development causes an exception? How does the system handle these exceptions (provide debugger, stop execution, stop rendering, ...)? Does the liveness extend to these exceptions?
 
@@ -419,21 +400,16 @@ If we want to do some trial-and-error coding without starting a dummy Java appli
 Which features of the system were not described and why were they left out?
 
 - Remote Debugging
-  The JVM allows us to debug programs remotely, e.g. a Java application running in an application server. The underlying concepts for debugging such an application remotely with the Eclipse Debugger are the same for debugging an application running from inside the Eclipse IDE. Therefore we left this feature out.
+  The Eclipse Debugger allows us to debug programs remotely, e.g. a Java application running in an application server. The underlying concepts for debugging such an application remotely with the Eclipse Debugger are the same for debugging an application running from inside the Eclipse IDE. Therefore we left this feature out.
 
 ---
 
 ## Models
 
 ### Mutable or immutable past
->To which category does the system or parts of it belong and why?
-
 The Eclipse Debugger is an immutable past tool. HCR only allows to replace behavior (class methods) that will be executed from now on. If you replace code of a method currently executed, the stack frame will be reset. Side-effects of already executed code cannot be reverted automatically.
 
-*P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
-
 ### Tanimoto's Level of Live Programming
->To which level of liveness do single activities belong, based on the definitions of the 2013 paper and why?
 
 - Behavior manipulation by HCR - Liveness level 4
   The behavior of the running application is immediately changed after the user made the change. The application is kept running. A valid change to a class happens only when a user saves the class' source file from inside the Eclipse IDE. A keystroke is not a valid change to a source file.
@@ -447,12 +423,7 @@ The Eclipse Debugger is an immutable past tool. HCR only allows to replace behav
 - Runtime state manipulation - Liveness level 4
   The argumentation for liveness level 4 is the same as for code evaluation. Runtime state manipulation is only possible when providing a context by pausing a thread, but the application and the Eclipse Debugger are kept running. A state modification is applied as soon as the programmer triggers the change, for example via the "Variables View".
 
-
-*S. L. Tanimoto A perspective on the evolution of live programming Proceedings of the 1st International Workshop on Live Programming, LIVE 2013, 2013, 31-34*
-
 ### Steady Frame
->Which activities are designed as steady frames based on the formal definition and how?
-
 A Steady Frame is defined as:
 >"[...] a way of organizing and representing a system or activity, such that (I) relevant variables can be seen and/ or manipulated at specific locations within the scene (the framing part), and (II) these variables are defined and presented so as to be constantly present and constantly meaningful (the steady part)." @RefKey[Hancock2003RTP]
 
@@ -478,10 +449,7 @@ The "Expressions View" with values:
 
 When the programmer expands the tree structure to explorer variables and values, this expansion state is kept when stepping through a method. Only when we step into another method or return from it, the tree is collapsed again.
 
-*C. M. Hancock Real-Time Programming and the Big Ideas of Computational Literacy Massachusetts Institute of Technology, Massachusetts Institute of Technology, 2003*
-
 ### Impact on distances
-How do the activities affect the different distances: temporal, spatial, semantic?
 
 - Temporal
     Changing behavior by applying Hot Code Replace has no temporal distance. The adaptation time is less than 1s (see chapter *Benchmarking*).
@@ -508,20 +476,14 @@ How do the activities affect the different distances: temporal, spatial, semanti
 
     A large semantic distance exists regarding the differentiation between starting an application in "Run"- or "Debug"-mode. Only in "Debug"-mode the programmer can debug an application and make use of the liveness features. If a programmer is not used to always start an application in "Debug"-mode, a restart is needed to enable debugging features when needed.
 
-*D. Ungar and H. Lieberman & C. Fry Debugging and the Experience of Immediacy Communications of the ACM, ACM, 1997, 40, 38-43*
-
 ---
 
 ## Implementing Liveness
 
 ### Extend of liveness in technical artifacts
->What parts of the system implements the liveness? (Execution environment, library, tool...)
-
 The liveness of the Eclipse Debugger is implemented in different layers. At the lowest level, the JVM defines a Java Platform Debugger Architecture (JPDA) for debuggers in development environments @RefKey[JPDA]. The Eclipse Platform Debugger builds upon these interfaces to provide language independent facilities for launching programs, source code lookup, breakpoints and debugging UI @RefKey[EclipseDebug]. At the highest level, the Eclipse Java Debugger implements the language specific part.
 
 ### Implementations of single activities
->Description of the implementation of live activities. Each implementation pattern should be described through its concrete incarnation in the system (including detailed and specific code or code references) and as an abstract concept.
-
 The sample code snippets shown in the following belong to the Eclipse git repository `git://git.eclipse.org/gitroot/platform/eclipse.platform.releng.aggregator.git` and its submodules with revision tag `Y20170105-1040`.
 We simplified the code snippets to highlight the most important parts by leaving out unimportant lines (indicated by '...'). These snippets are only a glimpse into the complex implementation of the Eclipse Debugger and we do not claim it to be complete.
 
@@ -869,8 +831,6 @@ public class ScrapbookMain {
 ```
 
 ### Within or outside of the application
->For each activity: Does the activity happen from within the running application or is it made possible from something outside of the application? For example, a REPL works within a running process while the interactions with an auto test runner are based on re-running the application from the outside without any interactive access to process internal data.
-
 All liveness activities are triggered from outside the running application. The Eclipse Debugger, running inside its own JVM, makes use of the application's JVM debugging channel to initiate an activity. However, the liveness is applied inside the application's JVM. There, bytecode gets replaced, variables are set and state information is read to send it back to the calling JVM.
 The available liveness features depend on the debugger's and the application's JVM implementation.
 
@@ -1005,39 +965,11 @@ The available liveness features depend on the debugger's and the application's J
   Adaptation time: ~20-100ms
   Emergence time: -
 
-
-
-*P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
-
 ---
 
 ## Personal observations
->Everything that is particular about the environment and does not fit into the pre-defined categories mentioned so far.
+The Eclipse Debugger is highly depending on the implemented liveness-features of the underlying JVM.
 
-Eclipse is highly depending on the implemented liveness-features of the underlying VM.
-
-The programmer has to explicitly start the application in "Debug"-mode to enable the described liveness features. From my own experience having used Eclipse some years to develop server-side Java code in a company, many developers do not run the application in "Debug"-mode by default. Only if there is a bug and they try to find it with the help of the Eclipse Debugger, they run the application in Debug mode. They find the bug, terminate the execution, fix the source code and restart the application.
+The programmer has to explicitly start the application in "Debug"-mode to enable the described liveness features. From my own experience having used Eclipse some years to develop server-side Java code in a company, many developers do not run the application in "Debug"-mode by default. Only if there is a bug and they try to find it with the help of the Eclipse Debugger, they run the application in "Debug"-mode. They find the bug, terminate the execution, fix the source code and restart the application.
 
 To sum it up Live Programming in the Eclipse Debugger is mainly used for faster debugging, but not for application development. The result of Live Programming is an iteration of the source code, not the artifact created with Live Programming.
-
-
-
-## Style Template
-- Denote headings with #
-- You can use any text highlighting, list types, and tables
-- Insert images in the following way:
-  `![This is the caption](/url/of/image.png)`
-- Insert videos or web resources as markdown links
-- Insert references as: `@RefKey` and supply a bib file
-- No HTML tags please
-
-- JRebel https://zeroturnaround.com/software/jrebel/ (closed source)
-- JRebel HCR https://zeroturnaround.com/rebellabs/reloading_java_classes_401_hotswap_jrebel/
-- DCEVM http://dcevm.github.io/
-- JPDA HotSwap specs https://docs.oracle.com/javase/8/docs/technotes/guides/jpda/enhancements1.4.html#hotswap
-
-
-`mvn clean verify -Pbuild-individual-bundles`
-build SaveHandler: /c/e/eclipse.platform.ui/bundles/org.eclipse.ui.workbench
-build debug stuff: /c/e/eclipse.jdt.debug/org.eclipse.jdt.debug
-snippet editor C:\e\eclipse.jdt.debug\org.eclipse.jdt.debug.ui\Snippet Support\org\eclipse\jdt\internal\debug\ui\snippeteditor
