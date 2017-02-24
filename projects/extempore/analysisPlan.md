@@ -8,35 +8,32 @@ bibliography: Name of your bibfile
 - Your Name: Florian Wagner
 - Your Topic: Extempore
 
-Generally try to drill down on reasons behind properties of the system. Make use of the general observations about the system in arguing about specific properties or mechanisms.
-
 ## About the System itself
-Extempore is a plattform for live programming, especially music. It supports two languages, both LISP Dialects, which can be used for the actual programs. During runtime code can be submitted to the system and is evaluated in the context of the current state of the system, as build by previous instructions and code.
+Extempore is a plattform for live programming, especially music. It supports two languages, both LISP Dialects, which can be used for the actual programs. During runtime, code can be submitted to the system and is evaluated in the context of the current state of the system, that was created by previous instructions. Extempore can be used for many applications ranging from live performances to explorative high performance computing. Among those applications, live performances of music are its heritage as well as its major application area. Therefore this report focuses on this area for the analysis of liveness in Extempore.
 
 ### System boundaries
-Extempore is build around a server/client architecture, where the clients submit code via TCP to the server, running extempore. The clients can be anything that supports TCP, even telnet, as the server reads a raw TCP-Stream and evaluates it. To evaluate the code, the server implements two different dialects of LISP, which operate in a semi-shared environment. While functions of the other environment can be called, state is confined to one environment. One of these is an implementation of R5RS Scheme and the other is a custom dialect called "xtlang" which has explicit memory management to avoid the overhead of garbage collection. Extempore can interact with the world through a Foreign Function Interface.
-Apart from the server application itself, a usual installation of extempore also packages libraries written in xtlang, which can be loaded to create certain capabilities. For example, there are libraries dealing with synthesizing of music or rendering of graphics.
-Since extempore has a focus on musical programming, the core application also includes an interface to the soundcard, which enables samples to be written from user-code. In this way, the user can create sound. Extempore offers libraries for this purpose, which come with the usual installation.
+
+![An Overview of the Extempore System](./System_Overview.png)
+
+Extempore is build around a server/client architecture, where the clients submit code via TCP to the server, running Extempore. The clients can be anything that supports TCP, even telnet, as the server reads a raw TCP-Stream and evaluates it. To evaluate the code, the server implements two different dialects of LISP, which operate in a semi-shared environment. While functions of the other environment can be called, state is confined to one environment. One of these is an implementation of R5RS Scheme and the other is a custom dialect called "xtlang" which has explicit memory management to avoid the overhead of garbage collection. Extempore can interact with the world through a Foreign Function Interface.
+Apart from the server application itself, a usual installation of Extempore also packages libraries written in xtlang, which can be loaded to create certain capabilities. For example, there are libraries dealing with synthesizing of music or rendering of graphics.
+Since Extempore has a focus on musical programming, the core application also includes an interface to the soundcard, which enables samples to be written from user-code. In this way, the user can create sound. Extempore offers libraries for this purpose, which come with the usual installation.
 Extempore does not supply any built-in code editing, the user has to provide his own method of submitting code to the server. Extempore also does not package most C-Libraries it interacts with through FFI, those also have to be provided by the user, if he wishes to peruse them.
+This report looks describes only the Extempore runtime environment and not the libraries included in a standard distribution of Extempore.
 
 ### Context
-Extempore is mainly used for live performances, especially for music (Algoraves). The programs are often a mix of tested and prepared code as a basis of more ad-hoc and performative code to produce the effects, that the programmer wants to achieve at a given moment.
-Most of the performative code is discarded after the performance or kept for historical value.
-However it is often necessary to write libraries of auxilliary code to facilitate those performances and these libraries are often developed using a more traditional edit-test cycle. The code of the libraries is also often kept around and built upon for further performances and can be shared and developed with other users of extempore.
+Extempore is mainly used for live performances, especially of music (Algoraves) and Graphics. In a typical algorave one or more artists are on stage with their computers, using them to generate music and graphics for the audience. Their screens are output behind them using beamers or big screens, so that the crowd can follow their actions on a superficial level.
 
 ### General Application Domain
-Extempore is typically used to create music or (artistic) graphical effects. This often happens in a live context and with little to no prior code specific to the performance. However, most aritsts do have a library of functions to (re)use in their performances.
-Extempore is also used to control and interact with more complex systems, such as physics simulations.
-Extempore is therefore mostly used as a tool for experimental coding, that is a tool which enables the user to quickly validate their ideas by putting them into action.
-
+Code development in Extempore falls into one of two categories: live performances and preperation of libraries.
+The code written during performances is short lived and rarely documented or saved in and of itself, as it is seen as a means to an end. Depending on the artist there may be some rehersal this code prior to the performance, but code at a typical performance is written during that performance, relying on libraries and abstractions instead of simple replay of a previous performance.
+Those libraries are written beforehand to enable an artist to express herself in a more fluent manner by provididing abstractions over basic functions. These abstractions can be anything from a virtual instrument which turns simple function calls into complex sounds to a binding of an external library such as OpenGL. This code is also developed using Extempore. However, it is usually developed offline in an iterated fashion and errors are corrected instead of incorporated. The code is of course saved, so that it can be used for future performances, libraries or shared with other Extempore developers.
 
 ### Design Goals of the System
 The main design goal behind the system is to combine the flexibility of a live environment with the performance of a compiled language. This stems from a desire to have a high level of control even in processes which (soft) real-time guarantees and are therefore performance sensitive.
 
-Extempore is also designed to spawn processes on different machines, so as to better balance workloads. This is however a secondary goal which is rooted equally in both primary design goals. Being able to distribute workloads brings all of the performance gains of classical multiprocessing. It also enables the user to write code that makes explicit use of several computers, such as when controlling a swarm of robots.
-
 ### Type of System
-Extempore is an execution environment. The core is provided by a single binary, which accepts code from external sources and executes it. The code can interact with systems outside of extempore through a foreign function interface. Extempore also implements a way to directly write samples to a sound interface, so that code can produce sound without using the FFI.
+Extempore is an execution environment. This runtime Environment is provided by a single binary, which accepts code from external sources and executes it. The code can interact with systems outside of the Extempore runtime Environment through a foreign function interface. Extempore also implements a way to directly write samples to a sound interface, so that code can produce sound without using the FFI.
 Extempore also packages standard library of functions which provide abstractions over commonly used functionalities, so that users do not have to write their own abstractions.
 
 ## Workflows
@@ -48,11 +45,11 @@ Description of the major workflow which illustrates all relevant "live programmi
 
 A typical example is adding an instrument which repeatedly plays a note to the environment.
 
-1. We start the extempore server
+1. We start the Extempore server
 ```
-$ extempore
+$ Extempore
 ```
-2. We establish a connection with extempore, through which all further code will be send
+2. We establish a connection with Extempore, through which all further code will be send
 ```
 $ telnet localhost 7099
 ```
@@ -80,20 +77,20 @@ $ telnet localhost 7099
 6. We call the function, causing the instrument to play a periodical note
 
 ### Which activities are made live by which mechanisms?
-All activities are live. This means that code commited to the system is possibly compiled and run in the context of the correlating envrionment. The Feedback depends on the code in question.
+Extempore itself offers only one interaction to the user: submitting code. This activity however is fully live. This means that code commited to the system is immediately interpreted and run in the context of the correlating envrionment. The Feedback depends on the code in question.
 
-In a life performane there are typically two groups of people who notice the Feedback from the changes. The first group are the the developers (there is often only one developer) who notices all feedback related to the technical compilation and execution from the code. The second group is the audience, who notice feedback on different channels, mostly sound and music. The feedback the audience recieves are the artifacts the developer wants to produce and often the developer also notices those effects so as to fine tune then and make use of the live nature of extempore.
+In a life performance there are typically two groups of people who notice the Feedback from the changes. The first group are the the developers (there is often only one developer) who notices all feedback related to the technical compilation and execution from the code. The second group is the audience, who notice feedback on different channels, mostly sound and music. The feedback the audience recieves are the artifacts the developer wants to produce and often the developer also notices those effects so as to fine tune then and make use of the live nature of Extempore.
 
-Feedback can occur over pretty much all channels but there are some standard ways: The extempore console of the running process shows when clients connect/drop out, code is commited, compiled or run as well as the results of the evaluated code. The result of the evaluated code is also send back over the connection to the client so as to notify him of success or failure of his commited code. Since functions can call out to external code (mostly C-Libraries), there can be additional feedback effects. Since extempore is mostly used for live performances involving sound and graphics most feedback for the audience (and the programmer as well) is often acoustic and visual. Depending on the IDE of the Developer, there may be additional feedback based on the returned values from the code execution.
+Feedback can occur over pretty much all channels but there are some standard ways: The Extempore console of the running process shows when clients connect/drop out, code is commited, compiled or run as well as the results of the evaluated code. The result of the evaluated code is also send back over the connection to the client so as to notify him of success or failure of his commited code. Since functions can call out to external code (mostly C-Libraries), there can be additional feedback effects. Since Extempore is mostly used for live performances involving sound and graphics most feedback for the audience (and the programmer as well) is often acoustic and visual. Depending on the IDE of the Developer, there may be additional feedback based on the returned values from the code execution.
 
 There are three categories in which changes can fall. Those categories are fluid and depend on the state of the environment at the time of execution.
 * If the code changes state or functions used in a running temporal recursion, then those changes will be noticeable by the audience as soon as the concerning state or function is evaluated again. The extent and kind of feedback to the audience depends on the involved recursions and symbols. Some changes may be small, such as changing the pitch of a note, while other changes can be big, such as changing the complete instrumentation of a piece or starving the audio buffer due to heavy processing, which results in white noise.
-* If the code simply introduces new state into the system, then the change will not be visible to the audience but the developer will be notified via the evaluation result as well as the extempore console (if he has access to it).
+* If the code simply introduces new state into the system, then the change will not be visible to the audience but the developer will be notified via the evaluation result as well as the Extempore console (if he has access to it).
 * If the code calls a function, possibly starting a new temporal recursion, then the results will be noticeable by the audience
 
-The emergence phase is shortened by the use of compiled for xtlang. This enables functions written in xtlang to be fast enough to be polled for audio (44khz). This can have a drawback: bigger changes to the environment and code can lengthen the adaption time considerably if the compilation of the code in question is complicated. However this problem does not usually occur, since most changes to the code are small and the language contains little compile time computations (TODO: Beleg), so that adaption times are usually short (TODO, benchmark).
+The emergence phase is shortened by the use of JIT compilation for xtlang. This enables functions written in xtlang to be fast enough to be polled for audio (44khz). This can have a drawback: bigger changes to the environment and code can lengthen the adaption time considerably if the compilation of the code in question is complicated. However this problem does not usually occur, since most changes to the code are small and the language contains little compile time computations (TODO: Beleg), so that adaption times are usually short, as seen in the benchmark.
 
-Extempore is capable of very granular change, since every definition in the environment can be changed on its own. At the same time an arbitrary number of definitions can be changed at once, possibly even changing the environment to something completely different.
+Extempore is capable of very fine granular change, since every definition in the environment can be changed on its own. At the same time an arbitrary number of definitions can be changed at once, possibly even changing the environment to something completely different.
 
 ### Integration of live activities into overall system
 The System has little interaction surface, only a way to input code and some ways to recieve feedback. These are all "live" in the sense, that they are either necessary (input of commands) or show the current state (evaluation results).
@@ -101,7 +98,7 @@ The System has little interaction surface, only a way to input code and some way
 The non-live parts of the system are hidden and basically contained to the framework facilitating the live environment. This environment can not be changed and as such it is not possible to change the language within itself. It is also not possible to change code that is not written in xtlang or scheme, so that most mechanisms to provide feedback (sound, graphics), have a clearly defined API that cannot be changed. The API can however be wrapped in xtlang code and this wrapper can expose new interactions by composing them out of the vocabulary of the external API.
 
 ### Limitations
-While extempore can behave in an unwanted fashion if it is overloaded and can not meet the soft-real-time criteria, it is still responsive, as the interaction and control of the system is done in a different thread from the execution environment itself. Because of this, the system remains responsive and live even if it is under heavy calculation load. The only exception to this rule would be an endless non-temporal recursion, which would block the execution environment. While new changes could be made, they would not be visible since the main execution thread would be busy with the endless recursion. This problem is mitigated by the fact that all evaluations have a maximum time. So while the unresponsive state may persist for a while it will eventually be resolved by the system. It is also unusual not to use temporal recursion for longer computations, so that the problem does usually not occur.
+While Extempore can behave in an unwanted fashion if it is overloaded and can not meet the soft-real-time criteria, it is still responsive, as the interaction and control of the system is done in a different thread from the execution environment itself. Because of this, the system remains responsive and live even if it is under heavy calculation load. The only exception to this rule would be an endless non-temporal recursion, which would block the execution environment. While new changes could be made, they would not be visible since the main execution thread would be busy with the endless recursion. This problem is mitigated by the fact that all evaluations have a maximum time. So while the unresponsive state may persist for a while it will eventually be resolved by the system. It is also unusual not to use temporal recursion for longer computations, so that the problem does usually not occur.
 
 Extempore has very little limitations in regard to its languages, since they are both derived from LISP and are therefor highly flexible and capable of building all the desired abstractions. There are however only some basic abstractions provided out of the box, so that further affordances for working with liveness have to be built by the user.
 
@@ -111,8 +108,8 @@ When an evaluation causes an exception, the evaluation is stopped and a stacktra
 A failure in the tool itself, e.g. due to corrupted memory from FFI, will cause the whole environment to crash. This is due to the low-level nature of the execution environment.
 
 ### Left out features
-This document mainly describes the extempore execution environment. It does not describe the foreign function interface, because it contributes nothing to the liveness of the system.
-The standard library is left out as well, since it is not required to work with extempore and mainly builds upon the basic liveness mechanisms.
+This document mainly describes the Extempore execution environment. It does not describe the foreign function interface, because it contributes nothing to the liveness of the system.
+The standard library is left out as well, since it is not required to work with Extempore and mainly builds upon the basic liveness mechanisms.
 
 
 ---
@@ -130,7 +127,7 @@ Extempore provides a constantly meaninful environment through the use of atomic 
 Extempore is therefore *steady* in and of itself and becomes *steady frame* in the usual single-user live workflow that is described above.
 
 ### Impact on distances
-@Ungar proposes three distances/immediacies for live systems. While extempore has two short distances, it does not encompass a visual system. Therefore the third distance is inapplicable:
+@Ungar proposes three distances/immediacies for live systems. While Extempore has two short distances, it does not encompass a visual system. Therefore the third distance is inapplicable:
 * Extempore has a very small *temporal distance* due to small adaptation and emergence times. This is further helped by the usual workflow, which is mostly comprised of small, contained changes.
 * Extempore also has a very small *semantic distance*. The user has to only issue one action to change the state of the system.
 * Extempore has no visual component, therefore the term of *visual distance* loses it's meaning in regard to the system itself. There is however a rough representation of the current system state in the text-editor of the user. This representation has the same visual distance as most conventional, non-live systems.
@@ -153,7 +150,7 @@ Extempore further seperates the adaptation from the execution, ensuring that the
 * Plots with seaborn
 
 ## Benchmark
-The typical unit of change in extempore is a single redefinition.
+The typical unit of change in Extempore is a single redefinition.
 
 1. **Unit of change:** Determine relevant units of change from the user perspective. Use the most common ones.
 2. **Relevant operations:** Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).

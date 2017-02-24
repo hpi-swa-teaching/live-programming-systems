@@ -12,3 +12,6 @@ http://digego.github.io/extempore/audio-signal-processing.html
 -"performant enough to do sample-level manipulation in the same language and environment."
     -> different (sub)systems have different performance requirements. To make such a system "live" the environment has to be fast enough to handle its execution.
 - closure returning/higher order functions are made extensive use of -> functional for a reason
+
+- Some motivation
+https://groups.google.com/forum/#!msg/extemporelang/-K2F49J0lJA/bLM0uHplmPkJ;context-place=forum/extemporelang
