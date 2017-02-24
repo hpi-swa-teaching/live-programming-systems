@@ -22,7 +22,7 @@ Extempore does not supply any built-in code editing, the user has to provide his
 This report looks describes only the Extempore runtime environment and not the libraries included in a standard distribution of Extempore.
 
 ### Context
-Extempore is mainly used for live performances, especially of music (Algoraves) and Graphics. In a typical algorave one or more artists are on stage with their computers, using them to generate music and graphics for the audience. Their screens are output behind them using beamers or big screens, so that the crowd can follow their actions on a superficial level.
+Extempore is mainly used for live performances, especially of music (Algoraves) and Graphics. In a typical algorave one or more artists are on stage with their computers, using them to generate music and graphics for the audience. Their screens are output behind them using beamers or big screens, so that the crowd can follow their actions on a superficial level. An example for such a performance is shown in @Mume .
 
 ### General Application Domain
 Code development in Extempore falls into one of two categories: live performances and preperation of libraries.
@@ -30,7 +30,7 @@ The code written during performances is short lived and rarely documented or sav
 Those libraries are written beforehand to enable an artist to express herself in a more fluent manner by provididing abstractions over basic functions. These abstractions can be anything from a virtual instrument which turns simple function calls into complex sounds to a binding of an external library such as OpenGL. This code is also developed using Extempore. However, it is usually developed offline in an iterated fashion and errors are corrected instead of incorporated. The code is of course saved, so that it can be used for future performances, libraries or shared with other Extempore developers.
 
 ### Design Goals of the System
-The main design goal behind the system is to combine the flexibility of a live environment with the performance of a compiled language. This stems from a desire to have a high level of control even in processes which (soft) real-time guarantees and are therefore performance sensitive.
+The main design goal, as stated by @Philosophy, behind the system is to combine the flexibility of a live environment with the performance of a compiled language. This stems from a desire to have a high level of control even in processes which (soft) real-time guarantees and are therefore performance sensitive.
 
 ### Type of System
 Extempore is an execution environment. This runtime Environment is provided by a single binary, which accepts code from external sources and executes it. The code can interact with systems outside of the Extempore runtime Environment through a foreign function interface. Extempore also implements a way to directly write samples to a sound interface, so that code can produce sound without using the FFI.
