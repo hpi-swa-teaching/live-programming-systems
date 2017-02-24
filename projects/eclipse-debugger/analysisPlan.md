@@ -919,97 +919,125 @@ The available liveness features depend on the debugger's and the application's J
 
 ### Reproducible setup of system and benchmark
 #### Installation on Ubuntu 16.04.1 LTS
-//TODO
+To ease the installation process, we provide a modified ready-to-use eclipse bundle for Linux, which includes the source code changes for benchmarking listed before.
+
+[Eclipse Benchmarking Bundle for Linux](https://drive.google.com/open?id=0B8pjqiBNg5DUQkdtTHpMNnV4SlE)
+
+To run eclipse, we need to install Java version 1.8.0 update 112.
+
+```bash
+wget --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u112-b15/jdk-8u112-linux-x64.tar.gz
+
+sudo mkdir /opt/jdk
+
+sudo tar -zxf jdk-8u112-linux-x64.tar.gz -C /opt/jdk
+
+sudo update-alternatives --install /usr/bin/java java /opt/jdk/jdk1.8.0_112/bin/java 100
+sudo update-alternatives --install /usr/bin/javac javac /opt/jdk/jdk1.8.0_112/bin/javac 100
+```
 
 #### Instrumentation of system for measurements
+To measure the adaptation time from the perspective of the programmer, we add some lines of code to relevant classes of the Eclipse IDE.
+
+We use Eclipse's internal error logging mechanism to display our measurement. Unfortunately, we cannot simply store the timestamp to some kind of global variable, because start and end of our measurement have to be done in different modules of the Eclipse IDE. Therefore we simply log timestamps when the programmer requests to save a Java source file, when Hot Code Replace starts and when it finishes.
+
+The log messages can be displayed by opening the "Error Log View" ("Window" > "Show view" > "Error Log").
+
 1. Benchmarking a method body modification
-  To measure the adaptation time from the perspective of the programmer, we add some lines of code to relevant classes of the Eclipse IDE.
-  
-  We use Eclipse's internal error logging mechanism to display our measurement. Unfortunately, we cannot simply store the timestamp to some kind of global variable, because start and end of our measurement have to be done in different modules of the Eclipse IDE. Therefore we simply display timestamps when the programmer requests to save a Java source file, when Hot Code Replace starts and when it finishes.
-  
-  The log messages can be displayed by opening the "Error Log View" ("Window" > "Show view" > "Error Log").
-  
-  First of all, we adjust the `execute`-method of class `SaveHandler` which we already mentioned in chapter *Implementations of single activities*.
-  ```java
-  import java.util.Calendar;
+      - Eclipse code adaptations:  
+      First of all, we adjust the `execute`-method of class `SaveHandler` which we already mentioned in chapter *Implementations of single activities*.
+      ```java
+      import java.util.Calendar;
 
-  ...
+      ...
 
-  public Object execute(ExecutionEvent event) {
+      public Object execute(ExecutionEvent event) {
 
-    ISaveablePart saveablePart = getSaveablePart(event);
+        ISaveablePart saveablePart = getSaveablePart(event);
 
-    // no saveable
-    if (saveablePart == null)
-      return null;
+        // no saveable
+        if (saveablePart == null)
+          return null;
 
-    // if editor
-    if (saveablePart instanceof IEditorPart) {
-      IEditorPart editorPart = (IEditorPart) saveablePart;
-      IWorkbenchPage page = editorPart.getSite().getPage();
-      
-      WorkbenchPlugin.log(new RuntimeException("SaveHandler saveEditor: " + Calendar.getInstance().getTimeInMillis())); //$NON-NLS-1$
-      page.saveEditor(editorPart, false);
-      return null;
-    }
+        // if editor
+        if (saveablePart instanceof IEditorPart) {
+          IEditorPart editorPart = (IEditorPart) saveablePart;
+          IWorkbenchPage page = editorPart.getSite().getPage();
+          
+          WorkbenchPlugin.log(new RuntimeException("SaveHandler saveEditor: " + Calendar.getInstance().getTimeInMillis())); //$NON-NLS-1$
+          page.saveEditor(editorPart, false);
+          return null;
+        }
 
-    // if view
-    IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
-    WorkbenchPage page = (WorkbenchPage) activePart.getSite().getPage();
-    page.saveSaveable(saveablePart, activePart, false, false);
+        // if view
+        IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
+        WorkbenchPage page = (WorkbenchPage) activePart.getSite().getPage();
+        page.saveSaveable(saveablePart, activePart, false, false);
 
-    return null;
-  }
-  ```
-  Next, we adjust the method `doHotCodeReplace` of class `JavaHotCodeReplaceManager` (see chapter *Implementations of single activities*).
-  ```java
-  private void doHotCodeReplace(List<JDIDebugTarget> targets, List<IResource> resources,
-      List<String> qualifiedNames) {
-    JDIDebugPlugin.log(new RuntimeException("doHotCodeReplace: " + Calendar.getInstance().getTimeInMillis()));
+        return null;
+      }
+      ```
+      Next, we adjust the method `doHotCodeReplace` of class `JavaHotCodeReplaceManager` (see chapter *Implementations of single activities*).
+      ```java
+      private void doHotCodeReplace(List<JDIDebugTarget> targets, List<IResource> resources,
+          List<String> qualifiedNames) {
+        JDIDebugPlugin.log(new RuntimeException("doHotCodeReplace: " + Calendar.getInstance().getTimeInMillis()));
 
-    ...
-  ```
-  And in the same class the method `fireHCRSucceeded`.
-  ```java
-  private void fireHCRSucceeded(IJavaDebugTarget target) {
-    ListenerList<IJavaHotCodeReplaceListener> listeners = getHotCodeReplaceListeners(target);
-    for (IJavaHotCodeReplaceListener listener : listeners) {
-      listener.hotCodeReplaceSucceeded(target);
-    }
-    JDIDebugPlugin.log(new RuntimeException("HCRSucceeded: " + Calendar.getInstance().getTimeInMillis()));
-  }
-  ```
+        ...
+      ```
+      And in the same class the method `fireHCRSucceeded`.
+      ```java
+      private void fireHCRSucceeded(IJavaDebugTarget target) {
+        ListenerList<IJavaHotCodeReplaceListener> listeners = getHotCodeReplaceListeners(target);
+        for (IJavaHotCodeReplaceListener listener : listeners) {
+          listener.hotCodeReplaceSucceeded(target);
+        }
+        JDIDebugPlugin.log(new RuntimeException("HCRSucceeded: " + Calendar.getInstance().getTimeInMillis()));
+      }
+      ```
+      - Benchmarking steps:
+      Run the `BouncingBall` application in "Debug"-mode. Change the method body of an arbitrary method of class `Ball`. In the "Error Log View" three entries will appear. Double-click all three after each other and copy the timestamps. The first is the one triggered when saving was triggered ("SaveHandler saveEditor: [timestamp in ms]"). The second when Hot Code Replace starts ("doHotCodeReplace: [timestamp in ms]") and the third when Hot Code Replace finishes ("HCRSucceeded: [timestamp in ms]").
 
 2. Benchmarking a variable modification
-  To measure the adaptation time, we use the same approach as for benchmarking Hot Code Replace.
-  We adjust the method `setValue` of class `JavaObjectValueEditor` (see chapter *Implementations of single activities*).
-  ```java
-  protected void setValue(final IVariable variable, final String expression){
-    UIJob job = new UIJob("Setting Variable Value"){ //$NON-NLS-1$
-      @Override
-      public IStatus runInUIThread(IProgressMonitor monitor) {
-        try {
-          long time1 = Calendar.getInstance().getTimeInMillis();
-          IValue newValue = evaluate(expression);
-          if (newValue != null) {
-            variable.setValue(newValue);
-            long time2 = Calendar.getInstance().getTimeInMillis();
-            JDIDebugUIPlugin.log(new RuntimeException("ObjectValueEditor setValue " + (time2-time1))); //$NON-NLS-1$
-          } else {
-            variable.setValue(expression);
+    - Eclipse code adaptations:  
+    To measure the adaptation time, we use the same approach as for benchmarking Hot Code Replace.
+    We adjust the method `setValue` of class `JavaObjectValueEditor` (see chapter *Implementations of single activities*).
+    ```java
+    protected void setValue(final IVariable variable, final String expression){
+      UIJob job = new UIJob("Setting Variable Value"){ //$NON-NLS-1$
+        @Override
+        public IStatus runInUIThread(IProgressMonitor monitor) {
+          try {
+            long time1 = Calendar.getInstance().getTimeInMillis();
+            IValue newValue = evaluate(expression);
+            if (newValue != null) {
+              variable.setValue(newValue);
+              long time2 = Calendar.getInstance().getTimeInMillis();
+              JDIDebugUIPlugin.log(new RuntimeException("ObjectValueEditor setValue " + (time2-time1))); //$NON-NLS-1$
+            } else {
+              variable.setValue(expression);
+            }
+          } catch (DebugException de) {
+            handleException(de);
           }
-        } catch (DebugException de) {
-          handleException(de);
+          return Status.OK_STATUS;
         }
-        return Status.OK_STATUS;
-      }
-    };
-    job.setSystem(true);
-    job.schedule();
-  }
-  ```
+      };
+      job.setSystem(true);
+      job.schedule();
+    }
+    ```
+    - Benchmarking steps:
+    Run the `BouncingBall` application in "Debug"-mode. Place a Breakpoint in the `paint`-method of class `Ball` by double-clicking next to the line number in the code editor. When a thread halts at the Breakpoint, use the "Variables View" to change a value, e.g. `dx` of `this` to another value.
+    In the "Error Log View" an entry will appear displaying the time needed to set the value ("ObjectValueEditor setValue [time-delta in ms]").
 
 ### Results for adaptation and emergence phase
+
+System specifications:
+
+- Windows 10 64-Bit
+- Intel Core i7-4500U @ 1.80GHz 2.40GHz
+- 8 GB RAM
 
 1. Method bodies
 
