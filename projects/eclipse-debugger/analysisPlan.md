@@ -429,6 +429,7 @@ If we want to do some trial-and-error coding without starting a dummy Java appli
       Restarts the debugging session, so that all code changes will be included in the new session, but all runtime state is lost.
 
 2. How can the system itself break? What happens when there is a failure in the system/tool itself?
+
     In some cases, when saving invalid Java code (like invalid method signatures), the Eclipse Debugger is unable to properly handle these exceptions and can only notify the user via the Eclipse Debugger that something went wrong.
     
     ![Exception unable to process](./res/pics/liveness_fails.png)
@@ -441,7 +442,8 @@ If we want to do some trial-and-error coding without starting a dummy Java appli
 Which features of the system were not described and why were they left out?
 
 - Remote Debugging
-  The Eclipse Debugger allows us to debug programs remotely, e.g. a Java application running in an application server. The underlying concepts for debugging such an application remotely with the Eclipse Debugger are the same for debugging an application running from inside the Eclipse IDE. Therefore we left this feature out.
+
+    The Eclipse Debugger allows us to debug programs remotely, e.g. a Java application running in an application server. The underlying concepts for debugging such an application remotely with the Eclipse Debugger are the same for debugging an application running from inside the Eclipse IDE. Therefore we left this feature out.
 
 ---
 
@@ -501,6 +503,7 @@ When the programmer expands the tree structure to explorer variables and values,
 ### Impact on distances
 
 - Temporal
+
     Changing behavior by applying Hot Code Replace has no temporal distance. The adaptation time is less than 1s (see chapter *Benchmarking*).
 
     Changing state via the "Variables View" has no temporal distance. Modifying a variable in this view is done in less than 100ms (see chapter *Benchmarking*).
@@ -510,6 +513,7 @@ When the programmer expands the tree structure to explorer variables and values,
     In all cases, the Eclipse Debugger allows the user to recognize a causality between triggering the change and seeing the effects.
 
 - Spatial and Semantic
+
     In the Eclipse IDE, all views are pluggable. This implies that the spatial and semantic distance among different views is highly depending on the graphical arrangement.
     In the default setup of the "Debug Perspective", the code editor is placed in the center, the "Debug View" to inspect the state of VM-Threads in the upper left and all the other state inspection tools like "Variables View" and "Expressions View" are grouped in a tab view in the upper right corner. The "Display View" is grouped in a tab view at the bottom. This approach already implies a spatial distances by physically separating these tools. The programmer has to deal with a cognitive "ping-pong" effect @RefKey[Ungar1997DEI].
     The "Variables View" for example allows to inspect and change the values of available variables at runtime, but the programmer needs to move the focus from the editor to a different view, find the corresponding variable entry in the tree list and move the focus back to the code.
@@ -910,12 +914,15 @@ The available liveness features depend on the debugger's and the application's J
     g.fillOval(location.x - radius, location.y - radius, 2 * getRadius(), 2 * getRadius());
   }
   ```
+  In the "Error Log View" three entries will appear. The log messages can be displayed by opening the "Error Log View" ("Window" > "Show view" > "Error Log"). Double-click all three entries after each other and copy the timestamps. The first is the one triggered when saving was triggered ("SaveHandler saveEditor: [timestamp in ms]"). The second when Hot Code Replace starts ("doHotCodeReplace: [timestamp in ms]") and the third when Hot Code Replace finishes ("HCRSucceeded: [timestamp in ms]").
+
   For benchmarking a variable modification, we place a Breakpoint in the `move`-method and change the value of variable `dx` to another value via the "Variables View" when the application is halting at the Breakpoint.
   ```java
   public void move(){
       getLocation().translate(dx, dy);
   }
   ```
+  In the "Error Log View" an entry will appear displaying the time needed to set the value ("ObjectValueEditor setValue [time-delta in ms]").
 
 ### Reproducible setup of system and benchmark
 #### Installation on Ubuntu 16.04.1 LTS
@@ -995,8 +1002,6 @@ The log messages can be displayed by opening the "Error Log View" ("Window" > "S
         JDIDebugPlugin.log(new RuntimeException("HCRSucceeded: " + Calendar.getInstance().getTimeInMillis()));
       }
       ```
-      - Benchmarking steps:
-      Run the `BouncingBall` application in "Debug"-mode. Change the method body of an arbitrary method of class `Ball`. In the "Error Log View" three entries will appear. Double-click all three after each other and copy the timestamps. The first is the one triggered when saving was triggered ("SaveHandler saveEditor: [timestamp in ms]"). The second when Hot Code Replace starts ("doHotCodeReplace: [timestamp in ms]") and the third when Hot Code Replace finishes ("HCRSucceeded: [timestamp in ms]").
 
 2. Benchmarking a variable modification
     - Eclipse code adaptations:  
@@ -1027,9 +1032,6 @@ The log messages can be displayed by opening the "Error Log View" ("Window" > "S
       job.schedule();
     }
     ```
-    - Benchmarking steps:
-    Run the `BouncingBall` application in "Debug"-mode. Place a Breakpoint in the `paint`-method of class `Ball` by double-clicking next to the line number in the code editor. When a thread halts at the Breakpoint, use the "Variables View" to change a value, e.g. `dx` of `this` to another value.
-    In the "Error Log View" an entry will appear displaying the time needed to set the value ("ObjectValueEditor setValue [time-delta in ms]").
 
 ### Results for adaptation and emergence phase
 
