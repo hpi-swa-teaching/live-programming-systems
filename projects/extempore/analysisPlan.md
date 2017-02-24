@@ -1,7 +1,7 @@
 ---
 title: Extempore
 author: Florian Wagner
-bibliography: Name of your bibfile
+bibliography: refs_ext.bib
 ---
 
 # Live Programming Seminar
@@ -49,46 +49,63 @@ A typical example is adding an instrument which repeatedly plays a note to the e
 ```
 $ Extempore
 ```
-2. We establish a connection with Extempore, through which all further code will be send
-```
-$ telnet localhost 7099
-```
+
+2. We open a text editor and establish a connection with the server as described by @connecting . All further code is submitted as a selection to the environment.
+
 3. We load some common libraries that simplify interfacing with the sound system
 ```
 (sys:load "libs/core/instruments.xtm")
 ```
-4. We create the instrument and add it to the Sound Output of Extempore
+
+4. We create the instrument and add it to the Sound Output of Extempore.
 ```
-;; define a synth using the provided components
-;; synth_note_c and synth_fx
-(bind-instrument synth synth_note_c synth_fx)
-;; add the instrument to the DSP output sink closure
+;; create an instrument
+(make-instrument s1 synth)
+;; create the sound output function that is will be polled by Extempore
 (bind-func dsp:DSP
-	(lambda (in time chan dat)
-    (synth in time chan dat)))
+  (lambda (in time chan dat)
+    (cond ((< chan 2)
+        (+ (s1 in time chan dat)
+        (s1 in time chan dat)))
+        (else 0.0))))
+;; tell Extempore which function to poll
 (dsp:set! dsp)
 ```
-5. We create a function that outputs the desired sound and schedules itself in the future (temporal recursion)
+The DSP function is called for every sample. The sampling rate is usually around 44khz. Since a delayed sample would be noticed by the user, the DSP function is critical. It is therefore implemented in the compiled xtlang, as can be seen by the `bind-func` call used to bind it, opposed to a `define` call for scheme functions.
+
+5. Now we can play a note on this instrument
+```
+(play-note (now) s1 60 80 10000)
+```
+6. It would be better if the computer could automatically play a melody for us, so we define a function for that. Since this is not performance critical, it can be done in scheme rather than xtlang.
 ```
 (define melody
-	(lambda (time)
-    	play-note (time)))
+    (lambda (pitches)
+        (play-note (now) s1 (car pitches) 80 10000)
+        (if (not (null? (cdr pitches)))
+            (callback (+ (now) 10000) 'melody (cdr pitches)))))
 ```
-6. We call the function, causing the instrument to play a periodical note
+The melody function is very typical of Extempore, as it contains a *temporal recursion*. Extempore allows the user to schedule function calls into the future. By using this technique we built a function that will play the first nots from a provided list and schedule itself with the remaining list to be called again when the note ends.
+The melody function is not time critical, it merely starts the playback of the notes, the actual sound rendering is done in xtlang. The melody function can therefore be implemented in scheme.
+
+7. All that remains now is to call the function to kick off the melody playback
+```
+(melody '(60 70 80 70 60))
+```
 
 ### Which activities are made live by which mechanisms?
 Extempore itself offers only one interaction to the user: submitting code. This activity however is fully live. This means that code commited to the system is immediately interpreted and run in the context of the correlating envrionment. The Feedback depends on the code in question.
 
 In a life performance there are typically two groups of people who notice the Feedback from the changes. The first group are the the developers (there is often only one developer) who notices all feedback related to the technical compilation and execution from the code. The second group is the audience, who notice feedback on different channels, mostly sound and music. The feedback the audience recieves are the artifacts the developer wants to produce and often the developer also notices those effects so as to fine tune then and make use of the live nature of Extempore.
 
-Feedback can occur over pretty much all channels but there are some standard ways: The Extempore console of the running process shows when clients connect/drop out, code is commited, compiled or run as well as the results of the evaluated code. The result of the evaluated code is also send back over the connection to the client so as to notify him of success or failure of his commited code. Since functions can call out to external code (mostly C-Libraries), there can be additional feedback effects. Since Extempore is mostly used for live performances involving sound and graphics most feedback for the audience (and the programmer as well) is often acoustic and visual. Depending on the IDE of the Developer, there may be additional feedback based on the returned values from the code execution.
+Feedback can occur over many channels (textual ouput, music, sounds, robotic actions, graphics), but there are some standard ways: The extempore console of the running process shows when clients connect/drop out, code is commited, compiled or run as well as the results of the evaluated code. The result of the evaluated code is also send back over the connection to the client so as to notify him of success or failure of his commited code. Since functions can call out to external code (mostly C-Libraries), there can be additional feedback effects. Since extempore is mostly used for live performances involving sound and graphics most feedback for the audience (and the programmer as well) is often acoustic and visual. Depending on the IDE of the Developer, there may be additional feedback based on the returned values from the code execution.
 
 There are three categories in which changes can fall. Those categories are fluid and depend on the state of the environment at the time of execution.
 * If the code changes state or functions used in a running temporal recursion, then those changes will be noticeable by the audience as soon as the concerning state or function is evaluated again. The extent and kind of feedback to the audience depends on the involved recursions and symbols. Some changes may be small, such as changing the pitch of a note, while other changes can be big, such as changing the complete instrumentation of a piece or starving the audio buffer due to heavy processing, which results in white noise.
 * If the code simply introduces new state into the system, then the change will not be visible to the audience but the developer will be notified via the evaluation result as well as the Extempore console (if he has access to it).
 * If the code calls a function, possibly starting a new temporal recursion, then the results will be noticeable by the audience
 
-The emergence phase is shortened by the use of JIT compilation for xtlang. This enables functions written in xtlang to be fast enough to be polled for audio (44khz). This can have a drawback: bigger changes to the environment and code can lengthen the adaption time considerably if the compilation of the code in question is complicated. However this problem does not usually occur, since most changes to the code are small and the language contains little compile time computations (TODO: Beleg), so that adaption times are usually short, as seen in the benchmark.
+The emergence phase is shortened by the use of compiled for xtlang. This enables functions written in xtlang to be fast enough to be polled for audio (44khz). This can have a drawback: bigger changes to the environment and code can lengthen the adaption time considerably if the compilation of the code in question is complicated. However this problem does not usually occur since most changes to the code are small so that adaption times are usually short as can be seen in the benchmark.
 
 Extempore is capable of very fine granular change, since every definition in the environment can be changed on its own. At the same time an arbitrary number of definitions can be changed at once, possibly even changing the environment to something completely different.
 
@@ -117,20 +134,22 @@ The standard library is left out as well, since it is not required to work with 
 ## Models
 
 ### Mutable or immutable past
-Extempore has no special concept of past evaluations or any other model of the past. The only way in which the past manifests is the current state of the environment. Because of this, it is cearly an *immutable past* system as proposed by @Rein.
+Extempore has no special concept of past evaluations or any other model of the past. The only way in which the past manifests is the current state of the environment. Because of this, it is cearly an *immutable past* system as proposed by @Rein2016HLL.
 
 ### Tanimoto's Level of Live Programming
-Extempore classifies as a *Tanimoto level 4* live system, since it "permits a programmer to edit a program while it is running, and furthermore the system continues the execution immediately and without noticeable interruption according to the updated version of the program." @Tanimoto This is achieved through very short adaptation and emergence times as well as the seperation of adaptation and execution into different threads.
+Extempore classifies as a *Tanimoto level 4* live system, since it "permits a programmer to edit a program while it is running, and furthermore the system continues the execution immediately and without noticeable interruption according to the updated version of the program." @Tanimoto2013PEL This is achieved through very short adaptation and emergence times as well as the seperation of adaptation and execution into different threads.
 
 ### Steady Frame
-Extempore provides a constantly meaninful environment through the use of atomic updates. This is to be considered steady as described by @Hancock page 58. However the system itself holds no explicit or readable representation of the state upon which decisions can be made. While this state is often contained in the text editor of the user, this is not a part of the system itself but more of the workflow associated with it.
-Extempore is therefore *steady* in and of itself and becomes *steady frame* in the usual single-user live workflow that is described above.
+Extempore provides a constantly meaninful environment through the use of atomic updates. This is to be considered steady as described by @Hancock2003RTP page 58. However the system itself holds no explicit or readable representation of the state upon which decisions can be made. While this state is often contained in the text editor of the user, this is not a part of the system itself but more of the workflow associated with it.
+Extempore is therefore *steady* but not *steady frame* as there is no explicit and intuitively understandable context in which a user could develop and understand changes.
 
 ### Impact on distances
-@Ungar proposes three distances/immediacies for live systems. While Extempore has two short distances, it does not encompass a visual system. Therefore the third distance is inapplicable:
+@Ungar1997DEI proposes three distances/immediacies for live systems. While extempore has two short distances, it does not encompass a visual system. Therefore the third distance is inapplicable:
 * Extempore has a very small *temporal distance* due to small adaptation and emergence times. This is further helped by the usual workflow, which is mostly comprised of small, contained changes.
 * Extempore also has a very small *semantic distance*. The user has to only issue one action to change the state of the system.
 * Extempore has no visual component, therefore the term of *visual distance* loses it's meaning in regard to the system itself. There is however a rough representation of the current system state in the text-editor of the user. This representation has the same visual distance as most conventional, non-live systems.
+
+
 
 ---
 
@@ -138,27 +157,20 @@ Extempore is therefore *steady* in and of itself and becomes *steady frame* in t
 
 ### Extent of liveness in technical artifacts
 Extempore is an execution environment. The liveness therefore extends to all code running within it. The liveness stops at the threshold of the execution environment itself: the state of the environment may be changed but the rules governing the execution of the code itself are not live and can only be change through a conventional edit-compile-run cycle.
-Furthermore the responsiveness of the system may degrade if the host machine is so overloaded, that it is incapable of servicing the changes requested by the user. This is averted in most cases due to the core-loop of the system being highly optimized and the seperation of the adaptation from the exectution into different threads.
+Furthermore, the responsiveness of the system may degrade if the host machine is so overloaded, that it is incapable of servicing the changes requested by the user. This is averted in most cases due to the core-loop of the system being highly optimized and the seperation of the adaptation from the exectution into different threads.
 
 ### Mechanisms of Liveness
 Extempore implements several mechanisms to facilitate liveness. The first and most common one is the the REPL nature of it's languages. This is achieved by an interpreter for the Scheme language and hotswapping for xtlang.
 Extempore further introduces the concept of *temporal recursion*, that is, function calls scheduled into the future and with a maximum run-time. This brings many advantages as discussed in @tempRecursion. It can be used to have multiple threads of execution inside a single environment, like coroutines. It can also be used to explicitly time the occurence of an event within the program, such as the playing of a note.
 Extempore further seperates the adaptation from the execution, ensuring that the system responds in a continuous fashion to changes.
 
+### With Time Programming
+Usually programmers reason only about temporal relations within the code (x happens before y). Extempore provides a framework to reason about the temporal relations of code in regard to the real world. This means that concepts like the timing and duration of notes can be directly modelled within the language. But through the use of temporal recursion, further abstractions e.g. rythm arise organically. This concept is called *With Time Programming* and described in @sorensen2010programming.
+
 ---
-* Benchmark adaptation and emergence for Scheme and Extempore
-* Plots with seaborn
 
 ## Benchmark
-The typical unit of change in Extempore is a single redefinition.
-
-1. **Unit of change:** Determine relevant units of change from the user perspective. Use the most common ones.
-2. **Relevant operations:** Determine relevant operations on these units of change (add, modify, delete, compound operations (for example refactorings)).
-3. **Example data:** Select, describe, and provide representative code samples which reflect the complexity or length of a common unit of change of the environment. The sample should also work in combination with any emergence mechanisms of the environment, for example a replay system works well for a system with user inputs and does not match a long-running computation.
-4. **Reproducible setup of system and benchmark**
-  1. Description of installation on Ubuntu 16.04.1 LTS
-  2. Description of instrumentation of system for measurements: The measurements should be taken as if a user was actually using a system. So the starting point of a measurement might be the keyboard event of the save keyboard shortcut or the event handler of a save button. At the same time the emergence phase ends when the rendering has finished and the result is perceivable. The run should include all activities which would be triggered when a developer saves a unit of change (for example regarding logging or persisting changes).
-5. **Results for adaptation and emergence phase**
+The typical unit of change in Extempore is a symbol/definition. There is usually only one operation executed on this unit: a (re)definition. To measure the performance for this action, a benchmark was created on a virtual machine. This benchmark takes definitions from the extempore standard library and measures the adaptation and emergence phases for them. These benchmarks are for xtlang and define the adaptation phase to end, when the compilation process is finished. The results, when run on an i7 CPU 920 @ 2.67GHz are displayed below.
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
