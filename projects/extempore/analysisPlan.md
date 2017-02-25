@@ -170,7 +170,11 @@ Usually programmers reason only about temporal relations within the code (x happ
 ---
 
 ## Benchmark
-The typical unit of change in Extempore is a symbol/definition. There is usually only one operation executed on this unit: a (re)definition. To measure the performance for this action, a benchmark was created on a virtual machine. This benchmark takes definitions from the extempore standard library and measures the adaptation and emergence phases for them. These benchmarks are for xtlang and define the adaptation phase to end, when the compilation process is finished. The results, when run on an i7 CPU 920 @ 2.67GHz are displayed below.
+The typical unit of change in Extempore is a symbol/definition. There is usually only one operation executed on this unit: a (re)definition. To measure the performance for this action, a benchmark was created on a virtual machine. This benchmark takes definitions from the extempore standard library and measures the adaptation and emergence phases for them. These benchmarks are for xtlang and define the adaptation phase to end when the last compilation process is finished. The results, when run on an i7 CPU 920 @ 2.67GHz are displayed below.
+
+![Timings for the emergence and adaptation phase](/url/of/image.png)
+
+From this benchmark it is evident, that extempore is fast enough to feel immediate for typical units of change. The liveness is therefore not hindered by the additional compilation step.
 
 *P. Rein and S. Lehmann and Toni & R. Hirschfeld How Live Are Live Programming Systems?: Benchmarking the Response Times of Live Programming Environments Proceedings of the Programming Experience Workshop (PX/16) 2016, ACM, 2016, 1-8*
 
